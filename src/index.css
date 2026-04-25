@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Material Symbols icon defaults */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+.icon-fill {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Base typography */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #fbf8ff;
+  color: #1b1b21;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Public Sans', system-ui, sans-serif;
+}
+
+/* Smooth focus rings for accessibility */
+*:focus-visible {
+  outline: 2px solid #1a237e;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Chat message animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.msg-enter {
+  animation: fadeInUp 0.2s ease-out;
+}
+
+/* Typing dots */
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40%           { transform: translateY(-6px); }
+}
+.dot { animation: bounce 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Progress bar transition */
+.progress-bar { transition: width 0.4s ease; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f5f2fb; }
+::-webkit-scrollbar-thumb { background: #c6c5d4; border-radius: 3px; }

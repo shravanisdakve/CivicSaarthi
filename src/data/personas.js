@@ -1,0 +1,73 @@
+// Persona definitions — matches the Choose Your Path UI reference
+export const personas = [
+  {
+    id: 'first-time',
+    title: 'First-time Voter',
+    icon: 'school',
+    recommended: true,
+    description: 'New to the process? Get step-by-step guidance on registration, finding your polling station, and what to expect on election day.',
+    previewTitle: 'Preview: First-time Voter',
+    previewSubtitle: 'Your personalized dashboard will focus on building your foundational knowledge and ensuring you are ready for election day.',
+    features: [
+      { label: 'Registration Checklist', detail: 'Step-by-step guide to getting on the voter roll.' },
+      { label: 'Glossary of Terms', detail: 'Simplified explanations of complex electoral jargon.' },
+      { label: 'Mock Ballot Practice', detail: 'Familiarize yourself with the voting interface.' },
+    ],
+  },
+  {
+    id: 'student',
+    title: 'Student',
+    icon: 'menu_book',
+    recommended: false,
+    description: 'Voting away from home? Learn about absentee ballots, updating your registration address, and campus voting resources.',
+    previewTitle: 'Preview: Student',
+    previewSubtitle: 'Resources tailored for students who may be away from their home constituency during elections.',
+    features: [
+      { label: 'Absentee Ballot Guide', detail: 'How to apply for and submit your absentee ballot.' },
+      { label: 'Address Update Steps', detail: 'Transfer your voter registration to your current address.' },
+      { label: 'Campus Resources', detail: 'ECI portals and student voter helplines.' },
+    ],
+  },
+  {
+    id: 'general',
+    title: 'General citizen',
+    icon: 'person',
+    recommended: false,
+    description: 'Experienced voter looking for specific information? Access quick guides, ballot previews, and candidate profiles.',
+    previewTitle: 'Preview: General Citizen',
+    previewSubtitle: 'Quick-access tools for experienced voters who want targeted, up-to-date election information.',
+    features: [
+      { label: 'Candidate Profiles', detail: 'Official disclosures from the KYC app.' },
+      { label: 'Polling Day Guide', detail: 'What to bring and what to expect.' },
+      { label: 'MCC Highlights', detail: 'Key Model Code of Conduct rules for this cycle.' },
+    ],
+  },
+  {
+    id: 'observer',
+    title: 'Observer',
+    icon: 'visibility',
+    recommended: false,
+    description: 'Monitoring the process? Access guidelines for neutral observation, reporting protocols, and polling station regulations.',
+    previewTitle: 'Preview: Observer',
+    previewSubtitle: 'Tools and references for accredited observers and election watchdogs.',
+    features: [
+      { label: 'Observer Protocols', detail: 'ECI guidelines for neutral observation.' },
+      { label: 'Reporting Violations', detail: 'How to use cVIGIL and official complaint channels.' },
+      { label: 'Legal Framework', detail: 'Relevant sections of the Representation of the People Act.' },
+    ],
+  },
+  {
+    id: 'candidate',
+    title: 'Candidate',
+    icon: 'campaign',
+    recommended: false,
+    description: 'Running for office? Navigate campaign finance laws, debate schedules, registration deadlines, and official disclosure requirements.',
+    previewTitle: 'Preview: Candidate',
+    previewSubtitle: 'Compliance tools and official references for individuals contesting elections.',
+    features: [
+      { label: 'Nomination Filing', detail: 'Forms, affidavits, and deadlines.' },
+      { label: 'Campaign Finance', detail: 'Expenditure limits and reporting requirements.' },
+      { label: 'MCC Obligations', detail: 'What candidates must and must not do.' },
+    ],
+  },
+];
