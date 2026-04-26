@@ -3,7 +3,7 @@ import Button from './Button.jsx';
 
 export default function ElectionOfficeMap() {
   const [query, setQuery] = useState('');
-  const embedKey = import.meta.env.VITE_GOOGLE_MAPS_EMBED_KEY;
+  const embedKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   const handleSearch = (e) => {
     e.preventDefault();

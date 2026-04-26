@@ -94,6 +94,7 @@ export default function Assistant() {
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [privacyWarning, setPrivacyWarning] = useState(false);
+  const [geminiActive, setGeminiActive] = useState(false);
   const messagesEndRef = useRef(null);
 
   const profile = getProfile();
@@ -116,6 +117,12 @@ export default function Assistant() {
     if (messages.length === 0 || (messages.length === 1 && messages[0].role === 'ai')) {
       setMessages([WELCOME]);
     }
+    
+    // Check Gemini Status
+    fetch('/api/status')
+      .then(res => res.json())
+      .then(data => setGeminiActive(data.geminiConfigured))
+      .catch(() => setGeminiActive(false));
   }, [lang, profile.name]);
 
   // Handle query param or state prompt
@@ -203,10 +210,20 @@ export default function Assistant() {
           </div>
           <div>
             <h1 className="font-['Public_Sans'] text-2xl font-bold text-on-surface">CivicSaarthi AI</h1>
-            <p className="text-xs text-on-surface-variant flex items-center gap-1">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              Neutral Election Assistant
-            </p>
+            <div className="flex flex-wrap gap-2 mt-1">
+              <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1 ${geminiActive ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}>
+                <span className="material-symbols-outlined text-[12px]">{geminiActive ? 'psychology' : 'cloud_off'}</span>
+                {geminiActive ? 'Gemini API Active' : 'Local Fallback'}
+              </span>
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 uppercase tracking-widest flex items-center gap-1">
+                <span className="material-symbols-outlined text-[12px]">verified</span>
+                Official-Source Guided
+              </span>
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border border-slate-100 uppercase tracking-widest flex items-center gap-1">
+                <span className="material-symbols-outlined text-[12px]">cloud</span>
+                Powered by Google Cloud
+              </span>
+            </div>
           </div>
         </div>
         <Button variant="outline" onClick={() => {
@@ -264,6 +281,12 @@ export default function Assistant() {
                     <span className="material-symbols-outlined text-[14px]">cloud_off</span>
                     Offline Mode Guidance
                   </div>
+                )}
+                
+                {msg.role === 'ai' && !msg.isFallback && (
+                  <p className="mt-3 pt-2 border-t border-slate-50 text-[9px] text-slate-400 italic">
+                    Answer generated with Gemini + CivicSaarthi official knowledge base.
+                  </p>
                 )}
               </div>
             </div>

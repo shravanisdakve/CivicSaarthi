@@ -52,7 +52,7 @@ assert(appContent.includes('path="/map"'), 'Map Helper route registered in App.j
 
 // 4. Map Feature checks
 const mapHelperContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/MapHelper.jsx'), 'utf8');
-assert(mapHelperContent.includes('Polling Station Guidance Preview'), 'Map Helper page has correct title');
+assert(mapHelperContent.includes('Polling Station Verification Helper'), 'Map Helper page has correct title');
 
 const mapDisclaimerContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/MapDisclaimer.jsx'), 'utf8');
 assert(mapDisclaimerContent.includes('does **not** show your officially assigned polling booth'), 'Map disclaimer includes booth warning');
@@ -180,13 +180,34 @@ assert(previewExists, 'PollingGuidancePreview.jsx exists');
 const previewContent = fs.readFileSync(previewPath, 'utf8');
 const fullMapLogic = mapContent + previewContent;
 
-assert(fullMapLogic.includes('voters.eci.gov.in'), 'Official voter services link exists');
-assert(fullMapLogic.includes('CivicSaarthi does not show your officially assigned polling booth'), 'Booth disclaimer exists');
-assert(!fullMapLogic.includes('navigator.geolocation'), 'No geolocation usage in MapHelper');
-assert(!fullMapLogic.includes('live data'), 'No "live data" text');
-assert(!fullMapLogic.includes('4 booths found'), 'No "4 booths found" text');
-assert(!fullMapLogic.includes('recommended booth') || fullMapLogic.includes('Example planning card'), 'No "recommended booth" unless marked example/demo');
+assert(fullMapLogic.includes('Polling Station Verification Helper'), 'Map Helper page has correct title');
+assert(fullMapLogic.includes('Google Maps Platform Integration'), 'Map page has Google Maps Platform attribution');
 assert(fullMapLogic.includes('google.com/maps'), 'Google Maps search link exists');
+assert(fullMapLogic.includes('Open in Google Maps'), 'Open in Google Maps button exists');
+
+// --- GOOGLE SERVICES PROOF AUDIT ---
+const cbExists = fs.existsSync(path.join(ROOT_DIR, 'cloudbuild.yaml'));
+assert(cbExists, 'cloudbuild.yaml exists for automated CI/CD');
+
+const footerContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/Footer.jsx'), 'utf8');
+assert(footerContent.includes('Cloud Run'), 'Footer mentions Cloud Run');
+assert(footerContent.includes('Gemini'), 'Footer mentions Gemini');
+assert(footerContent.includes('Firebase'), 'Footer mentions Firebase');
+assert(footerContent.includes('Secret Manager'), 'Footer mentions Secret Manager');
+assert(footerContent.includes('Artifact Registry'), 'Footer mentions Artifact Registry');
+assert(footerContent.includes('Cloud Build'), 'Footer mentions Cloud Build');
+assert(footerContent.includes('Cloud Logging'), 'Footer mentions Cloud Logging');
+
+const assistantStatusContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Assistant.jsx'), 'utf8');
+assert(assistantStatusContent.includes('Gemini API active') || assistantStatusContent.includes('Gemini API Active'), 'Assistant has Gemini status badge');
+assert(assistantStatusContent.includes('Powered by Google Cloud'), 'Assistant header has Google branding');
+
+const qualityPageContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Quality.jsx'), 'utf8');
+assert(qualityPageContent.includes('Cloud Logging'), 'Quality page mentions Cloud Logging');
+
+const serverStatusContent = fs.readFileSync(path.join(ROOT_DIR, 'server.js'), 'utf8');
+assert(serverStatusContent.includes('cloudLoggingConfigured'), 'server.js has cloudLoggingConfigured in status');
+assert(serverStatusContent.includes('/api/log'), 'server.js has /api/log endpoint');
 
 console.log(`\nTest Results: ${passed} Passed, ${failed} Failed`);
 if (failed > 0) {

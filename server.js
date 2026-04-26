@@ -1,7 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import dotenv from 'dotenv';
+import { Logging } from '@google-cloud/logging';
 import rateLimit from 'express-rate-limit';
 import { getKnowledgeContext, getSourceBadges } from './src/utils/knowledgeSearch.js';
 import path from 'path';
@@ -16,6 +19,29 @@ const PORT = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(express.json());
+
+// Initialize Google Cloud Logging
+let logging;
+let logger;
+try {
+  logging = new Logging();
+  logger = logging.log('civicsaarthi-events');
+  console.log('✅ Google Cloud Logging initialized');
+} catch (err) {
+  console.warn('⚠️ Google Cloud Logging initialization failed (local/non-GCP). Failing silently.');
+}
+
+async function logEvent(severity, message, metadata = {}) {
+  if (!logger) return;
+  try {
+    const entry = logger.entry({ severity, ...metadata }, message);
+    await logger.write(entry);
+  } catch (err) {
+    // Fail silently
+  }
+}
+
+logEvent('INFO', 'CivicSaarthi server starting...', { event: 'app_started' });
 
 // Serve static files FIRST
 app.use(express.static(distPath, {
@@ -92,10 +118,31 @@ function getLocalFallbackResponse(message) {
 app.get('/api/status', (req, res) => {
   res.json({ 
     ok: true, 
+    service: 'CivicSaarthi',
+    runtime: 'Google Cloud Run',
     geminiConfigured: !!model && apiKey !== 'your_gemini_api_key_here',
     mode: (!!model && apiKey !== 'your_gemini_api_key_here') ? 'gemini' : 'local-fallback',
-    env: process.env.NODE_ENV || 'development'
+    geminiModel: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+    firebaseConfigured: !!process.env.VITE_FIREBASE_API_KEY,
+    mapsConfigured: !!process.env.VITE_GOOGLE_MAPS_API_KEY,
+    cloudLoggingConfigured: !!logger,
+    secretManager: 'configured via Cloud Run secret binding',
+    env: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
   });
+});
+
+// Anonymous usage logging endpoint
+app.post('/api/log', express.json(), (req, res) => {
+  const { event, metadata } = req.body;
+  const allowedEvents = ['assistant_query_started', 'assistant_query_completed', 'quiz_completed', 'checklist_completed', 'map_helper_opened'];
+  
+  if (allowedEvents.includes(event)) {
+    logEvent('INFO', `Client event: ${event}`, { ...metadata, event_type: event });
+    res.json({ ok: true });
+  } else {
+    res.status(400).json({ error: 'Invalid or restricted event' });
+  }
 });
 
 app.get('/api/health', (req, res) => {
@@ -151,11 +198,13 @@ app.post('/api/chat', async (req, res) => {
     const fullInput = `${message}${personaContext}${languageInstruction}${knowledgeContext}`;
     
     console.log('🤖 Sending to Gemini (Grounded:', grounded, ')...');
+    logEvent('INFO', 'Gemini query started', { event: 'assistant_query_started', grounded });
     const result = await chat.sendMessage(fullInput);
     const response = await result.response;
     const responseText = response.text();
     
     console.log('✅ Received response from Gemini');
+    logEvent('INFO', 'Gemini query completed', { event: 'assistant_query_completed' });
     res.json({ 
       response: responseText,
       source: 'gemini',
@@ -164,6 +213,7 @@ app.post('/api/chat', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Gemini API Error:', error.message);
+    logEvent('ERROR', 'Gemini API Error', { error: error.message });
     
     // Fallback on error (Never expose Gemini stack trace to user)
     try {

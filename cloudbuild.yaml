@@ -1,0 +1,30 @@
+steps:
+  # 1. Install dependencies
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["install"]
+
+  # 2. Run automated tests (Logic, Neutrality, Architecture)
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["test"]
+
+  # 3. Production build
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["run", "build"]
+
+  # 4. Deploy to Cloud Run
+  # Note: This step assumes the Cloud Build service account has 'Cloud Run Admin' and 'Service Account User' roles.
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      [
+        "run", "deploy", "civicsaarthi",
+        "--source", ".",
+        "--region", "asia-south1",
+        "--allow-unauthenticated",
+        "--set-secrets", "GEMINI_API_KEY=gemini-api-key:latest",
+        "--set-env-vars", "GEMINI_MODEL=gemini-2.5-flash"
+      ]
+
+timeout: "1200s"
+options:
+  logging: CLOUD_LOGGING_ONLY

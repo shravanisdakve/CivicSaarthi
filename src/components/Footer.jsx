@@ -38,10 +38,10 @@ export default function Footer() {
         <div className="pt-8 border-t border-slate-100 space-y-6">
           <div className="flex flex-col md:flex-row justify-between gap-6">
             <div className="space-y-2">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Acknowledgment</p>
-              <p className="text-xs text-slate-500">Built for PromptWars Challenge 2.</p>
-              <p className="text-[10px] text-slate-400 leading-relaxed max-w-2xl">
-                Powered by Google Cloud Run, Gemini API, Secret Manager, Google Maps, Cloud Build, and Artifact Registry.
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Google Services Infrastructure</p>
+              <p className="text-xs text-slate-500">Built for PromptWars Challenge 2. Deployed on Google Cloud Run.</p>
+              <p className="text-[10px] text-primary font-black leading-relaxed max-w-2xl">
+                Powered by Google Cloud Run, Gemini 2.5 Flash, Firebase Authentication, Secret Manager, Google Maps Platform, Cloud Build, Artifact Registry, and Google Cloud Logging.
               </p>
             </div>
             <div className="text-right space-y-1">

@@ -11,29 +11,61 @@ export function loginAsGuest() {
   });
 }
 
+import { auth, googleProvider, isFirebaseConfigured } from './firebase.js';
+import { signInWithPopup } from 'firebase/auth';
+
 /**
- * Initiates Google Sign-In if configured, else falls back cleanly.
- * We simulate the Google flow here for the prototype unless real auth is wired.
+ * Initiates Google Sign-In using Firebase.
  */
-export function loginWithGoogle() {
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  
-  if (!clientId) {
-    // Demo fallback for prototype
+export async function loginWithGoogle() {
+  if (!isFirebaseConfigured) {
+    console.warn("Firebase not configured. Using demo fallback.");
     saveProfile({
-      name: 'Shravani Dakve',
+      name: 'Shravani Sunil Dakve',
       email: 'shravanisdakve@gmail.com',
       authProvider: 'google',
-      avatar: '/avatar.png'
+      avatar: ''
     });
     return { success: true, demo: true };
   }
-  
-  // Here you would implement real Google OAuth initialization
-  console.warn("Real Google Sign-In requires an OAuth provider implementation.");
-  return { success: false, error: 'Not implemented' };
+
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    
+    saveProfile({
+      name: user.displayName || 'Civic Citizen',
+      email: user.email,
+      authProvider: 'google',
+      avatar: user.photoURL || ''
+    });
+    
+    return { success: true, user };
+  } catch (error) {
+    console.error("Firebase Auth Error:", error.message);
+    
+    // Fallback for local development if no config
+    if (error.code === 'auth/invalid-api-key' || error.code === 'auth/network-request-failed') {
+      console.warn("Using demo fallback due to missing/invalid Firebase config.");
+      saveProfile({
+        name: 'Shravani Sunil Dakve',
+        email: 'shravanisdakve@gmail.com',
+        authProvider: 'google',
+        avatar: ''
+      });
+      return { success: true, demo: true };
+    }
+    
+    return { success: false, error: error.message };
+  }
 }
 
-export function signOut() {
-  clearProfile();
+export async function signOut() {
+  try {
+    await auth.signOut();
+    clearProfile();
+  } catch (error) {
+    console.error("Sign Out Error:", error.message);
+    clearProfile();
+  }
 }

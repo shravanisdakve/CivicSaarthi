@@ -47,9 +47,13 @@ export default function AuthModal({ isOpen, onClose }) {
     onClose();
   };
 
-  const handleGoogle = () => {
-    loginWithGoogle();
-    onClose();
+  const handleGoogle = async () => {
+    try {
+      await loginWithGoogle();
+      onClose();
+    } catch (err) {
+      console.error("Login failed:", err);
+    }
   };
 
   return (

@@ -89,12 +89,43 @@ function checkAccessibilitySpecs() {
   console.log('✅ Accessibility CSS specs validated.');
 }
 
+// 6. Google Services Visibility Check
+function checkGoogleServicesVisibility() {
+  console.log('--- Checking Google Services Visibility ---');
+  
+  const homeContent = fs.readFileSync(path.join(WORKSPACE_ROOT, 'src/pages/Home.jsx'), 'utf-8');
+  assert.ok(homeContent.includes('Powered by Google Cloud'), 'Home missing Google Cloud branding');
+  assert.ok(homeContent.includes('Cloud Run'), 'Home missing Cloud Run mention');
+  assert.ok(homeContent.includes('Gemini AI'), 'Home missing Gemini AI mention');
+  assert.ok(homeContent.includes('Maps Platform'), 'Home missing Maps Platform mention');
+  
+  assert.ok(homeContent.includes('Firebase'), 'Home missing Firebase mention');
+  
+  const qualityContent = fs.readFileSync(path.join(WORKSPACE_ROOT, 'src/pages/Quality.jsx'), 'utf-8');
+  assert.ok(qualityContent.includes('Google Services Integration'), 'Quality page missing Google Services section');
+  assert.ok(qualityContent.includes('Secret Manager'), 'Quality page missing Secret Manager mention');
+  assert.ok(qualityContent.includes('Firebase Auth'), 'Quality page missing Firebase mention');
+  
+  const assistantContent = fs.readFileSync(path.join(WORKSPACE_ROOT, 'src/pages/Assistant.jsx'), 'utf-8');
+  assert.ok(assistantContent.includes('Gemini API Active'), 'Assistant missing Gemini status badge');
+  
+  const mapContent = fs.readFileSync(path.join(WORKSPACE_ROOT, 'src/pages/MapHelper.jsx'), 'utf-8');
+  assert.ok(mapContent.includes('Google Maps Platform Integration'), 'Map Helper missing Maps attribution');
+  
+  const readmeContent = fs.readFileSync(path.join(WORKSPACE_ROOT, 'README.md'), 'utf-8');
+  assert.ok(readmeContent.indexOf('## Google Services Integration') < 500, 'README missing Google Services section near the top');
+  assert.ok(readmeContent.includes('Firebase Authentication'), 'README missing Firebase mention');
+  
+  console.log('✅ Google Services visibility audit passed.');
+}
+
 try {
   checkLanguageArchitecture();
   checkAntiPatterns();
   checkGroundingData();
   checkInputSafety();
   checkAccessibilitySpecs();
+  checkGoogleServicesVisibility();
   console.log('\n✨ ALL QUALITY CHECKS PASSED!');
 } catch (err) {
   console.error('\n❌ QUALITY CHECK FAILED:');

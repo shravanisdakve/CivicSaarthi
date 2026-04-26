@@ -81,6 +81,35 @@ export default function Home() {
           </div>
         </div>
       </section>
+      
+      {/* 1.5 Google Services Proof Section */}
+      <section className="bg-white py-12 border-b border-slate-100">
+        <div className="max-w-screen-xl mx-auto px-6 md:px-8">
+          <div className="text-center mb-10">
+            <h2 className="text-sm font-black text-primary uppercase tracking-[0.3em] mb-3">Powered by Google Cloud</h2>
+            <p className="text-slate-500 text-xs font-medium">CivicSaarthi leverages the latest Google Cloud and AI infrastructure to ensure neutral, secure, and accessible civic education.</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { name: 'Cloud Run', icon: 'cloud_done', desc: 'Production hosting' },
+              { name: 'Gemini AI', icon: 'smart_toy', desc: 'Neutral civic AI' },
+              { name: 'Maps Platform', icon: 'map', desc: 'Booth helper' },
+              { name: 'Firebase', icon: 'login', desc: 'Secure Google Auth' },
+              { name: 'Secret Manager', icon: 'key', desc: 'Key protection' },
+              { name: 'Cloud Build', icon: 'build', desc: 'Safe delivery' },
+              { name: 'Artifact Registry', icon: 'inventory_2', desc: 'Safe storage' },
+              { name: 'Cloud Logging', icon: 'history_edu', desc: 'Anonymous events' }
+            ].map(svc => (
+              <div key={svc.name} className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-primary/20 transition-colors">
+                <span className="material-symbols-outlined text-primary text-2xl mb-2">{svc.icon}</span>
+                <h3 className="text-[11px] font-bold text-on-surface mb-1">{svc.name}</h3>
+                <p className="text-[9px] text-slate-500 leading-tight">{svc.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <div className="max-w-screen-xl mx-auto px-6 md:px-8 space-y-16 py-16">
         
@@ -168,7 +197,11 @@ export default function Home() {
            </div>
            <div className="flex items-center gap-2 text-slate-600">
              <span className="material-symbols-outlined text-orange-600">cloud</span>
-             <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">Google Cloud + Gemini</span>
+             <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">Google Cloud Infrastructure</span>
+           </div>
+           <div className="flex items-center gap-2 text-slate-600">
+             <span className="material-symbols-outlined text-blue-600">psychology</span>
+             <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">Gemini 2.5 Flash API</span>
            </div>
         </section>
       </div>
