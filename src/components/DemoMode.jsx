@@ -19,52 +19,52 @@ const DEMO_STEPS = [
     actionLabel: null,
   },
   {
-    id: 'guided-journey',
+    id: 'voice',
     step: 2,
-    icon: 'route',
-    badge: 'Guided Journey',
-    title: '9-Step Guided Election Journey',
+    icon: 'mic',
+    badge: 'Voice Mode',
+    title: 'Try Voice Assistant Mode',
     description:
-      'The Guided Election Journey walks you through every phase of the election process — from voter registration to result day — with AI explanations and cross-linked timeline stages.',
+      'Accessibility first. Users can speak their questions and hear AI responses read aloud. Powered by browser-native speech APIs for privacy.',
     highlights: [
-      '9 curated election stages',
-      'AI explanation per step',
-      'Cross-links to Visual Timeline',
+      'Hands-free voice input',
+      'Read-aloud responses',
+      'Privacy-first: no audio storage',
     ],
-    action: 'openJourney',
-    actionLabel: 'Start Guided Journey →',
+    action: 'goAssistant',
+    actionLabel: 'Try Voice Assistant →',
   },
   {
-    id: 'vvpat',
+    id: 'explainers',
     step: 3,
-    icon: 'smart_toy',
-    badge: 'CivicSaarthi AI',
-    title: 'Ask CivicSaarthi AI — What is VVPAT?',
+    icon: 'play_circle',
+    badge: 'Microlearning',
+    title: '30-Second Phase Explainers',
     description:
-      'CivicSaarthi AI gives grounded, official-source-linked answers to complex election questions. Tap below to ask about VVPAT and see a live or offline fallback response.',
+      'Understand complex election stages in seconds. Lightweight HTML/CSS animated cards walk you through each phase from announcement to results.',
     highlights: [
-      'Grounded with official ECI sources',
-      'Local knowledge fallback',
-      'Non-partisan guardrails',
-    ],
-    action: 'askVVPAT',
-    actionLabel: 'Ask about VVPAT →',
-  },
-  {
-    id: 'timeline',
-    step: 4,
-    icon: 'timeline',
-    badge: 'Timeline',
-    title: 'Visual Election Timeline Tracker',
-    description:
-      'Browse all 9 election phases — from announcement to results — with real-time highlighting of the current active phase. AI assistant cross-links directly to each stage.',
-    highlights: [
-      '9 traceable election phases',
-      'Stage-specific AI cross-links',
-      'Visual progress tracker',
+      '9 phase-based explainers',
+      'Lightweight & offline-friendly',
+      'Read-aloud support included',
     ],
     action: 'goTimeline',
-    actionLabel: 'View Timeline →',
+    actionLabel: 'Watch Explainers →',
+  },
+  {
+    id: 'badges',
+    step: 4,
+    icon: 'emoji_events',
+    badge: 'Gamification',
+    title: 'Civic Achievement Badges',
+    description:
+      'Earn progressive badges for your civic learning. No political scoring — just educational milestones that persist locally on your device.',
+    highlights: [
+      '7 progressive badges',
+      'Non-partisan achievements',
+      'Visual progress tracking',
+    ],
+    action: 'goHome',
+    actionLabel: 'View Achievements →',
   },
   {
     id: 'checklist',
@@ -83,49 +83,49 @@ const DEMO_STEPS = [
     actionLabel: 'View Checklist →',
   },
   {
-    id: 'summary',
-    step: 6,
-    icon: 'download',
-    badge: 'Download',
-    title: 'Download Readiness Summary',
-    description:
-      'Users can download a personalized Election Readiness Summary that captures their civic profile, checklist progress, and official reminders — a real, tangible artifact.',
-    highlights: [
-      'Personalized to citizen persona',
-      'Privacy-first: no PII included',
-      'One-click downloadable document',
-    ],
-    action: 'goChecklist',
-    actionLabel: 'Open Summary Export →',
-  },
-  {
     id: 'map',
-    step: 7,
+    step: 6,
     icon: 'map',
     badge: 'Google Maps',
-    title: 'Election Office & Help Center Map',
+    title: 'Polling Station Verification Helper',
     description:
-      'Powered by Google Maps, citizens can search for nearby election offices or voter help centers. CivicSaarthi never claims to show official polling booth assignments.',
+      'Powered by Google Maps, citizens can search for nearby election offices. Includes official verification portal links for secure booth lookup.',
     highlights: [
-      'Google Maps Embed/Search integration',
-      'No geolocation collected',
-      'Official voter portal linked',
+      'Google Maps discovery',
+      'Official portal integration',
+      'Verified-source disclaimers',
     ],
     action: 'goMap',
     actionLabel: 'Open Map Helper →',
   },
   {
+    id: 'sharing',
+    step: 7,
+    icon: 'share',
+    badge: 'Sharing',
+    title: 'Share Your Civic Readiness',
+    description:
+      'Inspire others to be voter-ready. One-click social sharing to LinkedIn and X (Twitter) with privacy-protected templates.',
+    highlights: [
+      'Privacy-first templates',
+      'LinkedIn & X integration',
+      'Name-inclusion toggle',
+    ],
+    action: 'goChecklist',
+    actionLabel: 'Test Social Share →',
+  },
+  {
     id: 'neutrality',
     step: 8,
     icon: 'balance',
-    badge: 'Neutrality Guardrail',
-    title: 'Test the Neutrality Guardrail',
+    badge: 'Neutrality',
+    title: 'Strict Non-Partisan Guardrails',
     description:
-      'Ask "Which party should I vote for?" — CivicSaarthi AI refuses partisan recommendations every single time, then offers safe, factual alternatives like candidate manifesto review.',
+      'CivicSaarthi AI refuses to recommend candidates or parties. Ask "Which party should I vote for?" to see the refusal in action.',
     highlights: [
-      'Hard-coded refusal pattern',
-      'Tested in automated suite',
-      'Logs refusal in every language',
+      'No candidate recommendations',
+      'Official-source grounded',
+      'Neutral civic education only',
     ],
     action: 'testNeutrality',
     actionLabel: 'Test Neutrality →',
@@ -143,16 +143,16 @@ export default function DemoMode({ isOpen, onClose }) {
 
   const handleAction = () => {
     switch (step.action) {
-      case 'openJourney':
-        window.dispatchEvent(new CustomEvent('civicOpenChat', { detail: { mode: 'guide' } }));
-        onClose();
-        break;
-      case 'askVVPAT':
-        navigate('/assistant?prompt=What%20is%20VVPAT%20and%20how%20does%20it%20work%3F');
+      case 'goAssistant':
+        navigate('/assistant');
         onClose();
         break;
       case 'goTimeline':
         navigate('/timeline');
+        onClose();
+        break;
+      case 'goHome':
+        navigate('/');
         onClose();
         break;
       case 'goChecklist':

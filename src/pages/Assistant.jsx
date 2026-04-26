@@ -3,9 +3,11 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { getLocalResponse } from '../utils/localAssistant.js';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { normalizeUserMessage, containsUnsafePersonalDataHint, isValidChatMessage } from '../utils/inputSafety.js';
-import { getProfile } from '../utils/profileStorage.js';
+import { getProfile } from '../utils/guestProfile.js';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
+import VoiceAssistantControls from '../components/VoiceAssistantControls.jsx';
+import { speakText } from '../utils/speech.js';
 
 const SUGGESTED = [
   'Walk me through the election process step by step.',
@@ -31,18 +33,27 @@ export default function Assistant() {
   const [privacyWarning, setPrivacyWarning] = useState(false);
   const messagesEndRef = useRef(null);
 
+  const profile = getProfile();
+  const hasName = profile.name && profile.name !== 'Guest Citizen';
+  const firstName = hasName ? profile.name.split(' ')[0] : '';
+
   const WELCOME = {
     role: 'ai',
     text: lang === 'hi' 
-      ? "नमस्ते! मैं CivicSaarthi हूँ। मैं आपकी कैसे सहायता कर सकता हूँ?"
+      ? `नमस्ते${firstName ? ' ' + firstName : ''}! मैं CivicSaarthi हूँ। मैं आपकी कैसे सहायता कर सकता हूँ?`
       : lang === 'mr'
-      ? "नमस्कार! मी CivicSaarthi आहे. मी तुम्हाला आज कशी मदत करू शकतो?"
-      : "Hello! I'm CivicSaarthi. I'm your neutral election-readiness companion. How can I assist you today?",
+      ? `नमस्कार${firstName ? ' ' + firstName : ''}! मी CivicSaarthi आहे. मी तुम्हाला आज कशी मदत करू शकतो?`
+      : firstName 
+      ? `Hi ${firstName}, I'm CivicSaarthi AI. I can help you understand the election process step by step.`
+      : "Hi, I'm CivicSaarthi AI. I can help you understand the election process step by step.",
   };
 
   useEffect(() => {
-    if (messages.length === 0) setMessages([WELCOME]);
-  }, [lang]);
+    // Only reset if we only have the welcome message or no messages
+    if (messages.length === 0 || (messages.length === 1 && messages[0].role === 'ai')) {
+      setMessages([WELCOME]);
+    }
+  }, [lang, profile.name]);
 
   // Handle query param or state prompt
   useEffect(() => {
@@ -121,7 +132,7 @@ export default function Assistant() {
   };
 
   return (
-    <div className="max-w-screen-md mx-auto px-6 py-12 flex flex-col h-[calc(100vh-160px)]">
+    <div className="max-w-screen-md mx-auto px-4 sm:px-6 py-6 lg:py-8 flex flex-col h-[calc(100dvh-100px)] lg:h-[calc(100vh-120px)]">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-lg overflow-hidden">
@@ -139,12 +150,12 @@ export default function Assistant() {
            setMessages([WELCOME]);
            sessionStorage.removeItem('civicChatHistory');
         }} className="text-xs py-1 px-3 h-auto">
-          Clear Chat
+          {t('journey.clear')}
         </Button>
       </div>
 
       <Card className="flex-grow flex flex-col overflow-hidden bg-white/50 backdrop-blur-sm border-slate-200">
-        <div className="flex-grow overflow-y-auto p-6 space-y-6">
+        <div className="flex-grow overflow-y-auto p-6 space-y-6" aria-live="polite" aria-atomic="false">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[80%] rounded-2xl p-4 text-sm leading-relaxed shadow-sm ${
@@ -154,11 +165,24 @@ export default function Assistant() {
               }`}>
                 <div className="whitespace-pre-wrap">{msg.text}</div>
                 
+                {msg.role === 'ai' && (
+                  <div className="mt-2 flex justify-end">
+                    <button 
+                      onClick={() => speakText(msg.text, lang)}
+                      className="text-slate-400 hover:text-primary transition-colors flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest"
+                      title={t('journey.listen')}
+                    >
+                      <span className="material-symbols-outlined text-[14px]">volume_up</span>
+                      {t('journey.listen')}
+                    </button>
+                  </div>
+                )}
+                
                 {msg.grounded && (
                   <div className="mt-3 pt-2 border-t border-slate-100">
                     <div className="flex items-center gap-1 text-[10px] font-bold text-green-700 uppercase mb-2">
                       <span className="material-symbols-outlined text-[14px]">verified</span>
-                      Official Source Grounded
+                      {t('journey.grounded')}
                     </div>
                     {msg.references && (
                       <div className="space-y-1">
@@ -175,7 +199,7 @@ export default function Assistant() {
                 {msg.isFallback && (
                   <div className="mt-2 pt-2 border-t border-amber-100 flex items-center gap-1 text-[10px] font-bold text-amber-700 italic">
                     <span className="material-symbols-outlined text-[14px]">cloud_off</span>
-                    Offline Mode Guidance
+                    {t('journey.local_fallback')}
                   </div>
                 )}
               </div>
@@ -208,27 +232,37 @@ export default function Assistant() {
           </div>
 
           {validationError && <p className="text-xs text-red-600 font-bold mb-2">{validationError}</p>}
-          {privacyWarning && <p className="text-xs text-amber-700 font-bold mb-2">Avoid sensitive data like Voter IDs.</p>}
+          {privacyWarning && <p className="text-xs text-amber-700 font-bold mb-2">{t('journey.privacy_warn')}</p>}
 
-          <form onSubmit={handleSubmit} className="flex gap-3">
-            <input 
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your question about Indian elections..."
-              className="flex-grow px-6 py-3 bg-slate-100 border-none rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              disabled={loading}
+          <div className="flex flex-col sm:flex-row gap-3 mt-4 items-end sm:items-center">
+            <VoiceAssistantControls 
+              onTranscript={(text) => {
+                setInput(text);
+                sendMessage(text);
+              }} 
+              lastResponse={messages.filter(m => m.role === 'ai').reverse()[0]?.text}
+              language={lang}
             />
-            <button 
-              type="submit"
-              disabled={loading || !input.trim()}
-              className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50 transition-all"
-            >
-              <span className="material-symbols-outlined">send</span>
-            </button>
-          </form>
+            <form onSubmit={handleSubmit} className="flex gap-2 w-full">
+              <input 
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={t('assistant.placeholder_main')}
+                className="flex-grow px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                disabled={loading}
+              />
+              <button 
+                type="submit"
+                disabled={loading || !input.trim()}
+                className="w-12 h-12 shrink-0 rounded-2xl bg-primary text-white flex items-center justify-center shadow hover:bg-primary-dark disabled:opacity-50 transition-all"
+              >
+                <span className="material-symbols-outlined">send</span>
+              </button>
+            </form>
+          </div>
           <p className="text-[10px] text-center text-slate-400 mt-3">
-            CivicSaarthi AI provides non-partisan information. Your chat is stored locally in this session.
+            {t('assistant.footer')}
           </p>
         </div>
       </Card>

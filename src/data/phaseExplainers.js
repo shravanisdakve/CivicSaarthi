@@ -1,0 +1,110 @@
+export const phaseExplainers = [
+  {
+    phaseId: 1,
+    title: "Election Announcement",
+    hook: "The starting gun of democracy.",
+    bullets: [
+      "The Election Commission of India (ECI) announces the full schedule.",
+      "Key dates for nominations, polling, and results are finalized.",
+      "Voters begin checking their names in the electoral rolls."
+    ],
+    takeaway: "Official timelines are now active. Check your voter status immediately.",
+    relatedAction: "Check Enrollment Status"
+  },
+  {
+    phaseId: 2,
+    title: "Model Code of Conduct",
+    hook: "Fair play rules for everyone.",
+    bullets: [
+      "MCC kicks in the moment elections are announced.",
+      "Prevents the ruling party from using government resources for campaigning.",
+      "Ensures all candidates have a level playing field."
+    ],
+    takeaway: "Ethical guidelines are now in force for all political actors.",
+    relatedAction: "Read MCC Guidelines"
+  },
+  {
+    phaseId: 3,
+    title: "Candidate Nominations",
+    hook: "Who is on the ballot?",
+    bullets: [
+      "Candidates file their papers (nomination) to contest.",
+      "They must submit affidavits detailing their wealth, education, and criminal record.",
+      "This information is public for all voters to review."
+    ],
+    takeaway: "Voters can now see exactly who is running in their constituency.",
+    relatedAction: "Review Candidate Affidavits"
+  },
+  {
+    phaseId: 4,
+    title: "Scrutiny of Nominations",
+    hook: "The eligibility filter.",
+    bullets: [
+      "Returning Officers (RO) check if nomination papers are valid.",
+      "Incomplete or fraudulent papers are rejected.",
+      "Ensures only legally eligible candidates proceed."
+    ],
+    takeaway: "The list of potential representatives is officially vetted.",
+    relatedAction: "See Vetting Process"
+  },
+  {
+    phaseId: 5,
+    title: "Withdrawal of Candidature",
+    hook: "The final list of names.",
+    bullets: [
+      "Candidates can choose to withdraw their name by a specific date.",
+      "After this, the final list of contesting candidates is frozen.",
+      "Symbols are assigned to candidates and parties."
+    ],
+    takeaway: "The ballot paper or EVM list is now finalized.",
+    relatedAction: "Know Your Final Candidates"
+  },
+  {
+    phaseId: 6,
+    title: "Campaigning Period",
+    hook: "The battle for your vote.",
+    bullets: [
+      "Parties and candidates hold rallies, meetings, and door-to-door visits.",
+      "They release manifestos promising their vision for the future.",
+      "Campaigning must stop 48 hours before polling ends (the silence period)."
+    ],
+    takeaway: "This is your time to evaluate promises and manifestos.",
+    relatedAction: "Compare Manifestos"
+  },
+  {
+    phaseId: 7,
+    title: "Polling Day",
+    hook: "The day you decide.",
+    bullets: [
+      "Voters go to their assigned polling booth with an approved ID.",
+      "Your identity is verified, your finger is inked, and you cast your vote.",
+      "Voting is done through EVM (Electronic Voting Machines) and VVPAT."
+    ],
+    takeaway: "Your vote is your power. Cast it responsibly and privately.",
+    relatedAction: "Find My Election Office"
+  },
+  {
+    phaseId: 8,
+    title: "Counting of Votes",
+    hook: "The tally of voices.",
+    bullets: [
+      "EVMs are kept in high-security strongrooms until counting day.",
+      "Counting happens in the presence of candidate agents to ensure transparency.",
+      "Round-by-round results are updated on the ECI website."
+    ],
+    takeaway: "The transparent process ensures every single vote is counted.",
+    relatedAction: "Watch Results Portal"
+  },
+  {
+    phaseId: 9,
+    title: "Result Declaration",
+    hook: "The mandate is clear.",
+    bullets: [
+      "Winners are officially declared for each constituency.",
+      "Certificates of Election are handed over to the winning candidates.",
+      "The new government begins its formation process."
+    ],
+    takeaway: "Democracy wins as the people's mandate is officially sealed.",
+    relatedAction: "Final Election Summary"
+  }
+];

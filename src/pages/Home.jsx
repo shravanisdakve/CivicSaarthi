@@ -11,7 +11,9 @@ import VerifyBeforeYouBelieve from '../components/VerifyBeforeYouBelieve.jsx';
 import ModuleCard from '../components/ModuleCard.jsx';
 import DemoMode from '../components/DemoMode.jsx';
 import { useTranslation } from '../hooks/useTranslation.js';
-import { getProfile, getChecklistProgress } from '../utils/profileStorage.js';
+import { getProfile, getChecklistProgress } from '../utils/guestProfile.js';
+import AchievementBadges from '../components/AchievementBadges.jsx';
+import ShareReadiness from '../components/ShareReadiness.jsx';
 
 const QUICK_ACTIONS = [
   { icon: 'chat_bubble', title: 'nav.assistant', desc: 'Get neutral answers instantly.', to: '/assistant' },
@@ -37,12 +39,12 @@ export default function Home() {
   const [apiStatus, setApiStatus] = useState({ geminiConfigured: false, mode: 'local-fallback' });
   const [isDemoOpen, setIsDemoOpen] = useState(false);
   
-  // Real progress for dashboard
-  const profile = getProfile();
-  const checklist = getChecklistProgress();
+  // Real progress for dashboard - with safe guards
+  const profile = getProfile() || {};
+  const checklist = getChecklistProgress() || {};
   const completedCount = Object.values(checklist).filter(Boolean).length;
-  const totalSteps = 7; // Total checklist items (Voter readiness)
-  const readinessPct = Math.round((completedCount / totalSteps) * 100);
+  const totalSteps = 7; 
+  const readinessPct = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
 
   useEffect(() => {
     fetch('/api/status')
@@ -60,7 +62,7 @@ export default function Home() {
     }
   };
 
-  const isSignedIn = profile.authProvider !== 'none';
+  const hasName = profile.name && profile.name !== 'Guest Citizen';
 
   return (
     <div className="w-full bg-surface">
@@ -102,11 +104,11 @@ export default function Home() {
               <div className="ml-auto hidden sm:block">
                 {/* Unique Identity Status */}
                 <div className="flex items-center gap-3 pr-4 border-r border-slate-200">
-                  <div className={`w-2 h-2 rounded-full ${isSignedIn ? 'bg-green-500' : 'bg-slate-400'}`}></div>
+                  <div className={`w-2 h-2 rounded-full ${hasName ? 'bg-green-500' : 'bg-slate-400'}`}></div>
                   <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-                    {isSignedIn ? `Citizen: ${profile.name}` : 'Browsing as Guest'}
+                    {hasName ? `Hi, ${profile.name}` : 'Browsing as Guest'}
                   </span>
-                  {!isSignedIn && (
+                  {!hasName && (
                     <button 
                       onClick={() => navigate('/safety#privacy')}
                       className="text-[10px] font-extrabold text-primary hover:underline uppercase tracking-widest"
@@ -119,8 +121,8 @@ export default function Home() {
               </div>
             </div>
             
-            <h1 className="font-['Public_Sans'] text-5xl md:text-6xl font-extrabold text-on-surface leading-tight mb-6 tracking-tight">
-              {t('hero.title')}
+            <h1 className="font-['Public_Sans'] text-3xl md:text-4xl lg:text-5xl font-extrabold text-on-surface leading-tight mb-6 tracking-tight">
+              {hasName ? `Hi ${(profile.name || '').split(' ')[0]}, ready to continue?` : t('hero.title')}
             </h1>
             
             <p className="text-body-lg text-on-surface-variant mb-8 max-w-lg leading-relaxed">
@@ -158,18 +160,44 @@ export default function Home() {
       <div className="max-w-screen-xl mx-auto px-6 md:px-8 space-y-16 py-16">
         
         {/* Election Readiness Dashboard & Smart Next Step */}
-        <section className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2">
-            <ReadinessDashboard />
+            <ReadinessDashboard 
+              pct={readinessPct} 
+              completed={completedCount} 
+              total={totalSteps} 
+            />
           </div>
-          <div className="lg:col-span-1">
-            <SmartNextStep />
-          </div>
-        </section>
+          <div className="space-y-6">
+            <Card className="p-6 bg-white border-0 shadow-xl overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+              <h3 className="font-['Public_Sans'] font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">emoji_events</span>
+                Your Civic Progress
+              </h3>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-primary/10 w-12 h-12 rounded-full flex items-center justify-center text-primary font-black text-xl">
+                  {profile.readinessPoints || 0}
+                </div>
+                <div>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Readiness Points</p>
+                   <p className="text-xs text-slate-600">Points earned through learning and preparation.</p>
+                </div>
+              </div>
 
-        {/* Quick Actions */}
-        <section>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="border-t border-slate-100 pt-6">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Earned Badges</p>
+                <AchievementBadges earnedBadges={profile.badges || []} />
+              </div>
+            </Card>
+
+            <ShareReadiness status={readinessPct === 100 ? 'ready' : 'learning'} />
+          </div>
+        </div>
+
+        <section className="py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {QUICK_ACTIONS.map((action) => (
               <div 
                 key={action.title} 
@@ -180,14 +208,14 @@ export default function Home() {
                     navigate(action.to);
                   }
                 }} 
-                className="cursor-pointer group"
+                className="cursor-pointer group h-full"
               >
-                <Card className="p-5 h-full bg-white shadow-sm hover:shadow-md hover:-translate-y-1 transition-all border border-slate-100">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary transition-colors">
+                <Card className="p-5 h-full bg-white shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all border border-slate-100 flex flex-col">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary transition-colors shrink-0">
                     <span className="material-symbols-outlined text-primary group-hover:text-white transition-colors" aria-hidden="true">{action.icon}</span>
                   </div>
                   <h3 className="font-['Public_Sans'] font-bold text-on-surface mb-1 text-sm">{t(action.title)}</h3>
-                  <p className="text-xs text-on-surface-variant mb-3">{action.desc}</p>
+                  <p className="text-[11px] text-on-surface-variant leading-relaxed flex-grow">{action.desc}</p>
                 </Card>
               </div>
             ))}

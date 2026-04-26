@@ -10,14 +10,15 @@ Click **"Try 2-Minute Demo"** on the homepage to experience the full product in 
 
 | Step | Feature | What to see |
 |---|---|---|
-| 1 | Welcome | Privacy-first, multilingual, official-source-guided overview |
-| 2 | Guided Journey | 9-step AI-guided election process walkthrough |
-| 3 | CivicSaarthi AI | Live or offline-fallback answer for "What is VVPAT?" |
-| 4 | Timeline | Visual 9-phase election stage tracker with stage cross-links |
-| 5 | Checklist | 7-step voter readiness checklist with localStorage persistence |
-| 6 | Summary Export | One-click downloadable civic readiness summary |
-| 7 | Google Maps | Election office/help center discovery (no booth assignment claims) |
-| 8 | Neutrality | Partisan refusal: "Which party should I vote for?" → safe refusal |
+| 1 | Welcome | Privacy-first, multilingual overview with name-only personalization |
+| 2 | Voice Mode | Hands-free "Speak" and "Read Aloud" browser-speech assistant |
+| 3 | Explainers | 30-sec microlearning phase cards with visual progress |
+| 4 | Timeline | Visual 9-phase tracker with explainer & AI cross-links |
+| 5 | Achievements | Progressive badges earned through civic learning (No political score) |
+| 6 | Checklist | 7-step voter readiness checklist with persistence |
+| 7 | Verification | Google Maps Election Office discovery + Official Booth Portal links |
+| 8 | Social Share | Privacy-protected "Voter Ready" templates for LinkedIn/X |
+| 9 | Neutrality | Partisan refusal: "Which party should I vote for?" → safe refusal |
 
 ## Offline & PWA Support
 CivicSaarthi is a Progressive Web App (PWA) designed for low-connectivity environments:
@@ -52,6 +53,12 @@ gcloud run deploy civicsaarthi \
 - **Non-Partisan**: The system strictly refuses to recommend candidates or parties.
 - **Verification First**: All AI responses include a "Verification Link" to official ECI portals.
 
+## Optional Guest Personalization
+CivicSaarthi does not implement full login in this prototype to prioritize privacy and reduce technical risk. Users may optionally enter a display name for a warmer, personalized experience.
+- **Privacy First**: The name is stored 100% locally on the user's device using `localStorage`.
+- **No Sensitive Data**: We never ask for Aadhaar, Voter ID, phone numbers, or emails.
+- **Non-Official**: The guest profile is for display only and is not used for official voter identity verification.
+
 ## Chosen Vertical
 Election process education for citizens.
 
@@ -66,15 +73,12 @@ CivicSaarthi is not just an election chatbot. It is a complete election-readines
 - General Citizen
 
 ## Features
+- **Browser-based Voice Guide**: Hands-free voice input and read-aloud support for accessibility.
+- **Microlearning Explainers**: 9 phase-based 30-second visual learning cards for the election process.
+- **Civic Achievement Badges**: 7 progressive badges earned through educational milestones.
+- **Social Readiness Sharing**: Privacy-first sharing templates for LinkedIn and X (Twitter).
+- **Polling Station Verification Helper**: Safe discovery of help centers with official portal links.
 - **Guided Election Journey Mode**: An interactive, step-by-step walkthrough of the 9 core election stages.
-- **Onboarding Intro**: A clear, 4-step interactive welcome experience explaining purpose, neutrality, and privacy.
-- **Persona-based personalized guidance**: Tailored content for first-time voters, students, and more.
-- **Visual election timeline tracker**: 9-stage phase-by-phase tracker from announcement to results.
-- **Interactive voter readiness checklist**: 7-step actionable preparation to-dos.
-- **Real downloadable Election Readiness Summary**: Turn civic learning into an actionable PDF artifact.
-- **Neutral AI chatbot with Local Fallback**: Safe, non-partisan answers even if the API is offline.
-- **Official-source grounding**: Grounded answers with direct links to verified portals.
-- **Privacy-conscious architecture**: No collection of PII or political preferences.
 
 ## Approach & Logic
 CivicSaarthi turns complex election information into an actionable journey. Instead of a simple Q&A bot, it guides users through preparation steps while offering an AI assistant for deep-dives.

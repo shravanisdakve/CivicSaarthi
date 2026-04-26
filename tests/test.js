@@ -52,7 +52,7 @@ assert(appContent.includes('path="/map"'), 'Map Helper route registered in App.j
 
 // 4. Map Feature checks
 const mapHelperContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/MapHelper.jsx'), 'utf8');
-assert(mapHelperContent.includes('Election Office & Help Center Map'), 'Map Helper page has correct title');
+assert(mapHelperContent.includes('Polling Station Guidance Preview'), 'Map Helper page has correct title');
 
 const mapDisclaimerContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/MapDisclaimer.jsx'), 'utf8');
 assert(mapDisclaimerContent.includes('does **not** show your officially assigned polling booth'), 'Map disclaimer includes booth warning');
@@ -98,7 +98,7 @@ if (demoComponentExists) {
   assert(demoContent.includes('/timeline'), 'Demo links to Timeline');
   assert(demoContent.includes('/checklist'), 'Demo links to Checklist');
   assert(demoContent.includes('/map'), 'Demo links to Map Helper');
-  assert(demoContent.includes('civicOpenChat'), 'Demo opens Guided Journey');
+  assert(demoContent.includes('goAssistant'), 'Demo opens Assistant or Journey steps');
 }
 
 const homeContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Home.jsx'), 'utf8');
@@ -114,6 +114,20 @@ assert(manifestExists, 'PWA manifest exists');
 const qualityExists = fs.existsSync(path.join(ROOT_DIR, 'src/pages/Quality.jsx'));
 assert(qualityExists, 'Quality page exists');
 
+const gpExists = fs.existsSync(path.join(ROOT_DIR, 'src/utils/guestProfile.js'));
+assert(gpExists, 'guestProfile.js exists');
+
+const npExists = fs.existsSync(path.join(ROOT_DIR, 'src/components/NamePromptModal.jsx'));
+assert(npExists, 'NamePromptModal.jsx exists');
+
+const modalContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/NamePromptModal.jsx'), 'utf8');
+assert(modalContent.includes('What should CivicSaarthi call you?'), 'Name prompt text exists');
+assert(modalContent.includes('stored only on this device'), 'Privacy storage disclaimer exists');
+
+const navbarContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/Navbar.jsx'), 'utf8');
+assert(!navbarContent.includes('Citizen Login'), 'Confusing Citizen Login terminology removed');
+assert(navbarContent.includes('GuestProfileChip'), 'Navbar uses GuestProfileChip');
+
 const ebExists = fs.existsSync(path.join(ROOT_DIR, 'src/components/ErrorBoundary.jsx'));
 assert(ebExists, 'ErrorBoundary component exists');
 
@@ -122,6 +136,57 @@ assert(rlExists, 'RouteLoader component exists');
 
 const indexContent = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
 assert(indexContent.includes('serviceWorker'), 'Service worker registered in index.html');
+
+// VOICE
+const speechExists = fs.existsSync(path.join(ROOT_DIR, 'src/utils/speech.js'));
+assert(speechExists, 'speech.js exists');
+const voiceControlsExists = fs.existsSync(path.join(ROOT_DIR, 'src/components/VoiceAssistantControls.jsx'));
+assert(voiceControlsExists, 'VoiceAssistantControls.jsx exists');
+const voiceControlsContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/VoiceAssistantControls.jsx'), 'utf8');
+assert(voiceControlsContent.includes('Speak your question'), 'Speak copy exists');
+assert(voiceControlsContent.includes('Read assistant answer aloud'), 'Read aloud copy exists');
+assert(voiceControlsContent.includes('processed by your browser'), 'Voice privacy disclaimer exists');
+
+// EXPLAINERS
+const explainersExists = fs.existsSync(path.join(ROOT_DIR, 'src/data/phaseExplainers.js'));
+assert(explainersExists, 'phaseExplainers.js exists');
+const explainersContent = fs.readFileSync(path.join(ROOT_DIR, 'src/data/phaseExplainers.js'), 'utf8');
+const explainerCount = (explainersContent.match(/phaseId:/g) || []).length;
+assert(explainerCount === 9, 'Exactly 9 explainers found');
+
+// GAMIFICATION
+const badgesExists = fs.existsSync(path.join(ROOT_DIR, 'src/data/badges.js'));
+assert(badgesExists, 'badges.js exists');
+const badgeEngineExists = fs.existsSync(path.join(ROOT_DIR, 'src/utils/badgeEngine.js'));
+assert(badgeEngineExists, 'badgeEngine.js exists');
+const badgesContent = fs.readFileSync(path.join(ROOT_DIR, 'src/data/badges.js'), 'utf8');
+assert(badgesContent.includes('Voter Ready'), 'Voter Ready badge exists');
+assert(!badgesContent.includes('Candidate Match'), 'No political scoring/matching in badges');
+
+// SHARING
+const shareExists = fs.existsSync(path.join(ROOT_DIR, 'src/components/ShareReadiness.jsx'));
+assert(shareExists, 'ShareReadiness.jsx exists');
+const shareTextExists = fs.existsSync(path.join(ROOT_DIR, 'src/utils/shareText.js'));
+assert(shareTextExists, 'shareText.js exists');
+const shareContent = fs.readFileSync(path.join(ROOT_DIR, 'src/utils/shareText.js'), 'utf8');
+assert(shareContent.includes('Understand. Prepare. Verify. Vote.'), 'Share tagline exists');
+
+// MAPS UPGRADE
+const mapContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/MapHelper.jsx'), 'utf8');
+const previewPath = path.join(ROOT_DIR, 'src/components/PollingGuidancePreview.jsx');
+const previewExists = fs.existsSync(previewPath);
+assert(previewExists, 'PollingGuidancePreview.jsx exists');
+
+const previewContent = fs.readFileSync(previewPath, 'utf8');
+const fullMapLogic = mapContent + previewContent;
+
+assert(fullMapLogic.includes('voters.eci.gov.in'), 'Official voter services link exists');
+assert(fullMapLogic.includes('CivicSaarthi does not show your officially assigned polling booth'), 'Booth disclaimer exists');
+assert(!fullMapLogic.includes('navigator.geolocation'), 'No geolocation usage in MapHelper');
+assert(!fullMapLogic.includes('live data'), 'No "live data" text');
+assert(!fullMapLogic.includes('4 booths found'), 'No "4 booths found" text');
+assert(!fullMapLogic.includes('recommended booth') || fullMapLogic.includes('Example planning card'), 'No "recommended booth" unless marked example/demo');
+assert(fullMapLogic.includes('google.com/maps'), 'Google Maps search link exists');
 
 console.log(`\nTest Results: ${passed} Passed, ${failed} Failed`);
 if (failed > 0) {

@@ -1,10 +1,10 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
 import RouteLoader from './components/RouteLoader.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import OfflineStatus from './components/OfflineStatus.jsx';
-import { getProfile, saveProfile } from './utils/profileStorage.js';
+import { getProfile } from './utils/guestProfile.js';
 
 const Home = lazy(() => import('./pages/Home.jsx'));
 const ChoosePath = lazy(() => import('./pages/ChoosePath.jsx'));
@@ -23,14 +23,6 @@ const Assistant = lazy(() => import('./pages/Assistant.jsx'));
 const MapHelper = lazy(() => import('./pages/MapHelper.jsx'));
 
 export default function App() {
-  // Production migration: Force new girl avatar for demo user
-  useEffect(() => {
-    const profile = getProfile();
-    if (profile.email === 'shravanisdakve@gmail.com' && profile.avatar !== '/avatar.png') {
-      saveProfile({ avatar: '/avatar.png' });
-    }
-  }, []);
-
   return (
     <ErrorBoundary>
       <Suspense fallback={<RouteLoader />}>

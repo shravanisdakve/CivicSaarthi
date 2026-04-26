@@ -3,9 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { quizQuestions } from '../data/quiz.js';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
-import { saveQuizProgress } from '../utils/profileStorage.js';
-
+import { saveQuizProgress, getProfile } from '../utils/guestProfile.js';
+import ShareReadiness from '../components/ShareReadiness.jsx';
+import { trackVisit } from '../utils/badgeEngine.js';
 export default function Quiz() {
+  const profile = getProfile();
+  const hasName = profile.name && profile.name !== 'Guest Citizen';
+  const firstName = hasName ? profile.name.split(' ')[0] : '';
   const navigate = useNavigate();
   const [currentIdx, setCurrentIdx] = useState(() => {
     const saved = localStorage.getItem('civicsaarthi_quiz_progress');
@@ -109,7 +113,9 @@ export default function Quiz() {
           <div className="w-20 h-20 bg-primary-fixed rounded-full flex items-center justify-center mx-auto mb-6">
             <span className="material-symbols-outlined text-primary icon-fill" style={{ fontSize: '2.5rem' }}>verified</span>
           </div>
-          <h1 className="font-['Public_Sans'] text-3xl font-bold text-primary mb-2">Quiz Completed!</h1>
+          <h1 className="font-['Public_Sans'] text-3xl font-bold text-primary mb-2">
+            {hasName ? `Good progress, ${firstName}!` : 'Quiz Completed!'}
+          </h1>
           <p className="text-on-surface-variant mb-8 text-lg">You scored {score}% and earned a new badge.</p>
           
           <div className="bg-surface-container-low border border-primary-fixed-dim rounded-xl p-4 inline-flex items-center gap-4 mb-8">
@@ -118,13 +124,17 @@ export default function Quiz() {
             </div>
             <div className="text-left">
               <p className="text-xs text-primary font-bold tracking-widest uppercase">New Badge Unlocked</p>
-              <p className="font-['Public_Sans'] font-semibold text-lg text-on-surface">Election Process Explorer</p>
+              <p className="font-['Public_Sans'] font-semibold text-lg text-on-surface">Quiz Scholar</p>
             </div>
           </div>
 
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 mb-8">
              <Button variant="outline" onClick={handleRestart}>Retake Quiz</Button>
              <Button variant="primary" onClick={() => navigate('/checklist')}>Complete Checklist</Button>
+          </div>
+
+          <div className="border-t border-slate-100 pt-8">
+             <ShareReadiness status="learning" />
           </div>
         </Card>
       </div>

@@ -1,0 +1,51 @@
+export const badges = [
+  {
+    id: 'civic-starter',
+    name: 'Civic Starter',
+    icon: 'rocket_launch',
+    color: 'bg-blue-500',
+    description: 'Earned by starting your guided election journey.'
+  },
+  {
+    id: 'election-explorer',
+    name: 'Election Explorer',
+    icon: 'explore',
+    color: 'bg-indigo-500',
+    description: 'Earned by exploring 3 or more timeline phases.'
+  },
+  {
+    id: 'glossary-guru',
+    name: 'Glossary Guru',
+    icon: 'menu_book',
+    color: 'bg-emerald-500',
+    description: 'Earned by researching 5 or more civic terms.'
+  },
+  {
+    id: 'verification-champion',
+    name: 'Verification Champion',
+    icon: 'verified_user',
+    color: 'bg-amber-500',
+    description: 'Earned by visiting official sources or map helper.'
+  },
+  {
+    id: 'quiz-scholar',
+    name: 'Quiz Scholar',
+    icon: 'school',
+    color: 'bg-purple-500',
+    description: 'Earned by completing the civic knowledge quiz.'
+  },
+  {
+    id: 'voter-ready',
+    name: 'Voter Ready',
+    icon: 'how_to_reg',
+    color: 'bg-rose-500',
+    description: 'Earned by completing all readiness checklist items.'
+  },
+  {
+    id: 'democracy-champion',
+    name: 'Democracy Champion',
+    icon: 'workspace_premium',
+    color: 'bg-orange-500',
+    description: 'The ultimate badge for complete election readiness.'
+  }
+];

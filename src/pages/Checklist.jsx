@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { checklistItems } from '../data/checklist.js';
 import Button from '../components/Button.jsx';
-import { getChecklistProgress, saveChecklistProgress } from '../utils/profileStorage.js';
+import { getChecklistProgress, saveChecklistProgress, getProfile } from '../utils/guestProfile.js';
+import ShareReadiness from '../components/ShareReadiness.jsx';
 import { useTranslation } from '../hooks/useTranslation.js';
 import Dialog from '../components/Dialog.jsx';
 
@@ -13,6 +14,8 @@ export default function Checklist() {
   const [isResetOpen, setIsResetOpen] = useState(false);
   const [isReminderOpen, setIsReminderOpen] = useState(false);
   const { t } = useTranslation();
+  const profile = getProfile();
+  const hasName = profile.name && profile.name !== 'Guest Citizen';
 
   const doneCount = checklistItems.filter((i) => checked[i.id]).length;
   const total = checklistItems.length;
@@ -125,6 +128,10 @@ export default function Checklist() {
               Return to Home
             </button>
           </div>
+
+          <div className="mt-8 border-t border-slate-100 pt-8">
+             <ShareReadiness status="ready" />
+          </div>
         </div>
       </div>
     );
@@ -135,7 +142,9 @@ export default function Checklist() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-['Public_Sans'] text-3xl font-bold text-on-surface mb-2">{t('checklist.title')}</h1>
+          <h1 className="font-['Public_Sans'] text-3xl font-bold text-on-surface mb-2">
+            {hasName ? `${profile.name}'s Readiness Checklist` : t('checklist.title')}
+          </h1>
           <p className="text-on-surface-variant text-sm max-w-lg leading-relaxed">
             Follow these institutional steps to ensure you are fully prepared for election day. Your progress is automatically saved.
           </p>

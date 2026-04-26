@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { timelineStages } from '../data/timeline.js';
+import { phaseExplainers } from '../data/phaseExplainers.js';
+import PhaseExplainer from '../components/PhaseExplainer.jsx';
 import Button from '../components/Button.jsx';
+import { getProfile, saveProfile } from '../utils/guestProfile.js';
 
 const INITIAL_VISIBLE = 5;
 
@@ -13,7 +16,21 @@ export default function Timeline() {
   });
   const [showAll, setShowAll] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedExplainer, setSelectedExplainer] = useState(null);
   const detailRef = useRef(null);
+  
+  const profile = getProfile();
+  const understoodExplainers = profile.understoodExplainers || [];
+
+  const handleUnderstood = (phaseId) => {
+    if (!understoodExplainers.includes(phaseId)) {
+      const newList = [...understoodExplainers, phaseId];
+      saveProfile({ 
+        understoodExplainers: newList,
+        readinessPoints: (profile.readinessPoints || 0) + 5
+      });
+    }
+  };
 
   useEffect(() => {
     // Simulate loading for detail panel on stage change
@@ -219,6 +236,13 @@ export default function Timeline() {
                       <span className="material-symbols-outlined text-[12px]">open_in_new</span>
                       Verify with ECI
                     </a>
+                    <button 
+                      onClick={() => setSelectedExplainer(phaseExplainers.find(e => e.phaseId === activeStage.id))}
+                      className="text-[9px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-amber-100 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[12px]">play_circle</span>
+                      {understoodExplainers.includes(activeStage.id) ? 'Review 30-sec Explainer' : 'Watch 30-sec Explainer'}
+                    </button>
                   </div>
 
                   <div className="flex justify-between items-center mb-6">
@@ -280,6 +304,13 @@ export default function Timeline() {
           </div>
         </aside>
       </div>
+      {selectedExplainer && (
+        <PhaseExplainer 
+          explainer={selectedExplainer} 
+          onClose={() => setSelectedExplainer(null)} 
+          onUnderstood={() => handleUnderstood(selectedExplainer.phaseId)}
+        />
+      )}
     </div>
   );
 }

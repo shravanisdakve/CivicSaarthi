@@ -1,4 +1,4 @@
-import { saveProfile, clearProfile } from './profileStorage.js';
+import { saveProfile, clearProfile } from './guestProfile.js';
 
 /**
  * Handles guest login by setting up a local profile.
