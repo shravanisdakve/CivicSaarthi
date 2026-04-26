@@ -1,6 +1,23 @@
 # CivicSaarthi
 
-**Understand. Prepare. Verify. Vote.**
+**A multilingual, privacy-first, official-source-guided election-readiness companion.**
+
+CivicSaarthi helps citizens understand elections through a 9-step guided journey, grounded AI, visual timeline cross-linking, voter readiness checklist, glossary, quiz, downloadable readiness summary, Google Maps election office helper, and strict political neutrality guardrails.
+
+## Judge Demo Flow (2-Minute Walkthrough)
+
+Click **"Try 2-Minute Demo"** on the homepage to experience the full product in 2 minutes:
+
+| Step | Feature | What to see |
+|---|---|---|
+| 1 | Welcome | Privacy-first, multilingual, official-source-guided overview |
+| 2 | Guided Journey | 9-step AI-guided election process walkthrough |
+| 3 | CivicSaarthi AI | Live or offline-fallback answer for "What is VVPAT?" |
+| 4 | Timeline | Visual 9-phase election stage tracker with stage cross-links |
+| 5 | Checklist | 7-step voter readiness checklist with localStorage persistence |
+| 6 | Summary Export | One-click downloadable civic readiness summary |
+| 7 | Google Maps | Election office/help center discovery (no booth assignment claims) |
+| 8 | Neutrality | Partisan refusal: "Which party should I vote for?" → safe refusal |
 
 ## Problem Statement
 Create an assistant that helps users understand the election process, timelines, and steps in an interactive and easy-to-follow way.

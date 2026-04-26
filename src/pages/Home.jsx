@@ -9,6 +9,7 @@ import SmartNextStep from '../components/SmartNextStep.jsx';
 import PollingStationHelper from '../components/PollingStationHelper.jsx';
 import VerifyBeforeYouBelieve from '../components/VerifyBeforeYouBelieve.jsx';
 import ModuleCard from '../components/ModuleCard.jsx';
+import DemoMode from '../components/DemoMode.jsx';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { getProfile, getChecklistProgress } from '../utils/profileStorage.js';
 
@@ -34,6 +35,7 @@ export default function Home() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [apiStatus, setApiStatus] = useState({ geminiConfigured: false, mode: 'local-fallback' });
+  const [isDemoOpen, setIsDemoOpen] = useState(false);
   
   // Real progress for dashboard
   const profile = getProfile();
@@ -132,6 +134,14 @@ export default function Home() {
               <Button variant="outline" onClick={() => window.dispatchEvent(new CustomEvent('civicOpenChat'))} className="py-3 px-6 text-base bg-white">
                 {t('cta.askAI')}
               </Button>
+              <button
+                id="demo-mode-btn"
+                onClick={() => setIsDemoOpen(true)}
+                className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 font-bold px-4 py-3 rounded-xl text-xs uppercase tracking-widest hover:bg-amber-100 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[14px]">play_circle</span>
+                Try 2-Minute Demo
+              </button>
               <button 
                 onClick={() => window.dispatchEvent(new CustomEvent('civicOpenIntro'))}
                 className="text-primary font-bold hover:underline px-4 py-3 text-xs uppercase tracking-widest"
@@ -370,6 +380,8 @@ export default function Home() {
           </Button>
         </div>
       </section>
+      
+      <DemoMode isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} />
     </div>
   );
 }

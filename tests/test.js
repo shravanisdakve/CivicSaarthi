@@ -87,10 +87,28 @@ assert(fabContent.includes('z-50'), 'FAB tooltip has high z-index');
 assert(timelineStages.length === 9, 'Timeline data intact (9 stages)');
 assert(quizQuestions.length === 5, 'Quiz data intact (5 questions)');
 
+// --- DEMO MODE CHECKS ---
+const demoComponentExists = fs.existsSync(path.join(ROOT_DIR, 'src/components/DemoMode.jsx'));
+assert(demoComponentExists, 'DemoMode component exists');
+
+if (demoComponentExists) {
+  const demoContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/DemoMode.jsx'), 'utf8');
+  assert(demoContent.includes('Try 2-Minute Demo') || demoContent.includes('2-Minute Demo'), 'Demo mode title present');
+  assert(demoContent.includes('/assistant'), 'Demo links to Assistant');
+  assert(demoContent.includes('/timeline'), 'Demo links to Timeline');
+  assert(demoContent.includes('/checklist'), 'Demo links to Checklist');
+  assert(demoContent.includes('/map'), 'Demo links to Map Helper');
+  assert(demoContent.includes('civicOpenChat'), 'Demo opens Guided Journey');
+}
+
+const homeContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Home.jsx'), 'utf8');
+assert(homeContent.includes('Try 2-Minute Demo'), 'Home page has demo button');
+assert(homeContent.includes('DemoMode'), 'Home page renders DemoMode component');
+
 console.log(`\nTest Results: ${passed} Passed, ${failed} Failed`);
 if (failed > 0) {
   process.exit(1);
 } else {
-  console.log('Emergency fixes verified! 🎉');
+  console.log('All tests passed! 🎉');
   process.exit(0);
 }
