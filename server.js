@@ -2,15 +2,25 @@ import express from 'express';
 import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config();
+import rateLimit from 'express-rate-limit';
+import { getKnowledgeContext, getSourceBadges } from './src/utils/knowledgeSearch.js';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(express.json());
+
+// API Rate Limiting (Prevent Quota Exhaustion)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Limit each IP to 20 requests per window
+  message: { error: 'Too many requests from this IP, please try again after 15 minutes. This helps us ensure fair access for all voters.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/api/', apiLimiter);
 
 // Initialize Gemini (if key exists)
 const apiKey = process.env.GEMINI_API_KEY;
@@ -29,16 +39,16 @@ if (apiKey && apiKey !== 'your_gemini_api_key_here') {
   console.warn('⚠️ No valid GEMINI_API_KEY found in environment. Using local fallback assistant.');
 }
 
-// System prompt enforcing neutrality
-const SYSTEM_PROMPT = `You are CivicSaarthi, a non-partisan, factual AI assistant helping Indian citizens understand the electoral process.
-Your primary goals:
-1. Provide accurate, easy-to-understand information about voter registration, polling booths, election timelines, and terminology (EVM, VVPAT, MCC, NOTA).
-2. NEVER endorse any political party, candidate, or specific policy.
-3. If asked who to vote for, or asked to convince the user to vote for a specific party, explicitly state that you cannot provide political endorsements or opinions, and remind the user that your purpose is solely to provide factual procedural guidance.
-4. Keep responses concise, well-structured, and easy to read on mobile devices.
-5. Base your answers on the Election Commission of India's established procedures.`;
+// System prompt enforcing neutrality and grounding
+const SYSTEM_PROMPT = `You are CivicSaarthi AI, a neutral civic education assistant for Indian citizens.
+When official knowledge context is provided, use it as the primary basis for your answer.
+Do not invent live election dates, polling booth assignments, candidate claims, or constituency-specific facts.
+Encourage users to verify critical details through official election sources.
+Do not support or oppose any party or candidate. If asked for a recommendation, explain that you are non-partisan.
+Keep responses concise, well-structured, and easy to read on mobile devices.
+Base your answers strictly on the Election Commission of India's established procedures.`;
 
-// Local Fallback Logic (same as frontend utility but running on backend)
+// Local Fallback Logic (updated to use official knowledge)
 const POLITICAL_PATTERNS = [
   /who should i vote/i, /which party is best/i, /convince me to vote/i, /best candidate/i,
   /vote for (party|candidate|bjp|congress|aap|sp|bsp)/i, /who will win/i, /which party should/i, /endorse/i
@@ -47,50 +57,122 @@ const POLITICAL_PATTERNS = [
 function getLocalFallbackResponse(message) {
   for (const pattern of POLITICAL_PATTERNS) {
     if (pattern.test(message)) {
-      return "I'm designed to provide non-partisan, factual information about the electoral process. I cannot offer opinions on candidates, parties, or voting choices. I can help you understand voting procedures, eligibility, how to find your polling station, or explain terms like VVPAT and MCC. What would you like to know?";
+      return "I cannot support or oppose any party or candidate. I am designed to provide non-partisan information and cannot offer political persuasion. I can help you compare manifestos neutrally, explain voting rules, clarify the process, and point you to official sources for verification.";
     }
   }
   
-  if (/register/i.test(message)) return "To register as a voter in India, visit the National Voters' Service Portal at nvsp.in and fill out Form 6.";
-  if (/polling/i.test(message)) return "You can find your polling station by visiting nvsp.in or the Voter Helpline App.";
-  if (/vvpat/i.test(message)) return "VVPAT stands for Voter Verifiable Paper Audit Trail. After you press the button on the EVM, a paper slip appears behind a glass window for 7 seconds to verify your vote.";
+  const knowledge = getKnowledgeContext(message);
+  if (knowledge) {
+    return `Based on official civic guidance: ${knowledge.substring(0, 500)}... For more details, please visit official election portals.`;
+  }
   
-  return "I can help with questions about voter registration, polling booths, EVMs, VVPATs, the Model Code of Conduct, candidate information, and election day procedures. What specific information do you need?";
+  return "I can help explain rules, the voting process, verification, and point you to official sources. What specific information do you need?";
 }
+
+// Status and Health check endpoint
+app.get('/api/status', (req, res) => {
+  res.json({ 
+    ok: true, 
+    geminiConfigured: !!model && apiKey !== 'your_gemini_api_key_here',
+    mode: (!!model && apiKey !== 'your_gemini_api_key_here') ? 'gemini' : 'local-fallback',
+    env: process.env.NODE_ENV || 'development'
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
 // POST /api/chat endpoint
 app.post('/api/chat', async (req, res) => {
-  const { message, persona } = req.body;
+  const { message, persona, language } = req.body;
+  console.log('📩 Received chat request:', message?.substring(0, 50) + '...', `[Lang: ${language || 'en'}]`);
 
   if (!message || typeof message !== 'string') {
     return res.status(400).json({ error: 'Invalid message provided.' });
   }
 
+  if (message.length > 2000) {
+    return res.status(400).json({ error: 'Message is too long. Please limit your query to 2000 characters for security and clarity.' });
+  }
+
+  // Search official knowledge base
+  const knowledgeContext = getKnowledgeContext(message);
+  const references = getSourceBadges(message);
+  const grounded = references.length > 0;
+
   // If no Gemini, use local fallback
   if (!model) {
-    return res.json({ response: getLocalFallbackResponse(message) });
+    console.log('ℹ️ Using local fallback (Gemini not initialized)');
+    return res.json({ 
+      response: getLocalFallbackResponse(message),
+      source: 'local',
+      grounded,
+      references
+    });
   }
 
   try {
     const chat = model.startChat({
       history: [
         { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
-        { role: 'model', parts: [{ text: 'Understood. I will act as a non-partisan CivicSaarthi assistant.' }] },
+        { role: 'model', parts: [{ text: 'Understood. I will act as a non-partisan CivicSaarthi assistant and prioritize provided official knowledge.' }] },
       ],
+      generationConfig: {
+        maxOutputTokens: 1000,
+      },
     });
 
-    // Add persona context
-    const personaContext = persona ? `\nContext: The user is currently browsing the guide as a '${persona}'. Tailor the tone accordingly if relevant.` : '';
+    // Add persona and knowledge context
+    const personaContext = persona ? `\n[User Persona: ${persona}]` : '';
+    const languageInstruction = (language === 'hi' || language === 'mr') 
+      ? `\n[IMPORTANT: Answer strictly in ${language === 'hi' ? 'Hindi' : 'Marathi'} using simple, clear civic education language. Keep official terms such as EVM, VVPAT, EPIC, MCC readable and explain them simply.]`
+      : '';
     
-    const result = await chat.sendMessage(message + personaContext);
-    const responseText = result.response.text();
+    const fullInput = `${message}${personaContext}${languageInstruction}${knowledgeContext}`;
     
-    res.json({ response: responseText });
+    console.log('🤖 Sending to Gemini (Grounded:', grounded, ')...');
+    const result = await chat.sendMessage(fullInput);
+    const response = await result.response;
+    const responseText = response.text();
+    
+    console.log('✅ Received response from Gemini');
+    res.json({ 
+      response: responseText,
+      source: 'gemini',
+      grounded,
+      references
+    });
   } catch (error) {
-    console.error('Gemini API Error:', error);
-    // Fallback on error
-    res.json({ response: getLocalFallbackResponse(message) });
+    console.error('❌ Gemini API Error:', error.message);
+    
+    // Fallback on error (Never expose Gemini stack trace to user)
+    try {
+      const fallback = getLocalFallbackResponse(message);
+      res.json({ 
+        response: fallback, 
+        source: 'local-fallback-safe',
+        grounded,
+        references,
+        error: 'Service temporarily unavailable. Using secure local fallback.' 
+      });
+    } catch (fallbackError) {
+      console.error('❌ Fallback also failed:', fallbackError.message);
+      res.status(500).json({ error: 'Deep system error. Please try again later.' });
+    }
   }
+});
+
+// Serve frontend build
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, 'dist')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {

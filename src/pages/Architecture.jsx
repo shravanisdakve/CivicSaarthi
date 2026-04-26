@@ -29,6 +29,12 @@ const CORE_SERVICES = [
     title: 'Artifact Registry',
     desc: 'Centralized repository for storing, managing, and securing container images before they are deployed to Cloud Run.',
   },
+  {
+    icon: 'map',
+    title: 'Google Maps Platform',
+    desc: 'Integrated via Google Maps Embed and Search discovery to help citizens locate nearby Election Offices, Voter Help Centers, and official assistance locations without compromising residential privacy.',
+    tags: ['Mapping', 'Location Discovery'],
+  },
 ];
 
 export default function Architecture() {
@@ -70,9 +76,10 @@ export default function Architecture() {
                 <p className="text-xs text-on-surface-variant">Serverless Compute</p>
              </div>
 
-             <div className="flex flex-col items-center px-4">
+             <div className="flex flex-col items-center px-4 gap-2">
+                <div className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap">Knowledge Matcher</div>
                 <span className="material-symbols-outlined text-slate-400">arrow_forward</span>
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">API Call</span>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Grounding</span>
              </div>
 
              {/* Backend Services */}
@@ -81,7 +88,7 @@ export default function Architecture() {
                <div className="absolute left-1/2 top-16 bottom-16 w-px bg-slate-300 -translate-x-1/2 -z-10"></div>
                
                {/* Gemini */}
-               <div className="text-center flex flex-col items-center bg-white">
+               <div className="text-center flex flex-col items-center bg-white border border-slate-100 p-2 rounded-xl">
                   <div className="w-16 h-16 rounded-xl bg-secondary-fixed border border-secondary-fixed-dim flex items-center justify-center mb-3">
                      <span className="material-symbols-outlined text-secondary text-2xl">psychology</span>
                   </div>

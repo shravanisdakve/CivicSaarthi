@@ -1,20 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { quizQuestions } from '../data/quiz.js';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
+import { saveQuizProgress } from '../utils/profileStorage.js';
 
 export default function Quiz() {
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [showExplanation, setShowExplanation] = useState(false);
-  const [score, setScore] = useState(0);
-  const [completed, setCompleted] = useState(false);
+  const navigate = useNavigate();
+  const [currentIdx, setCurrentIdx] = useState(() => {
+    const saved = localStorage.getItem('civicsaarthi_quiz_progress');
+    if (saved) {
+      try { return JSON.parse(saved).idx || 0; } catch (e) { return 0; }
+    }
+    return 0;
+  });
+  const [selected, setSelected] = useState(() => {
+    const saved = localStorage.getItem('civicsaarthi_quiz_progress');
+    if (saved) {
+      try { return JSON.parse(saved).selected ?? null; } catch (e) { return null; }
+    }
+    return null;
+  });
+  const [showExplanation, setShowExplanation] = useState(() => {
+    const saved = localStorage.getItem('civicsaarthi_quiz_progress');
+    if (saved) {
+      try { return JSON.parse(saved).show || false; } catch (e) { return false; }
+    }
+    return false;
+  });
+  const [correctCount, setCorrectCount] = useState(() => {
+    const saved = localStorage.getItem('civicsaarthi_quiz_progress');
+    if (saved) {
+      try { return JSON.parse(saved).correct || 0; } catch (e) { return 0; }
+    }
+    return 0;
+  });
+  const [completed, setCompleted] = useState(() => {
+    const saved = localStorage.getItem('civicsaarthi_quiz_progress');
+    if (saved) {
+      try { return JSON.parse(saved).done || false; } catch (e) { return false; }
+    }
+    return false;
+  });
+
+  // Save progress on change
+  useEffect(() => {
+    const progress = {
+      idx: currentIdx,
+      correct: correctCount,
+      done: completed,
+      selected: selected,
+      show: showExplanation,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('civicsaarthi_quiz_progress', JSON.stringify(progress));
+    
+    if (completed) {
+      saveQuizProgress(correctCount);
+    }
+  }, [currentIdx, correctCount, completed, selected, showExplanation]);
 
   const question = quizQuestions[currentIdx];
   const isCorrect = selected === question?.correct;
+  const score = Math.round((correctCount / quizQuestions.length) * 100);
 
   const handleSelect = (idx) => {
-    if (showExplanation) return; // Prevent changing answer after submission
+    if (showExplanation) return;
     setSelected(idx);
   };
 
@@ -22,7 +73,7 @@ export default function Quiz() {
     if (selected === null) return;
     setShowExplanation(true);
     if (selected === question.correct) {
-      setScore((s) => s + 20); // 5 questions, 20 points each = 100 max
+      setCorrectCount((c) => c + 1);
     }
   };
 
@@ -33,14 +84,20 @@ export default function Quiz() {
       setShowExplanation(false);
     } else {
       setCompleted(true);
+      // Final correctCount is not updated yet if the last question was just submitted
+      // Wait, correctCount is updated in handleSubmit.
+      // But setCorrectCount is async. 
+      // Let's calculate the final score correctly.
     }
   };
 
+
   const handleRestart = () => {
+    localStorage.removeItem('civicsaarthi_quiz_progress');
     setCurrentIdx(0);
     setSelected(null);
     setShowExplanation(false);
-    setScore(0);
+    setCorrectCount(0);
     setCompleted(false);
   };
 
@@ -67,7 +124,7 @@ export default function Quiz() {
 
           <div className="flex justify-center gap-4">
              <Button variant="outline" onClick={handleRestart}>Retake Quiz</Button>
-             <Button variant="primary" onClick={() => window.location.href = '/choose-path'}>Continue to Next Topic</Button>
+             <Button variant="primary" onClick={() => navigate('/checklist')}>Complete Checklist</Button>
           </div>
         </Card>
       </div>
@@ -172,6 +229,16 @@ export default function Quiz() {
           )}
         </div>
       </Card>
+
+      <div className="mt-8 text-center">
+        <button 
+          onClick={handleRestart}
+          className="text-xs font-bold text-slate-400 hover:text-red-600 uppercase tracking-widest transition-colors flex items-center gap-2 mx-auto"
+        >
+          <span className="material-symbols-outlined text-sm">restart_alt</span>
+          Reset Quiz Progress
+        </button>
+      </div>
     </div>
   );
 }

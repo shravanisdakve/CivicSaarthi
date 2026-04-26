@@ -7,16 +7,19 @@ export default function Footer() {
         {/* Brand */}
         <div className="flex flex-col gap-1 text-center md:text-left">
           <span className="font-['Public_Sans'] font-bold text-primary text-base">CivicSaarthi</span>
-          <span className="text-xs uppercase tracking-widest text-slate-400">
-            © 2024 CivicSaarthi. Built with institutional reliability. Powered by Google Cloud Run and Gemini.
+          <span className="text-xs text-slate-500 font-medium tracking-wide">
+            Built for PromptWars Challenge 2
+          </span>
+          <span className="text-xs text-slate-400">
+            © 2026 CivicSaarthi. Powered by Google Cloud Run + Gemini.
           </span>
         </div>
 
         {/* Links */}
         <div className="flex flex-wrap justify-center gap-6 text-xs uppercase tracking-widest text-slate-400">
-          <Link to="/safety" className="hover:text-primary transition-colors">Neutrality Policy</Link>
+          <Link to="/safety" className="hover:text-primary transition-colors">Safety Policy</Link>
           <Link to="/safety" className="hover:text-primary transition-colors">Privacy Notes</Link>
-          <Link to="/about" className="hover:text-primary transition-colors">Project Credits</Link>
+          <Link to="/about" className="hover:text-primary transition-colors">About Project</Link>
         </div>
       </div>
     </footer>

@@ -27,7 +27,7 @@ export default function Safety() {
           <span className="material-symbols-outlined text-primary text-3xl mb-4">security</span>
           <h2 className="font-['Public_Sans'] text-xl font-bold text-on-surface mb-3">Privacy & Data Safety</h2>
           <p className="text-sm text-on-surface-variant leading-relaxed">
-            We do not track your political preferences, voting history, or demographic data to build profiles. Queries to the Assistant are processed ephemerally and are not used to train future commercial AI models.
+            CivicSaarthi does not store or log your queries on its own servers. If Gemini is used, requests are processed by Google's AI services according to Google's applicable terms and privacy policies. Avoid entering sensitive personal information. CivicSaarthi does not collect Aadhaar, voter ID, phone number, address, live location, or political preferences.
           </p>
         </Card>
         <Card className="p-6 md:p-8" hover={false}>

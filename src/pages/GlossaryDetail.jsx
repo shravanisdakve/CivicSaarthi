@@ -8,6 +8,7 @@ export default function GlossaryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [askInput, setAskInput] = useState('');
+  const [isAsking, setIsAsking] = useState(false);
   
   const term = glossaryTerms.find((t) => t.id === id);
 
@@ -22,12 +23,21 @@ export default function GlossaryDetail() {
 
   const handleAsk = (e) => {
     e.preventDefault();
-    if (!askInput.trim()) return;
-    navigate('/assistant', { state: { question: askInput } });
+    if (!askInput.trim() || isAsking) return;
+    setIsAsking(true);
+    setTimeout(() => {
+      navigate(`/assistant?prompt=${encodeURIComponent(askInput)}`);
+      setIsAsking(false);
+    }, 600);
   };
 
   const handleSuggested = (q) => {
-    navigate('/assistant', { state: { question: q } });
+    if (isAsking) return;
+    setIsAsking(true);
+    setTimeout(() => {
+      navigate(`/assistant?prompt=${encodeURIComponent(q)}`);
+      setIsAsking(false);
+    }, 600);
   };
 
   return (
@@ -43,6 +53,21 @@ export default function GlossaryDetail() {
         {/* Main Content (Left) */}
         <div className="md:col-span-2 space-y-8">
           <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]">verified</span>
+                Official-source guided
+              </span>
+              <a 
+                href="https://voters.eci.gov.in/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-blue-200 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                Verify with ECI
+              </a>
+            </div>
             <h1 className="font-['Public_Sans'] text-4xl md:text-5xl font-bold text-on-surface mb-2">{term.term}</h1>
             <p className="text-lg text-on-surface-variant">{term.fullForm}</p>
           </div>
@@ -99,7 +124,7 @@ export default function GlossaryDetail() {
           <div className="bg-surface-container-low rounded-xl border border-slate-200 p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <span className="material-symbols-outlined text-primary">smart_toy</span>
-              <h3 className="font-['Public_Sans'] font-semibold text-on-surface">Ask Saarthi AI</h3>
+              <h3 className="font-['Public_Sans'] font-semibold text-on-surface">Ask CivicSaarthi AI</h3>
             </div>
             <p className="text-sm text-on-surface-variant mb-4">
               Still confused? Ask a specific question about {term.term}.
@@ -114,8 +139,16 @@ export default function GlossaryDetail() {
                   value={askInput}
                   onChange={(e) => setAskInput(e.target.value)}
                 />
-                <button type="submit" className="bg-primary text-white p-2 flex items-center justify-center hover:bg-primary-container transition-colors">
-                  <span className="material-symbols-outlined text-sm">send</span>
+                <button 
+                  type="submit" 
+                  disabled={isAsking || !askInput.trim()}
+                  className="bg-primary text-white p-2 flex items-center justify-center hover:bg-primary-container disabled:opacity-70 transition-colors"
+                >
+                  {isAsking ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <span className="material-symbols-outlined text-sm">send</span>
+                  )}
                 </button>
               </div>
             </form>
@@ -126,9 +159,10 @@ export default function GlossaryDetail() {
                   <button 
                     key={idx}
                     onClick={() => handleSuggested(q)}
-                    className="text-left text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-full transition-colors truncate"
+                    disabled={isAsking}
+                    className="text-left text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-full transition-colors truncate disabled:opacity-70"
                   >
-                    {q}
+                    {isAsking ? 'Asking...' : q}
                   </button>
                 ))}
               </div>

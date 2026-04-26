@@ -1,219 +1,237 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import { getLocalResponse } from '../utils/localAssistant.js';
+import { useTranslation } from '../hooks/useTranslation.js';
+import { normalizeUserMessage, containsUnsafePersonalDataHint, isValidChatMessage } from '../utils/inputSafety.js';
+import { getProfile } from '../utils/profileStorage.js';
+import Button from '../components/Button.jsx';
+import Card from '../components/Card.jsx';
 
 const SUGGESTED = [
-  'How do I find my polling place?',
-  'What is a ballot measure?',
-  'How do I register to vote?',
-  'What documents do I need to vote?',
+  'Walk me through the election process step by step.',
+  'What is VVPAT and how does it work?',
+  'How do I verify my name in the electoral roll?',
+  'What is the Model Code of Conduct?',
+  'What documents can I carry to vote?',
+  'What is NOTA and how does it work?',
 ];
-
-const INFRA = [
-  { icon: 'cloud', label: 'Google Cloud Run' },
-  { icon: 'psychology', label: 'Gemini AI Models' },
-  { icon: 'key', label: 'Secret Manager' },
-];
-
-const WELCOME = {
-  role: 'ai',
-  text: "Hello! I'm your Civic Assistant. I can help you understand the voting process, find your polling station, or explain complex electoral terms in simple language. How can I assist you today?",
-};
 
 export default function Assistant() {
+  const [searchParams] = useSearchParams();
   const location = useLocation();
-  const navigate = useNavigate();
-  const [messages, setMessages] = useState([WELCOME]);
+  const { t, language: lang } = useTranslation();
+  
+  const [messages, setMessages] = useState(() => {
+    const saved = sessionStorage.getItem('civicChatHistory');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const bottomRef = useRef(null);
+  const [validationError, setValidationError] = useState('');
+  const [privacyWarning, setPrivacyWarning] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  // Pre-fill question from navigation state (e.g. from Timeline or Checklist)
-  useEffect(() => {
-    const q = location.state?.question;
-    if (q) setInput(q);
-  }, [location.state]);
+  const WELCOME = {
+    role: 'ai',
+    text: lang === 'hi' 
+      ? "नमस्ते! मैं CivicSaarthi हूँ। मैं आपकी कैसे सहायता कर सकता हूँ?"
+      : lang === 'mr'
+      ? "नमस्कार! मी CivicSaarthi आहे. मी तुम्हाला आज कशी मदत करू शकतो?"
+      : "Hello! I'm CivicSaarthi. I'm your neutral election-readiness companion. How can I assist you today?",
+  };
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length === 0) setMessages([WELCOME]);
+  }, [lang]);
+
+  // Handle query param or state prompt
+  useEffect(() => {
+    const prompt = searchParams.get('prompt') || location.state?.question;
+    if (prompt) {
+      // Check if this was already handled to avoid double sending
+      const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+      if (lastUserMsg?.text !== prompt) {
+        sendMessage(prompt);
+      }
+    }
+  }, [searchParams, location.state]);
+
+  useEffect(() => {
+    const historyToSave = messages.slice(-20);
+    sessionStorage.setItem('civicChatHistory', JSON.stringify(historyToSave));
+    scrollToBottom();
   }, [messages, loading]);
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const sendMessage = async (text) => {
-    const userText = (text || input).trim();
-    if (!userText) return;
+    const rawText = text || input;
+    const userText = normalizeUserMessage(rawText);
+    
+    if (!isValidChatMessage(userText)) {
+      setValidationError('Min 2 characters.');
+      setTimeout(() => setValidationError(''), 3000);
+      return;
+    }
+    
+    if (containsUnsafePersonalDataHint(userText)) {
+      setPrivacyWarning(true);
+      return;
+    }
+
+    setPrivacyWarning(false);
+    setValidationError('');
     setInput('');
     setMessages((prev) => [...prev, { role: 'user', text: userText }]);
     setLoading(true);
 
     try {
-      const persona = (() => { try { return localStorage.getItem('civicPersona') || 'general'; } catch { return 'general'; } })();
+      const persona = getProfile().selectedPersona || 'general';
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userText, persona }),
+        body: JSON.stringify({ message: userText, persona, language: lang }),
       });
+      
       const data = await res.json();
-      setMessages((prev) => [...prev, { role: 'ai', text: data.response || data.error || 'No response received.' }]);
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: 'ai', text: 'I\'m having trouble connecting right now. Please check your network and try again, or ask another question.' },
-      ]);
+      setMessages((prev) => [...prev, { 
+        role: 'ai', 
+        text: data.response || data.error || 'No response received.',
+        grounded: data.grounded,
+        references: data.references
+      }]);
+    } catch (err) {
+      const fallback = getLocalResponse(userText);
+      setMessages((prev) => [...prev, { 
+        role: 'ai', 
+        text: fallback, 
+        isFallback: true,
+        error: true
+      }]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = (e) => { e.preventDefault(); sendMessage(); };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sendMessage();
+  };
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8">
-      <div className="grid md:grid-cols-3 gap-6 items-start">
-
-        {/* LEFT: Chat Panel */}
-        <section className="md:col-span-2 bg-white rounded-xl border border-slate-200 shadow-card flex flex-col" style={{ minHeight: '70vh' }}>
-          {/* Chat Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-xl">smart_toy</span>
-              </div>
-              <div>
-                <p className="font-['Public_Sans'] font-semibold text-on-surface">Civic Assistant</p>
-                <p className="text-xs text-green-600 flex items-center gap-1">
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
-                  Powered by Gemini
-                </p>
-              </div>
-            </div>
-            <button className="text-slate-400 hover:text-slate-600 transition-colors" aria-label="Options">
-              <span className="material-symbols-outlined">more_vert</span>
-            </button>
+    <div className="max-w-screen-md mx-auto px-6 py-12 flex flex-col h-[calc(100vh-160px)]">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-lg overflow-hidden">
+             <img src="/assistant-icon.jpg" alt="AI Icon" className="w-full h-full object-cover" />
           </div>
+          <div>
+            <h1 className="font-['Public_Sans'] text-2xl font-bold text-on-surface">CivicSaarthi AI</h1>
+            <p className="text-xs text-on-surface-variant flex items-center gap-1">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              Neutral Election Assistant
+            </p>
+          </div>
+        </div>
+        <Button variant="outline" onClick={() => {
+           setMessages([WELCOME]);
+           sessionStorage.removeItem('civicChatHistory');
+        }} className="text-xs py-1 px-3 h-auto">
+          Clear Chat
+        </Button>
+      </div>
 
-          {/* Messages */}
-          <div className="flex-grow overflow-y-auto px-5 py-4 flex flex-col gap-5" aria-live="polite" aria-label="Chat messages">
-            <div className="text-center">
-              <span className="text-xs text-slate-400 bg-slate-100 px-3 py-1 rounded-full">Conversation started today</span>
-            </div>
-
-            {messages.map((msg, i) => (
-              <div key={i} className={`flex gap-3 msg-enter ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                {msg.role === 'ai' && (
-                  <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-white text-lg">smart_toy</span>
+      <Card className="flex-grow flex flex-col overflow-hidden bg-white/50 backdrop-blur-sm border-slate-200">
+        <div className="flex-grow overflow-y-auto p-6 space-y-6">
+          {messages.map((msg, i) => (
+            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[80%] rounded-2xl p-4 text-sm leading-relaxed shadow-sm ${
+                msg.role === 'user' 
+                  ? 'bg-primary text-white rounded-tr-none' 
+                  : 'bg-white border border-slate-100 rounded-tl-none text-on-surface'
+              }`}>
+                <div className="whitespace-pre-wrap">{msg.text}</div>
+                
+                {msg.grounded && (
+                  <div className="mt-3 pt-2 border-t border-slate-100">
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-green-700 uppercase mb-2">
+                      <span className="material-symbols-outlined text-[14px]">verified</span>
+                      Official Source Grounded
+                    </div>
+                    {msg.references && (
+                      <div className="space-y-1">
+                        {msg.references.slice(0, 2).map((ref, idx) => (
+                          <a key={idx} href={ref.sourceUrl} target="_blank" rel="noopener noreferrer" className="block text-[10px] text-primary hover:underline truncate">
+                             • {ref.title}
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
-                {msg.role === 'user' && (
-                  <div className="w-9 h-9 rounded-full bg-secondary-fixed flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-primary text-lg">person</span>
+
+                {msg.isFallback && (
+                  <div className="mt-2 pt-2 border-t border-amber-100 flex items-center gap-1 text-[10px] font-bold text-amber-700 italic">
+                    <span className="material-symbols-outlined text-[14px]">cloud_off</span>
+                    Offline Mode Guidance
                   </div>
                 )}
-                <div
-                  className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                    msg.role === 'user'
-                      ? 'bg-secondary text-white rounded-tr-sm'
-                      : 'bg-surface-container text-on-surface rounded-tl-sm'
-                  }`}
-                >
-                  {msg.text}
-                </div>
               </div>
-            ))}
+            </div>
+          ))}
+          {loading && (
+             <div className="flex justify-start">
+               <div className="bg-white px-4 py-2 rounded-full border border-slate-100 flex gap-1 shadow-sm">
+                 <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce"></span>
+                 <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                 <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+               </div>
+             </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
 
-            {/* Typing indicator */}
-            {loading && (
-              <div className="flex gap-3 msg-enter">
-                <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-white text-lg">smart_toy</span>
-                </div>
-                <div className="bg-surface-container px-4 py-3 rounded-2xl rounded-tl-sm flex gap-1 items-center">
-                  <span className="dot w-2 h-2 bg-slate-400 rounded-full"></span>
-                  <span className="dot w-2 h-2 bg-slate-400 rounded-full"></span>
-                  <span className="dot w-2 h-2 bg-slate-400 rounded-full"></span>
-                </div>
-              </div>
-            )}
-            <div ref={bottomRef} />
-          </div>
-
-          {/* Suggested Chips */}
-          <div className="px-5 py-3 border-t border-slate-100 flex flex-wrap gap-2">
-            {SUGGESTED.map((q) => (
-              <button
+        <div className="p-4 bg-white border-t border-slate-100">
+          <div className="flex gap-2 overflow-x-auto pb-3 mb-2 no-scrollbar">
+            {SUGGESTED.map(q => (
+              <button 
                 key={q}
                 onClick={() => sendMessage(q)}
                 disabled={loading}
-                className="text-xs border border-slate-200 text-slate-600 px-3 py-1.5 rounded-full hover:border-primary hover:text-primary hover:bg-surface-container-low transition-colors disabled:opacity-50"
+                className="whitespace-nowrap text-[11px] font-semibold px-4 py-2 rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-all bg-slate-50"
               >
                 {q}
               </button>
             ))}
           </div>
 
-          {/* Input Form */}
-          <form onSubmit={handleSubmit} className="px-5 pb-5">
-            <div className="flex items-center gap-3 border border-slate-200 rounded-full px-4 py-2.5 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all bg-white">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask a question about voting..."
-                className="flex-grow text-sm bg-transparent outline-none text-on-surface placeholder-slate-400"
-                aria-label="Type your question"
-                disabled={loading}
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary-container disabled:opacity-40 transition-colors shrink-0"
-                aria-label="Send message"
-              >
-                <span className="material-symbols-outlined text-sm">send</span>
-              </button>
-            </div>
-            <p className="text-center text-xs text-slate-400 mt-2">AI can make mistakes. Verify important information.</p>
-          </form>
-        </section>
+          {validationError && <p className="text-xs text-red-600 font-bold mb-2">{validationError}</p>}
+          {privacyWarning && <p className="text-xs text-amber-700 font-bold mb-2">Avoid sensitive data like Voter IDs.</p>}
 
-        {/* RIGHT: Sidebar */}
-        <aside className="flex flex-col gap-4">
-          {/* Neutrality & Safety */}
-          <div className="bg-white rounded-xl border-l-4 border-primary border border-slate-200 p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined text-primary">security</span>
-              <h3 className="font-['Public_Sans'] font-semibold text-on-surface">Neutrality &amp; Safety</h3>
-            </div>
-            <p className="text-sm text-on-surface-variant">
-              This assistant is designed to provide factual, non-partisan information about electoral processes. It does not endorse candidates or political parties.
-            </p>
-          </div>
-
-          {/* Privacy Focus */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined text-slate-500">lock</span>
-              <h3 className="font-['Public_Sans'] font-semibold text-on-surface">Privacy Focus</h3>
-            </div>
-            <p className="text-sm text-on-surface-variant mb-3">
-              Your conversation is secure. We do not store personally identifiable information linked to your voting queries.
-            </p>
-            <button onClick={() => navigate('/safety')} className="text-sm text-primary hover:underline">
-              Read our Privacy Notes
+          <form onSubmit={handleSubmit} className="flex gap-3">
+            <input 
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your question about Indian elections..."
+              className="flex-grow px-6 py-3 bg-slate-100 border-none rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              disabled={loading}
+            />
+            <button 
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50 transition-all"
+            >
+              <span className="material-symbols-outlined">send</span>
             </button>
-          </div>
-
-          {/* Infrastructure */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5">
-            <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-3">Infrastructure</p>
-            {INFRA.map((item) => (
-              <div key={item.label} className="flex items-center gap-3 py-2">
-                <span className="material-symbols-outlined text-primary">{item.icon}</span>
-                <span className="text-sm text-on-surface">{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </aside>
-      </div>
+          </form>
+          <p className="text-[10px] text-center text-slate-400 mt-3">
+            CivicSaarthi AI provides non-partisan information. Your chat is stored locally in this session.
+          </p>
+        </div>
+      </Card>
     </div>
   );
 }

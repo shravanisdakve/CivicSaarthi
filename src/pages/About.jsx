@@ -1,7 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card.jsx';
-import Badge from '../components/Badge.jsx';
+import Button from '../components/Button.jsx';
 
 export default function About() {
+  const navigate = useNavigate();
+
   return (
     <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-12">
       {/* Header */}
@@ -23,16 +26,45 @@ export default function About() {
           <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
             CivicSaarthi was built with institutional reliability and democratic accessibility at its core. Recognizing that electoral processes can often feel opaque or overly bureaucratic, this platform serves as an unbiased guide for citizens. We employ a "Soft Minimalist" approach to strip away friction, allowing the gravity of the civic duty to remain central.
           </p>
-          <div className="w-full h-48 bg-slate-200 rounded-xl overflow-hidden relative">
-            {/* Using a generic placeholder similar to the reference, avoiding external stitch images */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-fixed to-secondary-fixed flex items-center justify-center">
-               <span className="material-symbols-outlined text-white text-6xl opacity-50">how_to_vote</span>
+          <div className="w-full py-8 bg-surface-container-low rounded-xl overflow-hidden relative border border-slate-100 shadow-inner">
+            <div className="flex items-center justify-center gap-4 md:gap-8 max-w-md mx-auto relative z-10">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-primary">
+                  <span className="material-symbols-outlined">person</span>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-tighter text-slate-500">Citizen</span>
+              </div>
+              <div className="flex-grow h-0.5 bg-slate-200 relative">
+                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 border-t-2 border-r-2 border-slate-300"></div>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 rounded-full bg-primary shadow-md flex items-center justify-center text-white">
+                  <span className="material-symbols-outlined">auto_awesome</span>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-tighter text-primary">Journey</span>
+              </div>
+              <div className="flex-grow h-0.5 bg-slate-200 relative">
+                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 border-t-2 border-r-2 border-slate-300"></div>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-green-600">
+                  <span className="material-symbols-outlined">verified</span>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-tighter text-slate-500">Official</span>
+              </div>
+            </div>
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+              <div className="absolute top-0 left-0 w-full h-full grid grid-cols-6 grid-rows-3">
+                {[...Array(18)].map((_, i) => (
+                  <div key={i} className="border border-primary"></div>
+                ))}
+              </div>
             </div>
           </div>
         </Card>
 
-        <div className="bg-primary text-white rounded-xl p-8 flex flex-col justify-center relative overflow-hidden">
-          <div className="absolute top-8 right-8 opacity-10">
+        <div className="bg-primary text-white rounded-xl p-8 flex flex-col justify-center relative overflow-hidden group">
+          <div className="absolute top-8 right-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
             <span className="material-symbols-outlined" style={{ fontSize: '100px' }}>how_to_vote</span>
           </div>
           <span className="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full w-fit mb-4">Track Focus</span>
@@ -97,19 +129,35 @@ export default function About() {
       </div>
 
       {/* Powered by Google Cloud Footer Banner */}
-      <Card className="p-8 border-l-4 border-l-primary border-t-0 border-r-0 border-b-0 rounded-l-none" hover={false}>
-         <h2 className="font-['Public_Sans'] text-xl font-bold text-primary mb-6">Powered by Google Cloud</h2>
+      <Card className="p-8 border-l-4 border-l-primary border-t-0 border-r-0 border-b-0 rounded-l-none mb-12" hover={false}>
+         <h2 className="font-['Public_Sans'] text-xl font-bold text-primary mb-6">Powered by Google Cloud & Modern Web</h2>
          <div className="flex flex-wrap gap-4">
-            {['Cloud Run', 'Gemini API', 'Cloud SQL', 'Cloud Identity'].map(tech => (
-               <div key={tech} className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-md">
+            {['Cloud Run', 'Gemini API', 'React', 'Tailwind CSS'].map(tech => (
+               <div key={tech} className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-md hover:bg-primary-fixed transition-colors cursor-default">
                   <span className="material-symbols-outlined text-secondary text-sm icon-fill">
-                     {tech.includes('Gemini') ? 'psychology' : tech.includes('SQL') ? 'database' : tech.includes('Identity') ? 'shield' : 'cloud'}
+                     {tech.includes('Gemini') ? 'psychology' : tech.includes('React') ? 'code' : tech.includes('Tailwind') ? 'palette' : 'cloud'}
                   </span>
                   <span className="text-sm font-semibold text-on-surface">{tech}</span>
                </div>
             ))}
          </div>
       </Card>
+
+      {/* Final CTA */}
+      <div className="text-center py-10 bg-surface-container-low rounded-3xl border border-slate-200 shadow-sm">
+        <h2 className="font-['Public_Sans'] text-2xl font-bold text-on-surface mb-4">Ready to start your civic journey?</h2>
+        <p className="text-on-surface-variant mb-8 max-w-md mx-auto text-sm">
+          Join thousands of voters using CivicSaarthi to navigate the electoral process with absolute confidence.
+        </p>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Button variant="primary" size="lg" onClick={() => navigate('/choose-path')}>
+            Get Started Now
+          </Button>
+          <Button variant="outline" size="lg" onClick={() => navigate('/timeline')}>
+            View Election Timeline
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

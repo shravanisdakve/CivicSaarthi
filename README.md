@@ -1,79 +1,139 @@
 # CivicSaarthi
 
-**Understand Elections Step by Step**
-
-CivicSaarthi is an AI-powered, non-partisan web platform built to help Indian citizens navigate the electoral process. Designed with institutional reliability and accessibility at its core, it translates complex bureaucratic jargon into clear, actionable guidance.
+**Understand. Prepare. Verify. Vote.**
 
 ## Problem Statement
-Electoral processes can often feel opaque or overly bureaucratic, leading to voter apathy and confusion. Information is scattered across multiple portals, and finding simple answers to procedural questions is difficult.
+Create an assistant that helps users understand the election process, timelines, and steps in an interactive and easy-to-follow way.
 
 ## Chosen Vertical
-**Civic Tech & Democratic Accessibility.** Focused specifically on voter education, transparent timeline tracking, and AI-driven clarification of complex legislative or procedural jargon.
+Election process education for citizens.
 
-## Approach and Logic
-We employed a "Soft Minimalist" design philosophy, stripping away visual friction to keep the gravity of the civic duty central. The application uses **Progressive Disclosure**:
-1. **Assess Eligibility**: Persona-based paths tailor the experience.
-2. **Build Your Checklist**: Actionable, trackable steps ensuring readiness.
-3. **Understand the Ballot**: AI translation layer explaining terms like VVPAT, MCC, and NOTA.
+## Main USP
+CivicSaarthi is not just an election chatbot. It is a complete election-readiness companion that helps users understand, prepare, verify, and participate responsibly. Its **Guided Election Journey Mode** walks users through the 9 core stages of the election process, connecting AI guidance directly to the visual timeline and readiness checklist.
+
+## User Personas
+- First-Time Voter
+- Student / Researcher
+- Candidate
+- Observer
+- General Citizen
 
 ## Features
-- **Persona-based Routing**: Tailored content for First-time Voters, Students, Observers, etc.
-- **Interactive Election Timeline**: Tracks the 9 stages from announcement to result declaration.
-- **Voter Readiness Checklist**: Saveable progress tracking with a final "Voter Ready" badge.
-- **Election Glossary**: Searchable, categorised terminology database.
-- **Civic Assistant (AI)**: Context-aware, strictly neutral chatbot for electoral queries.
-- **Knowledge Quiz**: Gamified learning with immediate feedback.
+- **Guided Election Journey Mode**: An interactive, step-by-step walkthrough of the 9 core election stages.
+- **Onboarding Intro**: A clear, 4-step interactive welcome experience explaining purpose, neutrality, and privacy.
+- **Persona-based personalized guidance**: Tailored content for first-time voters, students, and more.
+- **Visual election timeline tracker**: 9-stage phase-by-phase tracker from announcement to results.
+- **Interactive voter readiness checklist**: 7-step actionable preparation to-dos.
+- **Real downloadable Election Readiness Summary**: Turn civic learning into an actionable PDF artifact.
+- **Neutral AI chatbot with Local Fallback**: Safe, non-partisan answers even if the API is offline.
+- **Official-source grounding**: Grounded answers with direct links to verified portals.
+- **Privacy-conscious architecture**: No collection of PII or political preferences.
 
-## Google Cloud Services Used
-- **Google Cloud Run**: Serverless compute scaling instantly from zero to handle election-day traffic spikes.
-- **Gemini Pro API**: Powers the Civic Assistant, handling natural language queries with a strict system prompt enforcing non-partisanship.
-- **Secret Manager**: Securely stores Gemini API keys away from application code.
-- **Cloud Build & Artifact Registry**: Handles CI/CD pipelines and secure container storage.
+## Approach & Logic
+CivicSaarthi turns complex election information into an actionable journey. Instead of a simple Q&A bot, it guides users through preparation steps while offering an AI assistant for deep-dives.
 
-## Security & Neutrality
-- **Server-side API calls**: The Gemini API key is never exposed to the frontend; all requests proxy through the Express backend.
-- **Strict Refusal Logic**: Both the AI system prompt and the local fallback mechanism are explicitly programmed to refuse political persuasion, candidate endorsements, or bias queries (e.g., "Who should I vote for?").
-- **Local Fallback**: If the Gemini API is unreachable or keys are missing, the app gracefully falls back to a local, regex-based factual assistant.
+## Google Services Used
+- **Google Cloud Run**: Hosts the web application and backend.
+- **Gemini API**: Powers the intelligent, neutral civic assistant.
+- **Google Maps Platform**: Integrated for privacy-safe discovery of Election Offices and Help Centers.
+- **Secret Manager**: Secures the Gemini API key.
+- **Cloud Build / Artifact Registry**: Deployment pipeline.
 
-## Accessibility
-- WCAG 2.1 AA compliant color contrast (using Material Design 3 tokens).
-- Semantic HTML and ARIA labels for chat live regions.
-- Mobile-first responsive design for low-bandwidth networks.
+## Evaluation Focus Mapping
 
-## Testing
-Run the automated test suite to verify module integrity:
-\`\`\`bash
-npm test
-\`\`\`
-*(Tests validate file structure, timeline stages, data integrity, AI refusal logic, and frontend key security).*
+| Evaluation Area | How CivicSaarthi addresses it |
+|---|---|
+| Code Quality | Centralized localization via LanguageProvider and useTranslation hook. Reusable React components, clean data files, readable structure. |
+| Security & Privacy | Input normalization and privacy warnings reduce accidental sensitive data entry. Server-side Gemini key, no sensitive data collection, neutral AI guardrails. |
+| Efficiency | Lightweight React app, no heavy assets, local fallback, small repo (~330KB JS bundle). No heavy PDF library required. |
+| Practical Usability | Persona-based tracking, official-source grounding, and personalized readiness summary downloads. |
+| Testing | Automated validation of Refusal patterns, knowledge matching, localization fallback, and architecture integrity. |
+| Accessibility | Language toggle (EN, HI, MR), skip link, aria-live chat, focus-trapped modals, WCAG-focused contrast pass, and reduced-motion support. |
+| Google Services | Cloud Run deployment, Gemini API, Google Maps (Election Office discovery), Secret Manager, Cloud Build, Artifact Registry |
 
-## Local Run Steps
-1. Clone the repository and install dependencies:
-   \`\`\`bash
-   npm install
-   \`\`\`
-2. Configure environment variables:
-   Copy \`.env.example\` to \`.env\` and add your Gemini API Key:
-   \`\`\`env
-   GEMINI_API_KEY=your_actual_key_here
-   PORT=3001
-   \`\`\`
-3. Start the application (runs both backend and Vite frontend concurrently):
-   \`\`\`bash
-   npm run dev
-   \`\`\`
-4. Visit \`http://localhost:5173\` in your browser.
+## Quality Improvements (Final Pass)
+- **Centralized Localization**: Refactored language management into a React Context Provider and custom hook, ensuring DRY code and consistent persistence.
+- **Official-Source Guided AI**: Grounded AI answers now feature polished reference cards with clickable links to verified portals.
+- **Privacy-Aware Input Safety**: Added real-time input normalization and sensitive data detection to prevent accidental entry of PII (Aadhaar, IDs).
+- **Reduced-Motion Support**: Implemented CSS support for users with motion sensitivity.
+- **WCAG Contrast Pass**: Optimized badge and button colors to ensure 100% readable status indicators.
+- **Architecture Validation**: Added a secondary quality-check test suite to verify code structure and data integrity.
 
-## Cloud Run Deployment Steps
-1. Build the frontend for production:
-   \`\`\`bash
-   npm run build
-   \`\`\`
-   *(This outputs the static files to the \`/dist\` directory).*
-2. Ensure your \`server.js\` is configured to serve static files from \`/dist\` in production mode.
-3. Push code to Google Cloud Source Repositories or GitHub.
-4. Set up **Cloud Build** to build the Docker image and push to **Artifact Registry**.
-5. Deploy to **Cloud Run**, ensuring you pass the \`GEMINI_API_KEY\` via **Secret Manager**.
+## Language Accessibility
+CivicSaarthi includes a lightweight language toggle for **English, Hindi, and Marathi**. 
+- **Curated UI Translations**: Key navigation, safety warnings, and readiness labels are translated through a controlled local dictionary to ensure accuracy.
+- **Localized AI Answers**: When Gemini is available, the assistant responds in the user's selected language using simple, clear civic terminology while keeping technical terms (EVM, VVPAT, etc.) readable.
+- **Accessibility Fallback**: If a specific detailed guidance is only available in English, the app provides a clear localized disclaimer and encourages verification from official sources.
+
+## Manual QA Checklist
+- [x] Home page loads
+- [x] Language toggle for English, Hindi, Marathi works
+- [x] Choose Path works
+- [x] Selected persona persists
+- [x] Assistant answers common election questions
+- [x] Assistant refuses political persuasion
+- [x] Timeline stage selection works
+- [x] Checklist progress persists
+- [x] Glossary search works
+- [x] Ask AI from glossary works
+- [x] Quiz scoring works
+- [x] Sources page links work
+- [x] Polling Station Helper shows privacy disclaimer
+- [x] Architecture page shows Google Services
+- [x] Mobile layout checked
+- [x] Keyboard navigation checked
+- [x] Cloud Run deployed URL tested
+
+## Final Submission Checklist
+- [x] Public GitHub repo
+- [x] One branch only: main
+- [x] node_modules not committed
+- [x] .env not committed
+- [x] .env.yaml not committed
+- [x] Repo size checked
+- [x] npm test passed
+- [x] npm run build passed
+- [x] Cloud Run URL working
+- [x] Gemini secret configured
+- [x] LinkedIn post ready
+
+## Authentication and Profile
+CivicSaarthi features a polished, privacy-first authentication system:
+- **Google Sign-In (Optional)**: If `VITE_GOOGLE_CLIENT_ID` is configured, users can sync their dashboard across devices.
+- **Guest Mode**: Users can choose to stay anonymous. Progress is stored entirely on the local device.
+- **My Civic Profile**: A comprehensive dashboard showing readiness scores, civic points, and recommended next steps.
+- **Privacy Safeguards**: No sensitive data like Aadhaar, voter ID, phone number, or political preference is collected.
+
+## Why no mandatory login?
+Election-related apps must be privacy-conscious to build trust. CivicSaarthi keeps login optional, letting users access critical civic guidance without ever needing to provide personally identifiable information.
+
+## Official-Source Grounding
+CivicSaarthi includes a lightweight curated knowledge base for common election topics. User questions are matched against this knowledge base before the Gemini prompt is generated. This helps reduce hallucination risk and makes answers more transparent by providing direct official references.
+
+## Why not full RAG?
+For the hackathon prototype, CivicSaarthi uses a lightweight structured knowledge base instead of large PDF ingestion or vector databases. This keeps the repository small, highly reliable, and deployable under the challenge size constraints while still demonstrating the value of grounded AI answers.
+
+## Deployment Guide (Google Cloud Run)
+
+CivicSaarthi is optimized for Google Cloud Run. Follow these steps to deploy:
+
+1. **Build and Push to Artifact Registry**:
+   ```bash
+   gcloud builds submit --tag gcr.io/[PROJECT_ID]/civic-saarthi
+   ```
+
+2. **Deploy to Cloud Run**:
+   ```bash
+   gcloud run deploy civicsaarthi \
+     --source . \
+     --region asia-south1 \
+     --allow-unauthenticated \
+     --set-secrets GEMINI_API_KEY=gemini-api-key:latest \
+     --set-env-vars GEMINI_MODEL=gemini-2.0-flash
+   ```
+
+3. **Verify Deployment**:
+   The service will provide a public URL. Ensure `GEMINI_API_KEY` is correctly mapped from Secret Manager.
 
 ## Assumptions
 - Users primarily access civic information via mobile devices on limited bandwidth networks.
@@ -81,4 +141,4 @@ npm test
 - Trust is paramount; hence the UI must feel authoritative, secure, and entirely unbiased.
 
 ---
-*© 2024 CivicSaarthi. Built with institutional reliability. Powered by Google Cloud Run and Gemini.*
+*Built for PromptWars Challenge 2. Powered by Google Cloud Run + Gemini.*

@@ -1,0 +1,26 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rounded Background Square -->
+  <rect width="512" height="512" rx="128" fill="#1A237E"/>
+  
+  <!-- Ballot Box Body (Darker Blue) -->
+  <path d="M120 220C120 197.909 137.909 180 160 180H352C374.091 180 392 197.909 392 220V380C392 402.091 374.091 420 352 420H160C137.909 420 120 402.091 120 380V220Z" fill="#0D1340"/>
+  
+  <!-- Ballot Box Top (Slightly lighter) -->
+  <path d="M160 180L120 220V240H392V220L352 180H160Z" fill="#1A237E" fill-opacity="0.5"/>
+  
+  <!-- Paper Sticking Out -->
+  <rect x="200" y="80" width="112" height="140" rx="8" fill="white"/>
+  
+  <!-- Checkmark on Paper -->
+  <path d="M225 155L245 175L290 130" stroke="#1A237E" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Slot on Box -->
+  <rect x="180" y="185" width="152" height="15" rx="7.5" fill="#0D1340" stroke="white" stroke-width="2"/>
+  
+  <!-- Winding Path with Arrow (Light Blue) -->
+  <path d="M120 380C160 340 240 300 320 280C360 270 400 270 425 295L445 315L435 250L445 315L380 305" stroke="#C5CAE9" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Dots on Path -->
+  <circle cx="150" cy="355" r="12" fill="#C5CAE9"/>
+  <circle cx="280" cy="295" r="12" fill="#C5CAE9"/>
+</svg>

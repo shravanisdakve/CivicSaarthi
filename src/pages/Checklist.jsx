@@ -1,35 +1,62 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { checklistItems } from '../data/checklist.js';
-
-const STORAGE_KEY = 'civicChecklist';
-
-function loadChecked() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
+import Button from '../components/Button.jsx';
+import { getChecklistProgress, saveChecklistProgress } from '../utils/profileStorage.js';
+import { useTranslation } from '../hooks/useTranslation.js';
+import Dialog from '../components/Dialog.jsx';
 
 export default function Checklist() {
   const navigate = useNavigate();
-  const [checked, setChecked] = useState(loadChecked);
+  const [checked, setChecked] = useState(() => getChecklistProgress());
   const [voterReady, setVoterReady] = useState(false);
+  const [isResetOpen, setIsResetOpen] = useState(false);
+  const [isReminderOpen, setIsReminderOpen] = useState(false);
+  const { t } = useTranslation();
 
   const doneCount = checklistItems.filter((i) => checked[i.id]).length;
   const total = checklistItems.length;
   const pct = Math.round((doneCount / total) * 100);
 
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(checked)); } catch {}
-    if (doneCount === total) setVoterReady(true);
+    saveChecklistProgress(checked);
+    if (doneCount === total && doneCount > 0) setVoterReady(true);
   }, [checked, doneCount, total]);
 
   const toggle = (id) => setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  const handleResetConfirm = () => {
+    setChecked({});
+    setVoterReady(false);
+    setIsResetOpen(false);
+  };
+
   const handleAskAI = (question) => navigate('/assistant', { state: { question } });
+
+  const handleDownloadSummary = () => {
+    import('../utils/summaryExport.js').then(({ downloadReadinessSummary }) => {
+      const personaId = localStorage.getItem('civicPersona') || 'first-time';
+      const itemsWithStatus = checklistItems.map(i => ({ ...i, completed: !!checked[i.id] }));
+      
+      downloadReadinessSummary({
+        persona: personaId,
+        checklistItems: itemsWithStatus,
+        readinessPercent: pct,
+        nextAction: pct === 100 ? 'Go vote!' : t('dash.nextAction')
+      });
+      
+      const btn = document.activeElement;
+      if (btn) {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm">check</span> ${t('checklist.completed')}`;
+        setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+      }
+    });
+  };
+
+  const handleSetReminder = () => {
+    setIsReminderOpen(true);
+  };
 
   // Voter Ready screen
   if (voterReady) {
@@ -46,8 +73,8 @@ export default function Checklist() {
 
           <div className="bg-surface-container-low rounded-xl p-5 mb-6 text-left border border-slate-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-['Public_Sans'] font-semibold text-on-surface">Readiness Checklist</h2>
-              <span className="text-xs bg-primary-fixed text-on-primary-fixed px-3 py-1 rounded-full font-semibold">100% Complete</span>
+              <h2 className="font-['Public_Sans'] font-semibold text-on-surface">{t('dash.title')}</h2>
+              <span className="text-xs bg-primary-fixed text-primary px-3 py-1 rounded-full font-bold border border-primary/20">100% {t('checklist.completed')}</span>
             </div>
             {[
               { label: 'Voter Registration Verified', sub: 'Your status is active in the national registry.' },
@@ -62,29 +89,42 @@ export default function Checklist() {
                 </div>
               </div>
             ))}
-            <button className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 border border-slate-300 rounded-full text-sm text-on-surface hover:bg-slate-50 transition-colors">
+            <button 
+              onClick={handleDownloadSummary}
+              className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 border border-slate-300 rounded-full text-sm font-bold text-primary hover:bg-slate-50 hover:border-primary transition-colors disabled:opacity-50"
+              aria-label="Download readiness summary"
+            >
               <span className="material-symbols-outlined text-sm">download</span>
-              Download Readiness Summary PDF
+              {t('cta.downloadSummary')}
             </button>
           </div>
 
-          <p className="text-xs uppercase tracking-widest text-slate-400 mb-3 font-semibold">Recommended Next Steps</p>
+          <p className="text-xs uppercase tracking-widest text-slate-500 mb-3 font-bold">Recommended Next Steps</p>
           <div className="grid grid-cols-2 gap-3 mb-6">
             {[
-              { icon: 'location_on', title: 'Find Polling Station', sub: 'Locate your designated voting center and plan your route.' },
-              { icon: 'notification_add', title: 'Set Election Day Reminder', sub: "Add a calendar event to ensure you don't miss the deadline." },
+              { id: 'poll', icon: 'location_on', title: 'Find Polling Station', sub: 'Locate your designated voting center.', action: () => handleAskAI('How do I find my polling station for the upcoming election?') },
+              { id: 'remind', icon: 'notification_add', title: 'Set Election Day Reminder', sub: "Add a calendar event for polling day.", action: handleSetReminder },
             ].map((step) => (
-              <button key={step.title} className="flex flex-col items-start p-4 rounded-xl border border-slate-200 hover:border-primary text-left transition-all">
-                <span className="material-symbols-outlined text-primary bg-primary-fixed w-9 h-9 rounded-full flex items-center justify-center shrink-0 mb-3">{step.icon}</span>
-                <p className="font-semibold text-sm text-on-surface mb-1">{step.title}</p>
-                <p className="text-xs text-on-surface-variant">{step.sub}</p>
+              <button 
+                key={step.id} 
+                onClick={step.action}
+                className="flex flex-col items-start p-4 rounded-xl border border-slate-200 hover:border-primary text-left transition-all group"
+              >
+                <span className="material-symbols-outlined text-primary bg-primary-fixed w-9 h-9 rounded-full flex items-center justify-center shrink-0 mb-3 group-hover:scale-110 transition-transform">{step.icon}</span>
+                <p className="font-bold text-sm text-on-surface mb-1 leading-tight">{step.title}</p>
+                <p className="text-[10px] text-on-surface-variant leading-tight">{step.sub}</p>
               </button>
             ))}
           </div>
-          <button onClick={() => setVoterReady(false)} className="text-sm text-primary flex items-center gap-2 mx-auto hover:underline">
-            <span className="material-symbols-outlined text-base">arrow_back</span>
-            Return to Dashboard
-          </button>
+          <div className="flex flex-col gap-2">
+            <button onClick={() => setVoterReady(false)} className="text-sm text-primary font-bold flex items-center justify-center gap-2 hover:underline">
+              <span className="material-symbols-outlined text-base">list_alt</span>
+              Back to Checklist
+            </button>
+            <button onClick={() => navigate('/')} className="text-xs text-slate-500 hover:text-on-surface transition-colors font-semibold">
+              Return to Home
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -93,11 +133,31 @@ export default function Checklist() {
   return (
     <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-12">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-['Public_Sans'] text-3xl font-bold text-on-surface mb-2">Your Voter Checklist</h1>
-        <p className="text-on-surface-variant text-sm max-w-lg">
-          Follow these institutional steps to ensure you are fully prepared for election day. Your progress is automatically saved.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div>
+          <h1 className="font-['Public_Sans'] text-3xl font-bold text-on-surface mb-2">{t('checklist.title')}</h1>
+          <p className="text-on-surface-variant text-sm max-w-lg leading-relaxed">
+            Follow these institutional steps to ensure you are fully prepared for election day. Your progress is automatically saved.
+          </p>
+        </div>
+        {doneCount > 0 && (
+          <div className="flex items-center gap-3 w-fit">
+            <button 
+              onClick={handleDownloadSummary}
+              className="text-xs font-bold flex items-center gap-1 text-primary hover:bg-primary/5 px-3 py-1.5 rounded-full transition-all border border-slate-200"
+            >
+              <span className="material-symbols-outlined text-sm">download</span>
+              {t('cta.downloadSummary')}
+            </button>
+            <button 
+              onClick={() => setIsResetOpen(true)}
+              className="text-xs text-red-700 font-bold flex items-center gap-1 hover:underline w-fit px-3 py-1.5"
+            >
+              <span className="material-symbols-outlined text-sm">restart_alt</span>
+              Reset Progress
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Progress Card */}
@@ -105,71 +165,92 @@ export default function Checklist() {
         <div className="flex-grow">
           <div className="flex items-baseline gap-2 mb-2">
             <span className="font-['Public_Sans'] text-4xl font-bold text-on-surface">{pct}%</span>
-            <span className="text-on-surface-variant text-sm font-medium">Completed</span>
+            <span className="text-on-surface-variant text-sm font-bold uppercase tracking-tight">{t('checklist.completed')}</span>
           </div>
-          <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden mb-2">
+          <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden mb-2 shadow-inner">
             <div className="h-2.5 bg-primary rounded-full progress-bar" style={{ width: `${pct}%` }} />
           </div>
-          <p className="text-xs text-on-surface-variant">{doneCount} of {total} mandatory steps verified.</p>
+          <p className="text-xs text-on-surface-variant font-medium">{doneCount} of {total} mandatory steps verified.</p>
         </div>
         {/* Voter Ready badge */}
         <div className="shrink-0 text-center">
-          <div className={`w-16 h-16 rounded-full border-2 flex items-center justify-center mb-1 ${pct === 100 ? 'border-primary bg-primary-fixed' : 'border-slate-300 bg-slate-50'}`}>
-            <span className={`material-symbols-outlined text-2xl ${pct === 100 ? 'text-primary icon-fill' : 'text-slate-400'}`}>verified</span>
+          <div className={`w-16 h-16 rounded-full border-2 flex items-center justify-center mb-1 transition-all ${pct === 100 ? 'border-primary bg-primary-fixed scale-110 shadow-lg' : 'border-slate-300 bg-slate-50'}`}>
+            <span className={`material-symbols-outlined text-2xl ${pct === 100 ? 'text-primary icon-fill animate-pulse' : 'text-slate-400'}`}>verified</span>
           </div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">VOTER READY</p>
-          <p className="text-xs text-slate-400">{pct === 100 ? 'Achieved!' : 'Pending'}</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">VOTER READY</p>
+          <p className="text-[10px] text-slate-400 font-bold">{pct === 100 ? 'ACHIEVED' : t('checklist.pending').toUpperCase()}</p>
         </div>
       </div>
 
       {/* Checklist Items */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-card divide-y divide-slate-100">
-        <div className="p-5 pb-4">
-          <h2 className="font-['Public_Sans'] font-semibold text-on-surface">Preparation Steps</h2>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-card divide-y divide-slate-100 overflow-hidden">
+        <div className="p-5 bg-slate-50/50 flex items-center justify-between">
+          <h2 className="font-['Public_Sans'] font-bold text-sm text-on-surface">Preparation Steps</h2>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Action Items</span>
         </div>
         {checklistItems.map((item) => {
           const done = !!checked[item.id];
           return (
             <div
               key={item.id}
-              className={`flex items-center gap-4 px-5 py-4 transition-colors ${done ? '' : 'hover:bg-slate-50'}`}
+              className={`flex items-center gap-4 px-5 py-4 transition-colors ${done ? 'bg-slate-50/30' : 'hover:bg-slate-50'}`}
             >
               {/* Checkbox */}
               <button
                 onClick={() => toggle(item.id)}
                 aria-label={`Mark "${item.label}" as ${done ? 'incomplete' : 'complete'}`}
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                  done ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary'
+                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                  done ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary shadow-sm'
                 }`}
               >
                 {done && <span className="material-symbols-outlined text-white text-sm icon-fill">check</span>}
               </button>
 
               {/* Label */}
-              <div className={`flex-grow ${done ? 'opacity-60' : ''}`}>
-                <p className={`font-semibold text-sm text-on-surface ${done ? 'line-through' : ''}`}>{item.label}</p>
-                <p className="text-xs text-on-surface-variant">{item.detail}</p>
+              <div className={`flex-grow min-w-0 ${done ? 'opacity-60' : ''}`}>
+                <p className={`font-bold text-sm text-on-surface truncate ${done ? 'line-through text-slate-400' : ''}`}>{item.label}</p>
+                <p className="text-xs text-on-surface-variant line-clamp-1 leading-relaxed">{item.detail}</p>
               </div>
 
               {/* Status + Ask AI */}
-              <div className="flex items-center gap-2 shrink-0">
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${done ? 'bg-slate-100 text-slate-500' : 'bg-blue-50 text-primary'}`}>
-                  {done ? 'Done' : 'Pending'}
+              <div className="flex items-center gap-3 shrink-0">
+                <span className={`hidden sm:flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${done ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-blue-50 text-blue-900 border-blue-100'}`}>
+                  <span className="material-symbols-outlined text-[12px]">{done ? 'check_circle' : 'pending'}</span>
+                  {done ? t('checklist.completed') : t('checklist.pending')}
                 </span>
                 <button
                   onClick={() => handleAskAI(item.aiQuestion)}
-                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
-                    !done ? 'bg-primary text-white border-primary hover:bg-primary-container' : 'border-slate-300 text-on-surface-variant hover:bg-slate-50'
+                  className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full border transition-all ${
+                    !done ? 'bg-primary text-white border-primary hover:bg-primary-container shadow-md active:scale-95' : 'border-slate-300 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
                   <span className="material-symbols-outlined text-sm">smart_toy</span>
-                  Ask AI
+                  <span className="hidden xs:inline">{t('nav.assistant')}</span>
                 </button>
               </div>
             </div>
           );
         })}
       </div>
+
+      <Dialog 
+        isOpen={isResetOpen}
+        onClose={() => setIsResetOpen(false)}
+        onConfirm={handleResetConfirm}
+        title="Reset Progress?"
+        message="Are you sure you want to reset your checklist progress? This will clear all checked items."
+        confirmLabel="Reset Now"
+        cancelLabel="Keep Progress"
+      />
+
+      <Dialog 
+        isOpen={isReminderOpen}
+        onClose={() => setIsReminderOpen(false)}
+        title="Reminder Set!"
+        message="Election Day Reminder set! We will notify you via browser notifications on the morning of the election."
+        confirmLabel="Got it"
+        type="alert"
+      />
     </div>
   );
 }
