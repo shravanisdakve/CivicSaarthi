@@ -21,10 +21,10 @@ export function loginWithGoogle() {
   if (!clientId) {
     // Demo fallback for prototype
     saveProfile({
-      name: 'Demo User',
-      email: 'demo.user@example.com',
+      name: 'Shravani Dakve',
+      email: 'shravanisdakve@gmail.com',
       authProvider: 'google',
-      avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=0D8ABC&color=fff'
+      avatar: '/avatar.png'
     });
     return { success: true, demo: true };
   }

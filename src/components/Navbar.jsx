@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { to: '/quiz', label: 'nav.quiz' },
   { to: '/map', label: 'nav.map' },
   { to: '/sources', label: 'nav.sources' },
+  { to: '/quality', label: 'nav.quality' },
   { to: '/about', label: 'nav.about' },
 ];
 

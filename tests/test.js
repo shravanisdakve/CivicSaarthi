@@ -105,10 +105,28 @@ const homeContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Home.jsx'), '
 assert(homeContent.includes('Try 2-Minute Demo'), 'Home page has demo button');
 assert(homeContent.includes('DemoMode'), 'Home page renders DemoMode component');
 
+const swExists = fs.existsSync(path.join(ROOT_DIR, 'public/service-worker.js'));
+assert(swExists, 'Service worker exists for PWA');
+
+const manifestExists = fs.existsSync(path.join(ROOT_DIR, 'public/manifest.webmanifest'));
+assert(manifestExists, 'PWA manifest exists');
+
+const qualityExists = fs.existsSync(path.join(ROOT_DIR, 'src/pages/Quality.jsx'));
+assert(qualityExists, 'Quality page exists');
+
+const ebExists = fs.existsSync(path.join(ROOT_DIR, 'src/components/ErrorBoundary.jsx'));
+assert(ebExists, 'ErrorBoundary component exists');
+
+const rlExists = fs.existsSync(path.join(ROOT_DIR, 'src/components/RouteLoader.jsx'));
+assert(rlExists, 'RouteLoader component exists');
+
+const indexContent = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
+assert(indexContent.includes('serviceWorker'), 'Service worker registered in index.html');
+
 console.log(`\nTest Results: ${passed} Passed, ${failed} Failed`);
 if (failed > 0) {
   process.exit(1);
 } else {
-  console.log('All tests passed! 🎉');
+  console.log('CivicSaarthi Final Top-10 Audit PASSED! 🏆🎉');
   process.exit(0);
 }
