@@ -44,8 +44,9 @@ export default function Footer() {
                 Powered by Google Cloud Run, Gemini API, Secret Manager, Google Maps, Cloud Build, and Artifact Registry.
               </p>
             </div>
-            <div className="text-right">
+            <div className="text-right space-y-1">
               <p className="text-xs text-slate-400">© 2026 CivicSaarthi. All rights reserved.</p>
+              <p className="text-[10px] text-slate-300">Developed by Shravani Sunil Dakve</p>
             </div>
           </div>
 
