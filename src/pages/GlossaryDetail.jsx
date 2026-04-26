@@ -1,14 +1,18 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { glossaryTerms } from '../data/glossary.js';
+import { useTranslation } from '../hooks/useTranslation.js';
 import Card from '../components/Card.jsx';
 import Button from '../components/Button.jsx';
 
 export default function GlossaryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { language: lang } = useTranslation();
   const [askInput, setAskInput] = useState('');
   const [isAsking, setIsAsking] = useState(false);
+  const [aiResponse, setAiResponse] = useState('');
+  const [aiError, setAiError] = useState(false);
   
   const term = glossaryTerms.find((t) => t.id === id);
 
@@ -21,23 +25,35 @@ export default function GlossaryDetail() {
     );
   }
 
+  const askInline = async (question) => {
+    if (!question.trim() || isAsking) return;
+    setIsAsking(true);
+    setAiResponse('');
+    setAiError(false);
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: question, language: lang }),
+      });
+      const data = await res.json();
+      setAiResponse(data.response || data.error || 'No response received.');
+    } catch {
+      setAiError(true);
+      setAiResponse('Could not reach CivicSaarthi AI. Please check your connection.');
+    } finally {
+      setIsAsking(false);
+    }
+  };
+
   const handleAsk = (e) => {
     e.preventDefault();
-    if (!askInput.trim() || isAsking) return;
-    setIsAsking(true);
-    setTimeout(() => {
-      navigate(`/assistant?prompt=${encodeURIComponent(askInput)}`);
-      setIsAsking(false);
-    }, 600);
+    askInline(askInput);
+    setAskInput('');
   };
 
   const handleSuggested = (q) => {
-    if (isAsking) return;
-    setIsAsking(true);
-    setTimeout(() => {
-      navigate(`/assistant?prompt=${encodeURIComponent(q)}`);
-      setIsAsking(false);
-    }, 600);
+    askInline(q);
   };
 
   return (
@@ -165,6 +181,25 @@ export default function GlossaryDetail() {
                     {isAsking ? 'Asking...' : q}
                   </button>
                 ))}
+              </div>
+            )}
+            {/* Inline AI Response */}
+            {isAsking && (
+              <div className="flex gap-1 mt-2 mb-3">
+                <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce"></span>
+                <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+              </div>
+            )}
+            {aiResponse && !isAsking && (
+              <div className={`mt-2 mb-3 p-3 rounded-xl text-sm leading-relaxed ${
+                aiError ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-primary/5 text-on-surface border border-primary/10'
+              }`}>
+                <div className="flex items-center gap-1 text-[10px] font-bold text-primary uppercase mb-2">
+                  <span className="material-symbols-outlined text-[12px]">smart_toy</span>
+                  CivicSaarthi AI
+                </div>
+                <p className="whitespace-pre-wrap">{aiResponse}</p>
               </div>
             )}
           </div>

@@ -16,8 +16,8 @@ function checkLanguageArchitecture() {
   assert.ok(fs.existsSync(hookPath), 'useTranslation.js missing');
   
   const contextContent = fs.readFileSync(contextPath, 'utf-8');
-  assert.ok(contextContent.includes('localStorage.getItem(\'civicLanguage\')'), 'Context does not read from localStorage');
-  assert.ok(contextContent.includes('localStorage.setItem(\'civicLanguage\', newLang)'), 'Context does not save to localStorage');
+  assert.ok(contextContent.includes('localStorage.getItem(\'civicsaarthi_language\')'), 'Context does not read from localStorage');
+  assert.ok(contextContent.includes('localStorage.setItem(\'civicsaarthi_language\', newLang)'), 'Context does not save to localStorage');
   
   console.log('✅ Language Context and Hook validated.');
 }

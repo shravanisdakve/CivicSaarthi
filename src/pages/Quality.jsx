@@ -79,6 +79,36 @@ export default function Quality() {
           ))}
         </div>
 
+        {/* Trust Layer: Why CivicSaarthi answers are safer */}
+        <section className="bg-green-50 rounded-3xl p-8 md:p-12 border border-green-100 shadow-sm mb-12">
+          <div className="mb-10">
+            <h2 className="text-3xl font-bold font-['Public_Sans'] text-green-900 mb-2">Why CivicSaarthi answers are safer</h2>
+            <p className="text-green-700 font-medium">Grounded in structured official knowledge, not just generic AI.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white p-5 rounded-2xl border border-green-100 shadow-sm">
+              <span className="material-symbols-outlined text-green-600 mb-3 text-3xl" aria-hidden="true">menu_book</span>
+              <h4 className="font-bold text-sm mb-2 text-on-surface">Curated Knowledge Base</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Common election guidance is matched against structured civic knowledge before AI responds.</p>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-green-100 shadow-sm">
+              <span className="material-symbols-outlined text-green-600 mb-3 text-3xl" aria-hidden="true">verified</span>
+              <h4 className="font-bold text-sm mb-2 text-on-surface">Official-Source Reminders</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">Every critical topic points users back to official election sources for final verification.</p>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-green-100 shadow-sm">
+              <span className="material-symbols-outlined text-green-600 mb-3 text-3xl" aria-hidden="true">pin_drop</span>
+              <h4 className="font-bold text-sm mb-2 text-on-surface">No Live Booth Claims</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">CivicSaarthi does not guess polling booths, dates, or voter-specific records.</p>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-green-100 shadow-sm">
+              <span className="material-symbols-outlined text-green-600 mb-3 text-3xl" aria-hidden="true">security</span>
+              <h4 className="font-bold text-sm mb-2 text-on-surface">Neutral AI Guardrails</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">The assistant is technically constrained to refuse party or candidate recommendations.</p>
+            </div>
+          </div>
+        </section>
+
         <Card className="bg-slate-900 text-white p-8 md:p-12 overflow-hidden relative border-none">
           <div className="relative z-10">
             <h2 className="text-2xl font-bold mb-4 font-['Public_Sans']">Ready for Top 10 Review</h2>

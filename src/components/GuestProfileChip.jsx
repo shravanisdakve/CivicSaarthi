@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, clearGuestName } from '../utils/guestProfile.js';
+import { useTranslation } from '../hooks/useTranslation.js';
 
 export default function GuestProfileChip({ profile, onOpenNamePrompt }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -56,10 +58,10 @@ export default function GuestProfileChip({ profile, onOpenNamePrompt }) {
         </div>
         <div className="flex flex-col items-start leading-none">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            {hasName ? 'Hi,' : 'Browsing as'}
+            {hasName ? t('profile.hi') : t('profile.browsingAs')}
           </span>
           <span className="text-sm font-extrabold text-slate-900 truncate max-w-[120px]">
-            {hasName ? profile.name : 'Guest'}
+            {hasName ? profile.name : t('profile.guest')}
           </span>
         </div>
         <span className="material-symbols-outlined text-sm text-slate-400 group-hover:text-primary transition-colors">
@@ -70,7 +72,7 @@ export default function GuestProfileChip({ profile, onOpenNamePrompt }) {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="p-5 border-b border-slate-50 bg-slate-50/50">
-            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Your Civic Progress</p>
+            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">{t('profile.yourProgress')}</p>
             <div className="flex items-center justify-between">
                <p className="font-extrabold text-slate-900">{profile.name}</p>
                <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{profile.readinessPoints} pts</span>
@@ -80,28 +82,28 @@ export default function GuestProfileChip({ profile, onOpenNamePrompt }) {
           <div className="py-2">
             <button onClick={() => { navigate('/checklist'); setIsOpen(false); }} className="w-full text-left px-5 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors">
               <span className="material-symbols-outlined text-[20px] text-slate-400">checklist</span>
-              My Readiness Checklist
+              {t('profile.myChecklist')}
             </button>
             <button onClick={handleDownloadSummary} className="w-full text-left px-5 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors">
               <span className="material-symbols-outlined text-[20px] text-slate-400">download</span>
-              Download Summary
+              {t('profile.downloadSummary')}
             </button>
             <div className="h-px bg-slate-50 my-1 mx-5"></div>
             <button onClick={() => { onOpenNamePrompt(); setIsOpen(false); }} className="w-full text-left px-5 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors">
               <span className="material-symbols-outlined text-[20px] text-slate-400">edit</span>
-              {hasName ? 'Change Name' : 'Add Name'}
+              {hasName ? t('profile.changeName') : t('profile.addName')}
             </button>
-            <button onClick={handleClear} className="w-full text-left px-5 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors">
-              <span className="material-symbols-outlined text-[20px] text-slate-400">person_off</span>
-              Clear Name
+            <button onClick={handleClear} className="w-full text-left px-5 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors font-semibold">
+              <span className="material-symbols-outlined text-[20px] text-red-400">logout</span>
+              {t('profile.signOut')}
             </button>
           </div>
           
           <div className="p-4 bg-slate-900 text-[10px] text-slate-400 leading-relaxed">
             <p className="flex items-center gap-1 font-bold text-white mb-1 uppercase tracking-widest">
-              <span className="material-symbols-outlined text-[14px]">shield</span> Privacy Note
+              <span className="material-symbols-outlined text-[14px]">shield</span> {t('safety.sensitive').split('.')[0]}
             </p>
-            Name personalization is stored locally. CivicSaarthi does not collect Voter ID or Aadhaar.
+            {t('profile.privacyNote')}
           </div>
         </div>
       )}

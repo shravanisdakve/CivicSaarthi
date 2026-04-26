@@ -128,20 +128,68 @@ export default function About() {
         </Card>
       </div>
 
-      {/* Powered by Google Cloud Footer Banner */}
-      <Card className="p-8 border-l-4 border-l-primary border-t-0 border-r-0 border-b-0 rounded-l-none mb-12" hover={false}>
-         <h2 className="font-['Public_Sans'] text-xl font-bold text-primary mb-6">Powered by Google Cloud & Modern Web</h2>
-         <div className="flex flex-wrap gap-4">
-            {['Cloud Run', 'Gemini API', 'React', 'Tailwind CSS'].map(tech => (
-               <div key={tech} className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-md hover:bg-primary-fixed transition-colors cursor-default">
-                  <span className="material-symbols-outlined text-secondary text-sm icon-fill">
-                     {tech.includes('Gemini') ? 'psychology' : tech.includes('React') ? 'code' : tech.includes('Tailwind') ? 'palette' : 'cloud'}
-                  </span>
-                  <span className="text-sm font-semibold text-on-surface">{tech}</span>
-               </div>
-            ))}
-         </div>
-      </Card>
+      {/* Google Services Highlight */}
+      <section className="bg-slate-900 text-white rounded-3xl overflow-hidden mb-12">
+        <div className="p-8 md:p-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="md:w-1/3">
+              <h2 className="text-3xl font-bold font-['Public_Sans'] mb-4">Built for Google Cloud</h2>
+              <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+                A modern, serverless architecture ensuring scalability, security, and intelligent AI capabilities.
+              </p>
+            </div>
+            
+            <div className="md:w-2/3 w-full bg-slate-800 rounded-2xl p-6 border border-slate-700">
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-3 text-xs text-slate-300 font-medium justify-center whitespace-nowrap overflow-x-auto pb-2">
+                  <span className="px-3 py-1 bg-slate-700 rounded">Browser</span>
+                  <span className="material-symbols-outlined text-slate-500 text-sm" aria-hidden="true">arrow_forward</span>
+                  <span className="px-3 py-1 bg-blue-900/50 text-blue-200 rounded border border-blue-800/50">Cloud Run App</span>
+                  <span className="material-symbols-outlined text-slate-500 text-sm" aria-hidden="true">arrow_forward</span>
+                  <span className="px-3 py-1 bg-purple-900/50 text-purple-200 rounded border border-purple-800/50">Gemini API</span>
+                  
+                  <span className="material-symbols-outlined text-slate-500 text-sm mx-2" aria-hidden="true">|</span>
+                  
+                  <span className="px-3 py-1 bg-blue-900/50 text-blue-200 rounded border border-blue-800/50">Cloud Run App</span>
+                  <span className="material-symbols-outlined text-slate-500 text-sm" aria-hidden="true">arrow_forward</span>
+                  <span className="px-3 py-1 bg-green-900/50 text-green-200 rounded border border-green-800/50">Secret Manager</span>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-slate-700/50 p-4 rounded-xl flex items-start gap-3 border border-slate-600/50">
+                    <span className="material-symbols-outlined text-blue-400" aria-hidden="true">cloud</span>
+                    <div>
+                      <h4 className="font-bold text-sm mb-1">Cloud Run</h4>
+                      <p className="text-[10px] text-slate-400">Deployed web app and backend</p>
+                    </div>
+                  </div>
+                  <div className="bg-slate-700/50 p-4 rounded-xl flex items-start gap-3 border border-slate-600/50">
+                    <span className="material-symbols-outlined text-purple-400" aria-hidden="true">auto_awesome</span>
+                    <div>
+                      <h4 className="font-bold text-sm mb-1">Gemini API</h4>
+                      <p className="text-[10px] text-slate-400">Intelligent assistant answers</p>
+                    </div>
+                  </div>
+                  <div className="bg-slate-700/50 p-4 rounded-xl flex items-start gap-3 border border-slate-600/50">
+                    <span className="material-symbols-outlined text-green-400" aria-hidden="true">key</span>
+                    <div>
+                      <h4 className="font-bold text-sm mb-1">Secret Manager</h4>
+                      <p className="text-[10px] text-slate-400">Keeps API key out of frontend</p>
+                    </div>
+                  </div>
+                  <div className="bg-slate-700/50 p-4 rounded-xl flex items-start gap-3 border border-slate-600/50">
+                    <span className="material-symbols-outlined text-orange-400" aria-hidden="true">build</span>
+                    <div>
+                      <h4 className="font-bold text-sm mb-1">Cloud Build / Artifact Registry</h4>
+                      <p className="text-[10px] text-slate-400">Source deployment pipeline</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Final CTA */}
       <div className="text-center py-10 bg-surface-container-low rounded-3xl border border-slate-200 shadow-sm">

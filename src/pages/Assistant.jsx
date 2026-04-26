@@ -6,8 +6,8 @@ import { normalizeUserMessage, containsUnsafePersonalDataHint, isValidChatMessag
 import { getProfile } from '../utils/guestProfile.js';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
-import VoiceAssistantControls from '../components/VoiceAssistantControls.jsx';
-import { speakText } from '../utils/speech.js';
+import { getSpeechRecognition, speakText, stopSpeech, isSpeechSupported } from '../utils/speech.js';
+
 
 const SUGGESTED = [
   'Walk me through the election process step by step.',
@@ -17,6 +17,69 @@ const SUGGESTED = [
   'What documents can I carry to vote?',
   'What is NOTA and how does it work?',
 ];
+
+// --- Mic Button (voice input) ---
+function MicButton({ language, onTranscript, loading }) {
+  const [listening, setListening] = useState(false);
+  if (!isSpeechSupported()) return null;
+  const handleMic = () => {
+    const rec = getSpeechRecognition(language);
+    if (!rec) return;
+    setListening(true);
+    rec.onresult = (e) => { onTranscript(e.results[0][0].transcript); setListening(false); };
+    rec.onerror = () => setListening(false);
+    rec.onend = () => setListening(false);
+    rec.start();
+  };
+  return (
+    <button
+      type="button"
+      onClick={handleMic}
+      disabled={listening || loading}
+      title={listening ? 'Listening...' : 'Speak your question'}
+      className={`w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center shadow transition-all ${
+        listening
+          ? 'bg-red-500 text-white animate-pulse'
+          : 'bg-slate-100 border border-slate-200 text-slate-600 hover:border-primary hover:text-primary'
+      }`}
+    >
+      <span className="material-symbols-outlined text-[20px]">{listening ? 'mic_active' : 'mic'}</span>
+    </button>
+  );
+}
+
+// --- Read Aloud Button (TTS) ---
+function ReadAloudButton({ lastResponse, language }) {
+  const [speaking, setSpeaking] = useState(false);
+  if (!lastResponse || !isSpeechSupported()) return null;
+  const handleToggle = () => {
+    if (speaking) {
+      stopSpeech();
+      setSpeaking(false);
+    } else {
+      setSpeaking(true);
+      speakText(lastResponse, language);
+      // Reset state when speech ends (approximate)
+      const words = lastResponse.split(' ').length;
+      const ms = Math.max(3000, words * 400);
+      setTimeout(() => setSpeaking(false), ms);
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={handleToggle}
+      title={speaking ? 'Stop reading' : 'Read last response aloud'}
+      className={`w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center shadow transition-all ${
+        speaking
+          ? 'bg-primary text-white animate-pulse'
+          : 'bg-slate-100 border border-slate-200 text-slate-600 hover:border-primary hover:text-primary'
+      }`}
+    >
+      <span className="material-symbols-outlined text-[20px]">{speaking ? 'stop_circle' : 'volume_up'}</span>
+    </button>
+  );
+}
 
 export default function Assistant() {
   const [searchParams] = useSearchParams();
@@ -150,7 +213,7 @@ export default function Assistant() {
            setMessages([WELCOME]);
            sessionStorage.removeItem('civicChatHistory');
         }} className="text-xs py-1 px-3 h-auto">
-          {t('journey.clear')}
+          Clear Chat
         </Button>
       </div>
 
@@ -166,14 +229,14 @@ export default function Assistant() {
                 <div className="whitespace-pre-wrap">{msg.text}</div>
                 
                 {msg.role === 'ai' && (
-                  <div className="mt-2 flex justify-end">
+                  <div className="mt-3 flex justify-start">
                     <button 
                       onClick={() => speakText(msg.text, lang)}
-                      className="text-slate-400 hover:text-primary transition-colors flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest"
-                      title={t('journey.listen')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors text-[11px] font-bold border border-primary/20"
+                      title="Listen to this response"
                     >
-                      <span className="material-symbols-outlined text-[14px]">volume_up</span>
-                      {t('journey.listen')}
+                      <span className="material-symbols-outlined text-[16px]">volume_up</span>
+                      Listen
                     </button>
                   </div>
                 )}
@@ -182,7 +245,7 @@ export default function Assistant() {
                   <div className="mt-3 pt-2 border-t border-slate-100">
                     <div className="flex items-center gap-1 text-[10px] font-bold text-green-700 uppercase mb-2">
                       <span className="material-symbols-outlined text-[14px]">verified</span>
-                      {t('journey.grounded')}
+                      Official Source Grounded
                     </div>
                     {msg.references && (
                       <div className="space-y-1">
@@ -199,7 +262,7 @@ export default function Assistant() {
                 {msg.isFallback && (
                   <div className="mt-2 pt-2 border-t border-amber-100 flex items-center gap-1 text-[10px] font-bold text-amber-700 italic">
                     <span className="material-symbols-outlined text-[14px]">cloud_off</span>
-                    {t('journey.local_fallback')}
+                    Offline Mode Guidance
                   </div>
                 )}
               </div>
@@ -232,37 +295,35 @@ export default function Assistant() {
           </div>
 
           {validationError && <p className="text-xs text-red-600 font-bold mb-2">{validationError}</p>}
-          {privacyWarning && <p className="text-xs text-amber-700 font-bold mb-2">{t('journey.privacy_warn')}</p>}
+          {privacyWarning && <p className="text-xs text-amber-700 font-bold mb-2">Avoid sensitive data like Voter IDs.</p>}
 
-          <div className="flex flex-col sm:flex-row gap-3 mt-4 items-end sm:items-center">
-            <VoiceAssistantControls 
-              onTranscript={(text) => {
-                setInput(text);
-                sendMessage(text);
-              }} 
-              lastResponse={messages.filter(m => m.role === 'ai').reverse()[0]?.text}
-              language={lang}
-            />
-            <form onSubmit={handleSubmit} className="flex gap-2 w-full">
+          <form onSubmit={handleSubmit}>
+            <div className="flex items-center gap-2">
+              {/* Mic button */}
+              <MicButton language={lang} onTranscript={(text) => { setInput(text); sendMessage(text); }} loading={loading} />
               <input 
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={t('assistant.placeholder_main')}
+                placeholder={lang === 'hi' ? 'अपना प्रश्न लिखें...' : lang === 'mr' ? 'तुमचा प्रश्न लिहा...' : 'Type your question...'}
                 className="flex-grow px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 disabled={loading}
               />
+              {/* Read Aloud button */}
+              <ReadAloudButton lastResponse={messages.filter(m => m.role === 'ai').reverse()[0]?.text} language={lang} />
+              {/* Send button */}
               <button 
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="w-12 h-12 shrink-0 rounded-2xl bg-primary text-white flex items-center justify-center shadow hover:bg-primary-dark disabled:opacity-50 transition-all"
+                className="w-12 h-12 shrink-0 rounded-2xl bg-primary text-white flex items-center justify-center shadow hover:brightness-110 disabled:opacity-40 transition-all"
+                title="Send"
               >
                 <span className="material-symbols-outlined">send</span>
               </button>
-            </form>
-          </div>
+            </div>
+          </form>
           <p className="text-[10px] text-center text-slate-400 mt-3">
-            {t('assistant.footer')}
+            CivicSaarthi AI provides non-partisan information. Your chat is stored locally in this session.
           </p>
         </div>
       </Card>

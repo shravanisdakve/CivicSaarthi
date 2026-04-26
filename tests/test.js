@@ -102,7 +102,7 @@ if (demoComponentExists) {
 }
 
 const homeContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Home.jsx'), 'utf8');
-assert(homeContent.includes('Try 2-Minute Demo'), 'Home page has demo button');
+assert(homeContent.includes('demo-mode-btn') || homeContent.includes('cta.tryDemo'), 'Home page has demo button');
 assert(homeContent.includes('DemoMode'), 'Home page renders DemoMode component');
 
 const swExists = fs.existsSync(path.join(ROOT_DIR, 'public/service-worker.js'));

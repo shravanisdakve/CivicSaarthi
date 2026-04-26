@@ -87,7 +87,7 @@ export default function AuthModal({ isOpen, onClose }) {
               onClick={handleGoogle}
               className="w-full flex items-center justify-center gap-3 py-3 border border-slate-300 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-50 transition-colors shadow-sm focus-visible:ring-2 focus-visible:ring-primary outline-none"
             >
-              <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="" className="w-5 h-5" />
+              <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google Logo" className="w-5 h-5" />
               Continue with Google
             </button>
             

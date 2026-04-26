@@ -5,8 +5,6 @@ import { useTranslation } from '../hooks/useTranslation.js';
 import { normalizeUserMessage, containsUnsafePersonalDataHint, isValidChatMessage } from '../utils/inputSafety.js';
 import { getProfile } from '../utils/profileStorage.js';
 import { guidedSteps } from '../data/guidedSteps.js';
-import VoiceAssistantControls from './VoiceAssistantControls.jsx';
-import { speakText, getSpeechRecognition, isSpeechSupported } from '../utils/speech.js';
 
 const SUGGESTED = [
   'Walk me through the election process step by step.',
@@ -29,7 +27,6 @@ export default function FloatingAssistant() {
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [privacyWarning, setPrivacyWarning] = useState(false);
-  const [isListening, setIsListening] = useState(false);
   
   // Guided Journey State
   const [journeyStep, setJourneyStep] = useState(() => {
@@ -98,20 +95,21 @@ export default function FloatingAssistant() {
     // If we're starting fresh
     if (journeyStep === 0) {
       setJourneyStep(1);
+      const firstStep = guidedSteps[0];
       setMessages(prev => [...prev, {
         role: 'ai',
         isJourney: true,
         step: 1,
-        text: `${t('journey.starting')} ${t('journey.step')} 1 ${t('journey.of')} 9: ${t('step1.title')}\n\n${t('step1.exp')}\n\n${t('journey.why')}: ${t('step1.imp')}`
+        text: `Starting Step 1 of 9: ${firstStep.title}\n\n${firstStep.explanation}\n\nWhy it matters: ${firstStep.importance}`
       }]);
     } else if (journeyStep <= guidedSteps.length) {
       // Resume current step
-      const stepKey = `step${journeyStep}`;
+      const step = guidedSteps[journeyStep - 1];
       setMessages(prev => [...prev, {
         role: 'ai',
         isJourney: true,
         step: journeyStep,
-        text: `${t('journey.resuming')} ${t('journey.step')} ${journeyStep} ${t('journey.of')} 9: ${t(`${stepKey}.title`)}\n\n${t(`${stepKey}.exp`)}`
+        text: `Resuming your journey at Step ${journeyStep} of 9: ${step.title}\n\n${step.explanation}`
       }]);
     }
   };
@@ -120,18 +118,18 @@ export default function FloatingAssistant() {
     const next = journeyStep + 1;
     if (next <= guidedSteps.length) {
       setJourneyStep(next);
-      const stepKey = `step${next}`;
+      const step = guidedSteps[next - 1];
       setMessages(prev => [...prev, {
         role: 'ai',
         isJourney: true,
         step: next,
-        text: `${t('journey.step')} ${next} ${t('journey.of')} 9: ${t(`${stepKey}.title`)}\n\n${t(`${stepKey}.exp`)}\n\n${t('journey.why')}: ${t(`${stepKey}.imp`)}`
+        text: `Step ${next} of 9: ${step.title}\n\n${step.explanation}\n\nWhy it matters: ${step.importance}`
       }]);
     } else {
       setIsJourneyActive(false);
       setMessages(prev => [...prev, {
         role: 'ai',
-        text: t('journey.congrats')
+        text: "Congratulations! You've completed the full Guided Election Journey. You're now well-prepared for the democratic process!"
       }]);
     }
   };
@@ -221,22 +219,6 @@ export default function FloatingAssistant() {
     setIsOpen(false);
   };
 
-  const startListening = () => {
-    if (!isSpeechSupported()) return;
-    const recognition = getSpeechRecognition(lang);
-    if (!recognition) return;
-    setIsListening(true);
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setInput(transcript);
-      sendMessage(transcript);
-      setIsListening(false);
-    };
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
-    recognition.start();
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     sendMessage();
@@ -257,7 +239,7 @@ export default function FloatingAssistant() {
                 <h3 className="text-sm font-bold tracking-tight">CivicSaarthi AI</h3>
                 <div className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-                  <p className="text-[9px] opacity-90 font-bold uppercase tracking-wider">{t('journey.online')}</p>
+                  <p className="text-[9px] opacity-90 font-bold uppercase tracking-wider">Grounded in official sources</p>
                 </div>
               </div>
             </div>
@@ -268,7 +250,7 @@ export default function FloatingAssistant() {
                 aria-label="Clear chat"
               >
                 <span className="material-symbols-outlined text-sm">delete</span>
-                <span className="absolute -top-8 right-0 bg-slate-800 text-[8px] text-white px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{t('journey.clear')}</span>
+                <span className="absolute -top-8 right-0 bg-slate-800 text-[8px] text-white px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Clear Chat</span>
               </button>
               <button 
                 onClick={() => setIsOpen(false)}
@@ -285,13 +267,13 @@ export default function FloatingAssistant() {
             {/* Journey Entry Card */}
             {!isJourneyActive && (
               <div className="bg-gradient-to-br from-primary/5 to-indigo-50 border border-primary/10 rounded-xl p-4 shadow-sm mb-4">
-                <h4 className="text-xs font-bold text-primary mb-1">{t('journey.start_title')}</h4>
-                <p className="text-[10px] text-slate-600 mb-3">{t('journey.start_subtitle')}</p>
+                <h4 className="text-xs font-bold text-primary mb-1">Guided Election Journey</h4>
+                <p className="text-[10px] text-slate-600 mb-3">Learn the full election process one step at a time.</p>
                 <button 
                   onClick={startJourney}
                   className="w-full py-1.5 bg-primary text-white text-[10px] font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
                 >
-                  {t('journey.start_btn')}
+                  Start Step-by-Step Guide
                 </button>
               </div>
             )}
@@ -305,19 +287,6 @@ export default function FloatingAssistant() {
                 }`}>
                   <div className="whitespace-pre-wrap">{msg.text}</div>
                   
-                  {msg.role === 'ai' && !msg.isJourney && (
-                    <div className="mt-2 flex justify-end">
-                      <button 
-                        onClick={() => speakText(msg.text, lang)}
-                        className="text-slate-400 hover:text-primary transition-colors flex items-center gap-1 text-[9px] uppercase font-bold tracking-widest"
-                        title={t('journey.listen')}
-                      >
-                        <span className="material-symbols-outlined text-[12px]">volume_up</span>
-                        {t('journey.listen')}
-                      </button>
-                    </div>
-                  )}
-                  
                   {/* Guided Journey Actions */}
                   {msg.isJourney && msg.step === journeyStep && (
                     <div className="mt-3 flex flex-wrap gap-2 pt-2 border-t border-slate-100">
@@ -325,13 +294,13 @@ export default function FloatingAssistant() {
                         onClick={nextJourneyStep}
                         className="bg-primary text-white px-2 py-1 rounded-md text-[9px] font-bold hover:bg-indigo-700"
                       >
-                        {msg.step < 9 ? t('journey.next_btn') : t('journey.finish_btn')}
+                        {msg.step < 9 ? 'Mark Understood & Next' : 'Finish Journey'}
                       </button>
                       <button 
                         onClick={() => handleViewTimeline(guidedSteps[msg.step - 1].timelineId)}
                         className="bg-white border border-slate-200 text-slate-700 px-2 py-1 rounded-md text-[9px] font-bold hover:bg-slate-50"
                       >
-                        {t('journey.view_timeline')}
+                        View in Timeline
                       </button>
                     </div>
                   )}
@@ -344,7 +313,7 @@ export default function FloatingAssistant() {
                         className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
                       >
                         <span className="material-symbols-outlined text-[14px]">timeline</span>
-                        {t('journey.view_timeline_stage')}
+                        View this stage in Timeline
                       </button>
                     </div>
                   )}
@@ -353,7 +322,7 @@ export default function FloatingAssistant() {
                     <div className="mt-3 pt-2 border-t border-slate-100 animate-in fade-in slide-in-from-top-1">
                       <div className="flex items-center gap-1 text-[9px] font-bold text-green-700 uppercase tracking-tighter mb-2">
                         <span className="material-symbols-outlined text-[12px]">verified</span>
-                        {t('journey.grounded')}
+                        Grounded in official sources
                       </div>
                       {msg.references && msg.references.length > 0 && (
                         <div className="space-y-2">
@@ -367,7 +336,7 @@ export default function FloatingAssistant() {
                                   rel="noopener noreferrer"
                                   className="text-[8px] font-bold text-primary hover:underline flex items-center gap-0.5"
                                 >
-                                  {t('journey.verify')}
+                                  Verify
                                   <span className="material-symbols-outlined text-[10px]">open_in_new</span>
                                 </a>
                               )}
@@ -380,12 +349,12 @@ export default function FloatingAssistant() {
                   {msg.isFallback && (
                     <div className="mt-2 pt-2 border-t border-amber-100 flex items-center gap-1 text-[9px] font-bold text-amber-700 italic">
                       <span className="material-symbols-outlined text-[12px]">cloud_off</span>
-                      {t('journey.local_fallback')}
+                      Using secure local fallback
                     </div>
                   )}
                 </div>
                 {msg.role === 'ai' && (
-                  <span className="text-[8px] text-slate-400 mt-1 ml-1 px-1">{t('journey.stored_locally')}</span>
+                  <span className="text-[8px] text-slate-400 mt-1 ml-1 px-1">Stored only on this device</span>
                 )}
               </div>
             ))}
@@ -423,36 +392,23 @@ export default function FloatingAssistant() {
             )}
             {privacyWarning && (
               <p className="text-[10px] text-amber-700 font-bold mb-2 p-2 bg-amber-50 rounded border border-amber-100">
-                {t('journey.privacy_warn')}
+                Please avoid sensitive data like Aadhaar or Voter ID.
               </p>
             )}
 
-            <form onSubmit={handleSubmit} className="flex gap-2 relative">
-              <button
-                type="button"
-                onClick={startListening}
-                disabled={loading || isListening}
-                className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center transition-all shadow-md ${
-                  isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-white border border-slate-200 text-slate-500 hover:text-primary hover:border-primary'
-                }`}
-                title="Use microphone"
-              >
-                <span className="material-symbols-outlined text-[18px]">
-                  {isListening ? 'mic_active' : 'mic'}
-                </span>
-              </button>
+            <form onSubmit={handleSubmit} className="flex gap-2">
               <input 
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={t('journey.placeholder')}
+                placeholder="Ask anything..."
                 className="flex-grow px-4 py-2.5 bg-slate-100 border-none rounded-full text-xs outline-none focus:ring-1 focus:ring-primary transition-all"
                 disabled={loading}
               />
               <button 
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="w-10 h-10 shrink-0 rounded-full bg-primary text-white flex items-center justify-center disabled:opacity-50 transition-all shadow-md hover:scale-105 active:scale-95"
+                className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center disabled:opacity-50 transition-all shadow-md hover:scale-105 active:scale-95"
               >
                 <span className="material-symbols-outlined text-base">send</span>
               </button>
@@ -469,23 +425,23 @@ export default function FloatingAssistant() {
             role="tooltip"
             id="bot-tooltip"
           >
-            {t('journey.chat_with')}
+            Chat with CivicSaarthi AI
             <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
           </div>
         )}
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          title={t('journey.chat_with')}
+          title="Chat with CivicSaarthi AI"
           className={`w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 overflow-hidden border-2 focus:ring-4 focus:ring-primary/20 outline-none ${
             isOpen ? 'bg-slate-100 border-slate-300' : 'bg-white border-primary shadow-[0_0_20px_rgba(26,35,126,0.3)]'
           }`}
-          aria-label={t('journey.chat_with')}
+          aria-label="Chat with CivicSaarthi AI"
           aria-describedby="bot-tooltip"
         >
           {isOpen ? (
             <span className="material-symbols-outlined text-slate-600 text-3xl">close</span>
           ) : (
-            <img src="/assistant-icon.jpg" alt="" className="w-full h-full object-cover" aria-hidden="true" />
+            <img src="/assistant-icon.jpg" alt="AI Assistant Avatar" className="w-full h-full object-cover" aria-hidden="true" />
           )}
         </button>
       </div>
