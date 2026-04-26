@@ -8,6 +8,7 @@ import { getProfile, getChecklistProgress } from '../utils/guestProfile.js';
 import AchievementBadges from '../components/AchievementBadges.jsx';
 import ShareReadiness from '../components/ShareReadiness.jsx';
 import DemoMode from '../components/DemoMode.jsx';
+import ErrorBoundary from '../components/ErrorBoundary.jsx';
 
 const QUICK_ACTIONS = [
   { icon: 'chat_bubble', title: 'Ask CivicSaarthi AI', desc: 'Get neutral answers instantly.', to: '/assistant' },
@@ -87,11 +88,13 @@ export default function Home() {
         <section>
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             <div className="flex-grow w-full">
-              <ReadinessDashboard 
-                pct={readinessPct} 
-                completed={completedCount} 
-                total={totalSteps} 
-              />
+              <ErrorBoundary fallback={<div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl text-slate-500 text-sm">Dashboard unavailable.</div>}>
+                <ReadinessDashboard 
+                  pct={readinessPct} 
+                  completed={completedCount} 
+                  total={totalSteps} 
+                />
+              </ErrorBoundary>
             </div>
             <div className="w-full lg:w-80 shrink-0 space-y-6">
               <Card className="p-6 bg-white border-0 shadow-sm overflow-hidden relative">
@@ -101,13 +104,17 @@ export default function Home() {
                 </h3>
                 <div className="mb-4">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Recently Earned Badges</p>
-                  <AchievementBadges earnedBadges={profile.badges || []} />
+                  <ErrorBoundary fallback={<div className="text-xs text-slate-400">Badges unavailable.</div>}>
+                    <AchievementBadges earnedBadges={profile.badges || []} />
+                  </ErrorBoundary>
                 </div>
                 <Button variant="primary" className="w-full mb-3" onClick={() => navigate('/checklist')}>
                   Continue Checklist
                 </Button>
               </Card>
-              <ShareReadiness status={readinessPct === 100 ? 'ready' : 'learning'} />
+              <ErrorBoundary fallback={null}>
+                <ShareReadiness status={readinessPct === 100 ? 'ready' : 'learning'} />
+              </ErrorBoundary>
             </div>
           </div>
         </section>
@@ -166,7 +173,9 @@ export default function Home() {
         </section>
       </div>
 
-      <DemoMode isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} />
+      <ErrorBoundary fallback={null}>
+        <DemoMode isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} />
+      </ErrorBoundary>
     </div>
   );
 }

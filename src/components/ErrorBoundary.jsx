@@ -24,6 +24,9 @@ export default class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
           <div className="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl text-center border border-slate-100">
@@ -43,6 +46,20 @@ export default class ErrorBoundary extends React.Component {
                 className="w-full"
               >
                 Return Home
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = '/assistant'}
+                className="w-full"
+              >
+                Open Assistant
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = '/timeline'}
+                className="w-full"
+              >
+                Open Timeline
               </Button>
               <button 
                 onClick={() => window.location.reload()}
