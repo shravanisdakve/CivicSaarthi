@@ -2,19 +2,21 @@ import { useNavigate } from 'react-router-dom';
 import Card from './Card.jsx';
 import Button from './Button.jsx';
 import { PERSONAS } from '../data/personas.js';
-import { getProfile } from '../utils/profileStorage.js';
+import { getProfile } from '../utils/guestProfile.js';
 import { useTranslation } from '../hooks/useTranslation.js';
 
-export default function ReadinessDashboard() {
+export default function ReadinessDashboard({ pct, completed, total }) {
   const navigate = useNavigate();
-  const profile = getProfile();
-  const personaId = profile.selectedPersona;
-  const persona = PERSONAS.find(p => p.id === personaId) || PERSONAS[0];
   const { t } = useTranslation();
   
-  const completedCount = Object.values(profile.checklistProgress || {}).filter(Boolean).length;
-  const totalCount = 7;
-  const percentage = Math.round((completedCount / totalCount) * 100);
+  // Safety fallback if props aren't provided
+  const profile = getProfile() || {};
+  const personaId = profile.selectedPersona || 'first-time';
+  const persona = PERSONAS.find(p => p.id === personaId) || PERSONAS[0];
+  
+  const percentage = typeof pct === 'number' ? pct : 0;
+  const completedCount = typeof completed === 'number' ? completed : 0;
+  const totalCount = typeof total === 'number' ? total : 7;
 
   return (
     <Card className="p-6 md:p-8 bg-white border border-slate-200 shadow-sm relative overflow-hidden">

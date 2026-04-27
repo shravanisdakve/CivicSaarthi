@@ -18,7 +18,6 @@ const MAIN_LINKS = [
 const MORE_LINKS = [
   { to: '/map', label: 'nav.map' },
   { to: '/sources', label: 'nav.sources' },
-  { to: '/quality', label: 'nav.quality' },
   { to: '/about', label: 'nav.about' },
 ];
 

@@ -16,12 +16,16 @@ const Quiz = lazy(() => import('./pages/Quiz.jsx'));
 const Sources = lazy(() => import('./pages/Sources.jsx'));
 const Safety = lazy(() => import('./pages/Safety.jsx'));
 const Architecture = lazy(() => import('./pages/Architecture.jsx'));
-const Quality = lazy(() => import('./pages/Quality.jsx'));
 const About = lazy(() => import('./pages/About.jsx'));
 const Profile = lazy(() => import('./pages/Profile.jsx'));
 const Assistant = lazy(() => import('./pages/Assistant.jsx'));
 const MapHelper = lazy(() => import('./pages/MapHelper.jsx'));
 
+/**
+ * Main Application Component
+ * Handles high-level routing, lazy loading of pages for efficiency,
+ * and global Error Boundary wrapping.
+ */
 export default function App() {
   return (
     <ErrorBoundary>
@@ -41,7 +45,6 @@ export default function App() {
             <Route path="/sources" element={<Sources />} />
             <Route path="/safety" element={<Safety />} />
             <Route path="/architecture" element={<Architecture />} />
-            <Route path="/quality" element={<Quality />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<Home />} />
           </Route>

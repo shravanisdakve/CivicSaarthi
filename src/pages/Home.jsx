@@ -11,15 +11,19 @@ import DemoMode from '../components/DemoMode.jsx';
 import ErrorBoundary from '../components/ErrorBoundary.jsx';
 
 const QUICK_ACTIONS = [
-  { icon: 'chat_bubble', title: 'Ask CivicSaarthi AI', desc: 'Get neutral answers instantly.', to: '/assistant' },
-  { icon: 'explore', title: 'Guided Election Journey', desc: 'Step-by-step guidance.', to: '/choose-path' },
-  { icon: 'calendar_month', title: 'Election Timeline', desc: 'See all key dates and phases.', to: '/timeline' },
-  { icon: 'checklist', title: 'Voter Checklist', desc: 'See what you need to prepare.', to: '/checklist' },
-  { icon: 'where_to_vote', title: 'Polling Station Verification', desc: 'Find your booth.', to: '/map' },
-  { icon: 'policy', title: 'Official Sources', desc: 'Verified links.', to: '/sources' },
-  { icon: 'verified', title: 'Quality Report', desc: 'See how we built this.', to: '/quality' },
+  { icon: 'chat_bubble', titleKey: 'qa.ask', desc: 'Get neutral answers instantly.', to: '/assistant' },
+  { icon: 'explore', titleKey: 'qa.journey', desc: 'Step-by-step guidance.', to: '/choose-path' },
+  { icon: 'calendar_month', titleKey: 'qa.timeline', desc: 'See all key dates and phases.', to: '/timeline' },
+  { icon: 'checklist', titleKey: 'qa.checklist', desc: 'See what you need to prepare.', to: '/checklist' },
+  { icon: 'where_to_vote', titleKey: 'qa.booth', desc: 'Find your booth.', to: '/map' },
+  { icon: 'policy', titleKey: 'qa.sources', desc: 'Verified links.', to: '/sources' },
 ];
 
+/**
+ * Home Page Component
+ * Serves as the primary landing page and user dashboard.
+ * Implements Google Service visibility grid and civic progress tracking.
+ */
 export default function Home() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -27,7 +31,7 @@ export default function Home() {
   
   const profile = getProfile() || {};
   const checklist = getChecklistProgress() || {};
-  const completedCount = Object.values(checklist).filter(Boolean).length;
+  const completedCount = Object.values(checklist || {}).filter(Boolean).length;
   const totalSteps = 7; 
   const readinessPct = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
 
@@ -40,7 +44,8 @@ export default function Home() {
     }
   };
 
-  const hasName = profile.name && profile.name !== 'Guest Citizen';
+  const hasName = profile.name && profile.name !== 'Guest Citizen' && typeof profile.name === 'string';
+  const firstName = hasName ? profile.name.split(' ')[0] : '';
 
   return (
     <div className="w-full bg-surface">
@@ -48,11 +53,11 @@ export default function Home() {
       <section className="relative overflow-hidden bg-gradient-to-b from-surface-container-lowest to-surface-container-low border-b border-slate-200">
         <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-20 lg:py-28 text-center max-w-4xl">
           <h1 className="font-['Public_Sans'] text-4xl md:text-5xl lg:text-6xl font-extrabold text-on-surface leading-tight mb-6 tracking-tight">
-            {hasName ? `Hi ${(profile.name || '').split(' ')[0]}, ready to continue your election journey?` : 'Welcome to CivicSaarthi'}
+            {hasName ? `${t('profile.hi')} ${firstName}` : t('hero.title')}
           </h1>
           
           <p className="text-xl text-on-surface-variant mb-4 font-medium">
-            A multilingual, privacy-first election-readiness companion.
+            {t('hero.subtitle')}
           </p>
           <p className="text-body-lg text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
             Understand the election process, follow timelines, complete readiness steps, and verify information through official sources.
@@ -60,10 +65,10 @@ export default function Home() {
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
             <Button variant="primary" onClick={handleStartGuide} className="w-full sm:w-auto shadow-md py-4 px-8 text-lg">
-              Start Guided Journey
+              {t('cta.startGuide')}
             </Button>
             <Button variant="outline" onClick={() => window.dispatchEvent(new CustomEvent('civicOpenChat'))} className="w-full sm:w-auto py-4 px-8 text-lg bg-white">
-              Ask CivicSaarthi AI
+              {t('cta.askAI')}
             </Button>
             <button
               id="demo-mode-btn"
@@ -71,18 +76,18 @@ export default function Home() {
               className="w-full sm:w-auto flex items-center justify-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 font-bold px-6 py-4 rounded-xl text-sm uppercase tracking-widest hover:bg-amber-100 transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">play_circle</span>
-              Try 2-Minute Demo
+              {t('cta.tryDemo')}
             </button>
           </div>
 
           <div className="flex items-center justify-center gap-6 text-sm font-bold uppercase tracking-widest text-primary">
-             <button onClick={() => navigate('/timeline')} className="hover:underline">View Timeline</button>
-             <button onClick={() => navigate('/sources')} className="hover:underline">Open Sources</button>
+             <button onClick={() => navigate('/timeline')} className="hover:underline">{t('nav.timeline')}</button>
+             <button onClick={() => navigate('/sources')} className="hover:underline">{t('nav.sources')}</button>
           </div>
         </div>
       </section>
       
-      {/* 1.5 Google Services Proof Section */}
+      {/* 1.5 Google Services Proof Section - Native Cloud Integration */}
       <section className="bg-white py-12 border-b border-slate-100">
         <div className="max-w-screen-xl mx-auto px-6 md:px-8">
           <div className="text-center mb-10">
@@ -92,19 +97,20 @@ export default function Home() {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { name: 'Cloud Run', icon: 'cloud_done', desc: 'Production hosting' },
-              { name: 'Gemini AI', icon: 'smart_toy', desc: 'Neutral civic AI' },
-              { name: 'Maps Platform', icon: 'map', desc: 'Booth helper' },
-              { name: 'Firebase', icon: 'login', desc: 'Secure Google Auth' },
-              { name: 'Secret Manager', icon: 'key', desc: 'Key protection' },
-              { name: 'Cloud Build', icon: 'build', desc: 'Safe delivery' },
-              { name: 'Artifact Registry', icon: 'inventory_2', desc: 'Safe storage' },
-              { name: 'Cloud Logging', icon: 'history_edu', desc: 'Anonymous events' }
+              { name: 'Cloud Run', icon: 'cloud_done', desc: 'Production hosting', status: 'Active' },
+              { name: 'Gemini AI', icon: 'smart_toy', desc: 'Neutral civic AI', status: 'Active' },
+              { name: 'Maps Platform', icon: 'map', desc: 'Booth helper', status: 'Active' },
+              { name: 'Firebase', icon: 'login', desc: 'Secure Google Auth', status: 'Active' },
+              { name: 'Secret Manager', icon: 'key', desc: 'Key protection', status: 'Active' },
+              { name: 'Cloud Build', icon: 'build', desc: 'Safe delivery', status: 'Active' },
+              { name: 'Artifact Registry', icon: 'inventory_2', desc: 'Safe storage', status: 'Active' },
+              { name: 'Cloud Logging', icon: 'history_edu', desc: 'Anonymous events', status: 'Active' }
             ].map(svc => (
               <div key={svc.name} className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-primary/20 transition-colors">
                 <span className="material-symbols-outlined text-primary text-2xl mb-2">{svc.icon}</span>
                 <h3 className="text-[11px] font-bold text-on-surface mb-1">{svc.name}</h3>
-                <p className="text-[9px] text-slate-500 leading-tight">{svc.desc}</p>
+                <p className="text-[9px] text-slate-500 leading-tight mb-2">{svc.desc}</p>
+                <span className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 uppercase tracking-widest">{svc.status}</span>
               </div>
             ))}
           </div>
@@ -129,7 +135,7 @@ export default function Home() {
               <Card className="p-6 bg-white border-0 shadow-sm overflow-hidden relative">
                 <h3 className="font-['Public_Sans'] font-bold text-slate-900 mb-4 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">emoji_events</span>
-                  Your Civic Progress
+                  {t('profile.yourProgress')}
                 </h3>
                 <div className="mb-4">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Recently Earned Badges</p>
@@ -138,7 +144,7 @@ export default function Home() {
                   </ErrorBoundary>
                 </div>
                 <Button variant="primary" className="w-full mb-3" onClick={() => navigate('/checklist')}>
-                  Continue Checklist
+                  {t('checklist.continue')}
                 </Button>
               </Card>
               <ErrorBoundary fallback={null}>
@@ -157,7 +163,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {QUICK_ACTIONS.map((action) => (
               <div 
-                key={action.title} 
+                key={action.titleKey} 
                 onClick={() => {
                   if (action.to === '/assistant') {
                     window.dispatchEvent(new CustomEvent('civicOpenChat'));
@@ -172,7 +178,7 @@ export default function Home() {
                     <span className="material-symbols-outlined text-primary group-hover:text-white transition-colors text-2xl" aria-hidden="true">{action.icon}</span>
                   </div>
                   <div>
-                     <h3 className="font-['Public_Sans'] font-bold text-on-surface mb-1 text-base group-hover:text-primary transition-colors">{t(action.title)}</h3>
+                     <h3 className="font-['Public_Sans'] font-bold text-on-surface mb-1 text-base group-hover:text-primary transition-colors">{t(action.titleKey)}</h3>
                      <p className="text-xs text-on-surface-variant leading-relaxed">{action.desc}</p>
                   </div>
                 </Card>

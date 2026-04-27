@@ -12,6 +12,7 @@
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#1A237E" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://maps.gstatic.com https://*.googleapis.com; frame-src https://www.google.com;" />
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -52,8 +53,20 @@
         </style>
       </div>
     </div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.jsx" onerror="handleModuleError()"></script>
     <script>
+      function handleModuleError() {
+        console.warn('CivicSaarthi: Module load failed. Attempting recovery...');
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(regs => {
+            for (let reg of regs) reg.unregister();
+            window.location.reload(true);
+          });
+        } else {
+          window.location.reload(true);
+        }
+      }
+
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/service-worker.js')

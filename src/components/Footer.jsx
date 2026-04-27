@@ -19,7 +19,6 @@ export default function Footer() {
             <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest">Platform</h3>
             <ul className="space-y-2 text-sm text-slate-500">
               <li><Link to="/about" className="hover:text-primary">About Project</Link></li>
-              <li><Link to="/quality" className="hover:text-primary">Quality Report</Link></li>
               <li><Link to="/architecture" className="hover:text-primary">Architecture</Link></li>
               <li><Link to="/sources" className="hover:text-primary">Verified Sources</Link></li>
             </ul>
@@ -30,7 +29,6 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-slate-500">
               <li><Link to="/safety" className="hover:text-primary">Safety Policy</Link></li>
               <li><Link to="/safety" className="hover:text-primary">Privacy Notes</Link></li>
-              <li><Link to="/quality" className="hover:text-primary">Neutrality Audit</Link></li>
             </ul>
           </div>
         </div>

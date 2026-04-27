@@ -37,20 +37,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // NetworkFirst strategy for navigation (index.html) to avoid MIME/Chunk errors
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/'))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
-      // Return cached response if found
+      // Return cached response if found (good for static assets like logo, icons)
       if (response) {
         return response;
       }
-
-      // Otherwise fetch from network
-      return fetch(event.request).catch(() => {
-        // If network fails and it's a navigation request, return index.html for SPA routing
-        if (event.request.mode === 'navigate') {
-          return caches.match('/');
-        }
-      });
+      return fetch(event.request);
     })
   );
 });
