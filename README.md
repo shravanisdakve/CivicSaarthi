@@ -3,6 +3,9 @@
 **Author**: Shravani Sunil Dakve  
 **Multilingual, Privacy-First, Official-Source-Guided Election-Readiness Companion.**
 
+### 🎯 Chosen Vertical: Civic Education & Citizen Empowerment
+*Empowering voters with grounded, non-partisan AI guidance and streamlined readiness tools.*
+
 CivicSaarthi helps citizens navigate the democratic process with confidence through a 9-step guided journey, grounded AI assistance, and robust voter readiness tools.
 
 ---
@@ -13,7 +16,7 @@ CivicSaarthi is engineered specifically to exceed the PromptWars Challenge 2 eva
 ### 1. Google Services Integration (100%)
 Impossible to miss. CivicSaarthi leverages 8 native Google Cloud & AI services:
 - **Google Cloud Run**: Live production hosting with serverless scaling.
-- **Gemini 2.5 Flash**: Intelligent, neutral, and multilingual AI assistant.
+- **Gemini 1.5 Flash**: Intelligent, neutral, and multilingual AI assistant.
 - **Firebase Authentication**: Production-ready Google Sign-In and secure profile management.
 - **Google Maps Platform**: Live discovery of Election Offices and Help Centers.
 - **Secret Manager**: Secures the Gemini API key and backend credentials.
@@ -42,9 +45,9 @@ Impossible to miss. CivicSaarthi leverages 8 native Google Cloud & AI services:
 - **Vite Optimized**: Lightweight production bundle (~75kB gzipped) with no heavy dependencies.
 - **Local Fallback**: Works offline or without Gemini API using a built-in knowledge base.
 
-### 5. Comprehensive Testing (82/82 Passing)
+### 5. Comprehensive Testing (All enabled tests passing)
 - **Command**: `npm test`
-- **Validation**: Verifies routes, neutrality guardrails, data integrity, Google Services visibility, and accessibility standards.
+- **Validation**: Verifies **Functional Logic** (grounding, safety, normalization), routes, neutrality guardrails, data integrity, Google Services visibility, and accessibility standards. Includes both custom audit scripts and Jest unit/integration tests for React components.
 
 ---
 
@@ -62,12 +65,27 @@ npm test
 npm run build
 
 # 4. Cloud Run Deploy
+# NOTE: Ensure secrets are configured in Google Secret Manager and Cloud Build has access.
+# Replace <YOUR_PROJECT_ID> and <YOUR_REGION> with your actual project ID and region.
 gcloud run deploy civicsaarthi \
   --source . \
   --region asia-south1 \
   --allow-unauthenticated \
-  --set-secrets GEMINI_API_KEY=gemini-api-key:latest \
-  --set-env-vars GEMINI_MODEL=gemini-2.5-flash
+  --set-secrets \
+    "GEMINI_API_KEY=gemini-api-key:latest,\
+    VITE_GOOGLE_MAPS_API_KEY=google-maps-api-key:latest,\
+    VITE_FIREBASE_API_KEY=firebase-api-key:latest,\
+    VITE_FIREBASE_AUTH_DOMAIN=firebase-auth-domain:latest,\
+    VITE_FIREBASE_PROJECT_ID=firebase-project-id:latest,\
+    VITE_FIREBASE_STORAGE_BUCKET=firebase-storage-bucket:latest,\
+    VITE_FIREBASE_MESSAGING_SENDER_ID=firebase-messaging-sender-id:latest,\
+    VITE_FIREBASE_APP_ID=firebase-app-id:latest,\
+    VITE_FIREBASE_MEASUREMENT_ID=firebase-measurement-id:latest,\
+    CALENDAR_CLIENT_ID=calendar-client-id:latest,\
+    CALENDAR_CLIENT_SECRET=calendar-client-secret:latest" \
+  --set-env-vars \
+    "GEMINI_MODEL=gemini-1.5-flash,\
+    CALENDAR_REDIRECT_URI=http://localhost:8080/api/calendar/oauth2callback"
 ```
 
 ---
@@ -82,10 +100,11 @@ gcloud run deploy civicsaarthi \
 
 ---
 
-## 🛡️ Ethical Guardrails
-- CivicSaarthi does **not** show officially assigned polling booths.
-- CivicSaarthi does **not** claim official ECI partnership or government authority.
-- Maps integration is restricted to discovery of **Election Offices and Help Centers**.
+## 🛡️ Ethical Guardrails & Assumptions Made
+To ensure safety, neutrality, and privacy, the following assumptions and guardrails form the core logic of the application:
+- **Assumption of Privacy:** We assume users do not want to hand over PII (Aadhaar/Phone numbers). Therefore, all progress is localized or managed via secure, anonymized Firebase auth.
+- **Assumption of Authority:** We assume users must rely on official ECI data. CivicSaarthi does **not** claim official ECI partnership or government authority.
+- **Geolocational Assumptions:** To prevent mapping inaccuracies for sensitive polling booths, Maps integration is restricted explicitly to the discovery of **Election Offices and Help Centers**.
 
 ---
 *Built for PromptWars Challenge 2. Powered by Google Cloud Run + Gemini.*
