@@ -20,8 +20,16 @@ steps:
     args:
       - '-c'
       - |
+        export VITE_GOOGLE_MAPS_API_KEY=$$VITE_GOOGLE_MAPS_API_KEY && \
+        export VITE_FIREBASE_API_KEY=$$VITE_FIREBASE_API_KEY && \
+        export VITE_FIREBASE_AUTH_DOMAIN=$$VITE_FIREBASE_AUTH_DOMAIN && \
+        export VITE_FIREBASE_PROJECT_ID=$$VITE_FIREBASE_PROJECT_ID && \
+        export VITE_FIREBASE_STORAGE_BUCKET=$$VITE_FIREBASE_STORAGE_BUCKET && \
+        export VITE_FIREBASE_MESSAGING_SENDER_ID=$$VITE_FIREBASE_MESSAGING_SENDER_ID && \
+        export VITE_FIREBASE_APP_ID=$$VITE_FIREBASE_APP_ID && \
+        export VITE_GEMINI_API_KEY=$$VITE_GEMINI_API_KEY && \
         docker build \
-          -t gcr.io/$PROJECT_ID/civicsaarthi:latest \
+          -t asia-south1-docker.pkg.dev/$PROJECT_ID/civicsaarthi/civicsaarthi:latest \
           --build-arg VITE_GOOGLE_MAPS_API_KEY=$$VITE_GOOGLE_MAPS_API_KEY \
           --build-arg VITE_FIREBASE_API_KEY=$$VITE_FIREBASE_API_KEY \
           --build-arg VITE_FIREBASE_AUTH_DOMAIN=$$VITE_FIREBASE_AUTH_DOMAIN \
@@ -30,7 +38,8 @@ steps:
           --build-arg VITE_FIREBASE_MESSAGING_SENDER_ID=$$VITE_FIREBASE_MESSAGING_SENDER_ID \
           --build-arg VITE_FIREBASE_APP_ID=$$VITE_FIREBASE_APP_ID \
           --build-arg VITE_GEMINI_API_KEY=$$VITE_GEMINI_API_KEY \
-          .
+          . && \
+        docker push asia-south1-docker.pkg.dev/$PROJECT_ID/civicsaarthi/civicsaarthi:latest
     secretEnv: ['VITE_GOOGLE_MAPS_API_KEY', 'VITE_FIREBASE_API_KEY', 'VITE_FIREBASE_AUTH_DOMAIN', 'VITE_FIREBASE_PROJECT_ID', 'VITE_FIREBASE_STORAGE_BUCKET', 'VITE_FIREBASE_MESSAGING_SENDER_ID', 'VITE_FIREBASE_APP_ID', 'VITE_GEMINI_API_KEY']
 
   # 4. Deploy to Cloud Run
@@ -40,7 +49,7 @@ steps:
     args:
       [
         "run", "deploy", "civicsaarthi",
-        "--image", "gcr.io/$PROJECT_ID/civicsaarthi:latest", # Use the built image
+        "--image", "asia-south1-docker.pkg.dev/$PROJECT_ID/civicsaarthi/civicsaarthi:latest", # Use the built image
         "--region", "asia-south1",
         "--allow-unauthenticated",
         # Sensitive variables should be managed as secrets in Google Secret Manager.

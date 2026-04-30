@@ -29,6 +29,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://maps.googleapis.com", "https://apis.google.com", "https://www.gstatic.com", "https://*.firebaseapp.com", "https://*.firebase.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "blob:", "https://maps.gstatic.com", "https://*.googleapis.com", "https://www.gstatic.com", "https://*.googleusercontent.com", "https://*.firebaseapp.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://r2cdn.perplexity.ai", "https://frontend-cdn.perplexity.ai"],
       connectSrc: ["'self'", "https://*.googleapis.com", "https://*.firebaseapp.com", "https://*.firebase.com", "https://civicsaarthi-6388d.firebaseapp.com", "https://oauth2.googleapis.com", "https://www.googleapis.com", "https://*.perplexity.ai"],
