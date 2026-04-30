@@ -16,7 +16,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'firebase', '@google/generative-ai'],
+          vendor: ['react', 'react-dom', '@google/generative-ai'],
         },
       },
     },

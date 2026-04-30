@@ -56,6 +56,8 @@ export function clearProfile() {
   }
 }
 
+export const clearGuestName = clearProfile;
+
 export function getSelectedPersona() {
   const legacy = localStorage.getItem('civicPersona');
   if (legacy) {

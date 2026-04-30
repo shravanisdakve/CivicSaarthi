@@ -1,5 +1,6 @@
+import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { officialSources, verificationChecklist, misinfoWarnings } from '../data/sources.js';
-import { useNavigate, useCallback } from 'react-router-dom';
 import Card from '../components/Card.jsx';
 import Badge from '../components/Badge.jsx';
 import Button from '../components/Button.jsx';

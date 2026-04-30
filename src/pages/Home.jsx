@@ -14,7 +14,6 @@ const QUICK_ACTIONS = [
   {
     icon: 'chat_bubble',
     titleKey: 'qa.ask',
-    titleKey: 'qa.ask',
     descKey: 'qa.ask.desc',
     to: '/assistant',
   },
@@ -22,13 +21,11 @@ const QUICK_ACTIONS = [
   {
     icon: 'calendar_month',
     titleKey: 'qa.timeline',
-    titleKey: 'qa.timeline',
     descKey: 'qa.timeline.desc',
     to: '/timeline',
   },
   {
     icon: 'checklist',
-    titleKey: 'qa.checklist',
     titleKey: 'qa.checklist',
     descKey: 'qa.checklist.desc',
     to: '/checklist',

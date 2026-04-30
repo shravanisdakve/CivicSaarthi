@@ -40,7 +40,7 @@ steps:
     args:
       [
         "run", "deploy", "civicsaarthi",
-        "--image", "gcr.io/$PROJECT_ID/civicsaarthi:$COMMIT_SHA", # Use the built image
+        "--image", "gcr.io/$PROJECT_ID/civicsaarthi:latest", # Use the built image
         "--region", "asia-south1",
         "--allow-unauthenticated",
         # Sensitive variables should be managed as secrets in Google Secret Manager.
