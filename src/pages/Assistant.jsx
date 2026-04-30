@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { getLocalResponse } from '../utils/localAssistant.js';
 import { useTranslation } from '../hooks/useTranslation.js';
+import { ASSISTANT_CONFIG, WELCOME_MESSAGES, SUGGESTED_QUESTIONS } from '../data/assistantConfig.js';
 import {
   normalizeUserMessage,
   containsUnsafePersonalDataHint,
@@ -12,14 +13,7 @@ import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
 import { getSpeechRecognition, speakText, stopSpeech, isSpeechSupported } from '../utils/speech.js';
 
-const SUGGESTED = [
-  'Walk me through the election process step by step.',
-  'What is VVPAT and how does it work?',
-  'How do I verify my name in the electoral roll?',
-  'What is the Model Code of Conduct?',
-  'What documents can I carry to vote?',
-  'What is NOTA and how does it work?',
-];
+// Suggested questions moved to assistantConfig.js
 
 // --- Mic Button (voice input) ---
 function MicButton({ language, onTranscript, loading }) {
@@ -108,6 +102,84 @@ function ReadAloudButton({ lastResponse, language, ttsAudio }) {
   );
 }
 
+// --- Formatted Message (Step-by-Step UI) ---
+function FormattedMessage({ text }) {
+  if (!text) return null;
+  const lines = text.split('\n');
+  const elements = [];
+  let currentList = [];
+
+  lines.forEach((line, i) => {
+    const trimmed = line.trim();
+    const stepMatch = trimmed.match(/^(\d+)[.)]\s+(.*)/);
+    
+    if (stepMatch) {
+      currentList.push({ num: stepMatch[1], content: stepMatch[2] });
+    } else {
+      if (currentList.length > 0) {
+        elements.push(
+          <div key={`list-${i}`} className="space-y-3 my-4">
+            {currentList.map((item, idx) => (
+              <div key={idx} className="flex gap-4 p-4 bg-blue-50/30 rounded-2xl border border-blue-100/50 shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shrink-0 font-bold text-xs">
+                  {item.num}
+                </div>
+                <div className="text-sm text-slate-800 leading-relaxed pt-1 font-medium">
+                  {item.content}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+        currentList = [];
+      }
+      
+      const isTip = trimmed.toUpperCase().includes('IMPORTANT TIPS') || 
+                   trimmed.toUpperCase().includes('महत्वपूर्ण टिपा') ||
+                   trimmed.toUpperCase().includes('महत्वपूर्ण टिप्स');
+
+      if (isTip) {
+         elements.push(
+           <div key={`tip-${i}`} className="my-4 p-5 bg-amber-50/80 rounded-3xl border border-amber-200/50 shadow-sm">
+             <div className="flex items-center gap-2 mb-3 text-amber-900 font-extrabold text-[10px] uppercase tracking-[0.2em]">
+               <span className="material-symbols-outlined text-lg">tips_and_updates</span>
+               {trimmed}
+             </div>
+           </div>
+         );
+      } else if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+        elements.push(
+          <div key={i} className="flex gap-3 mb-2 px-2 items-start">
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-2 shrink-0"></div>
+            <p className="text-sm text-slate-700 leading-relaxed font-medium">{trimmed.substring(2)}</p>
+          </div>
+        );
+      } else if (trimmed) {
+        elements.push(<p key={i} className="mb-3 last:mb-0 leading-relaxed text-slate-700 font-medium">{trimmed}</p>);
+      }
+    }
+  });
+
+  if (currentList.length > 0) {
+    elements.push(
+      <div key="list-final" className="space-y-3 my-4">
+        {currentList.map((item, idx) => (
+          <div key={idx} className="flex gap-4 p-4 bg-blue-50/30 rounded-2xl border border-blue-100/50 shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shrink-0 font-bold text-xs">
+              {item.num}
+            </div>
+            <div className="text-sm text-slate-800 leading-relaxed pt-1 font-medium">
+              {item.content}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return <div className="w-full">{elements}</div>;
+}
+
 export default function Assistant() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -132,14 +204,7 @@ export default function Assistant() {
 
   const WELCOME = {
     role: 'ai',
-    text:
-      lang === 'hi'
-        ? `नमस्ते${firstName ? ' ' + firstName : ''}! मैं CivicSaarthi हूँ। मैं आपकी कैसे सहायता कर सकता हूँ?`
-        : lang === 'mr'
-          ? `नमस्कार${firstName ? ' ' + firstName : ''}! मी CivicSaarthi आहे. मी तुम्हाला आज कशी मदत करू शकतो?`
-          : firstName
-            ? `Hi ${firstName}, I'm CivicSaarthi AI. I can help you understand the election process step by step.`
-            : "Hi, I'm CivicSaarthi AI. I can help you understand the election process step by step.",
+    text: WELCOME_MESSAGES[lang] ? WELCOME_MESSAGES[lang](hasName ? profile.name : null) : WELCOME_MESSAGES.en(hasName ? profile.name : null)
   };
 
   useEffect(() => {
@@ -290,7 +355,7 @@ export default function Assistant() {
           </div>
           <div>
             <h1 className="font-['Public_Sans'] text-2xl font-bold text-on-surface">
-              CivicSaarthi AI
+              {ASSISTANT_CONFIG.name}
             </h1>
             <div className="flex flex-wrap gap-2 mt-1">
               <span
@@ -336,13 +401,13 @@ export default function Assistant() {
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl p-4 text-sm leading-relaxed shadow-sm ${
+                className={`max-w-[85%] rounded-[24px] p-5 text-sm leading-relaxed shadow-sm transition-all ${
                   msg.role === 'user'
                     ? 'bg-primary text-white rounded-tr-none'
                     : 'bg-white border border-slate-100 rounded-tl-none text-on-surface'
                 }`}
               >
-                <div className="whitespace-pre-wrap">{msg.text}</div>
+                <FormattedMessage text={msg.text} />
                 {msg.image && (
                   <img
                     src={`data:image/jpeg;base64,${msg.image}`}
@@ -423,14 +488,15 @@ export default function Assistant() {
 
         <div className="p-4 bg-white border-t border-slate-100">
           <div className="flex gap-2 overflow-x-auto pb-3 mb-2 no-scrollbar">
-            {SUGGESTED.map((q) => (
+            {suggested.map((q) => (
               <button
-                key={q}
-                onClick={() => sendMessage(q)}
+                key={q.text}
+                onClick={() => sendMessage(q.text)}
                 disabled={loading}
-                className="whitespace-nowrap text-[11px] font-semibold px-4 py-2 rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-all bg-slate-50"
+                className="whitespace-nowrap flex items-center gap-1.5 text-[11px] font-bold px-4 py-2 rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-all bg-slate-50 shadow-sm"
               >
-                {q}
+                <span className="material-symbols-outlined text-[14px] text-primary/60">{q.icon}</span>
+                {q.text}
               </button>
             ))}
           </div>

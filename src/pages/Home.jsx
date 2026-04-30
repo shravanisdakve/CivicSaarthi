@@ -14,24 +14,27 @@ const QUICK_ACTIONS = [
   {
     icon: 'chat_bubble',
     titleKey: 'qa.ask',
-    desc: 'Get neutral answers instantly.',
+    titleKey: 'qa.ask',
+    descKey: 'qa.ask.desc',
     to: '/assistant',
   },
-  { icon: 'explore', titleKey: 'qa.journey', desc: 'Step-by-step guidance.', to: '/choose-path' },
+  { icon: 'explore', titleKey: 'qa.journey', descKey: 'qa.journey.desc', to: '/choose-path' },
   {
     icon: 'calendar_month',
     titleKey: 'qa.timeline',
-    desc: 'See all key dates and phases.',
+    titleKey: 'qa.timeline',
+    descKey: 'qa.timeline.desc',
     to: '/timeline',
   },
   {
     icon: 'checklist',
     titleKey: 'qa.checklist',
-    desc: 'See what you need to prepare.',
+    titleKey: 'qa.checklist',
+    descKey: 'qa.checklist.desc',
     to: '/checklist',
   },
-  { icon: 'where_to_vote', titleKey: 'qa.booth', desc: 'Find your booth.', to: '/map' },
-  { icon: 'policy', titleKey: 'qa.sources', desc: 'Verified links.', to: '/sources' },
+  { icon: 'where_to_vote', titleKey: 'qa.booth', descKey: 'qa.booth.desc', to: '/map' },
+  { icon: 'policy', titleKey: 'qa.sources', descKey: 'qa.sources.desc', to: '/sources' },
 ];
 
 /**
@@ -74,8 +77,7 @@ export default function Home() {
 
           <p className="text-xl text-on-surface-variant mb-4 font-medium">{t('hero.subtitle')}</p>
           <p className="text-body-lg text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Understand the election process, follow timelines, complete readiness steps, and verify
-            information through official sources.
+            {t('hero.description')}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
@@ -273,7 +275,7 @@ export default function Home() {
                         {t(action.titleKey)}
                       </h3>
                       <p className="text-xs text-on-surface-variant leading-relaxed">
-                        {action.desc}
+                        {t(action.descKey)}
                       </p>
                     </div>
                   </Card>
@@ -306,14 +308,19 @@ export default function Home() {
             </li>
             <li className="flex items-center gap-2 text-slate-600">
               <span className="material-symbols-outlined text-orange-600">cloud</span>
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">
-                Google Cloud Infrastructure
-              </span>
+              <div className="flex flex-col">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">
+                  Powered by Google Cloud
+                </span>
+                <span className="text-[8px] opacity-70 uppercase tracking-tighter">
+                  Cloud Run • Maps Platform • Firebase
+                </span>
+              </div>
             </li>
             <li className="flex items-center gap-2 text-slate-600">
               <span className="material-symbols-outlined text-blue-600">psychology</span>
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">
-                Gemini 2.5 Flash API
+                Gemini AI Integration
               </span>
             </li>
           </ul>

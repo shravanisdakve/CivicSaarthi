@@ -8,6 +8,7 @@ import { useTranslation } from '../hooks/useTranslation.js';
 import Dialog from '../components/Dialog.jsx';
 import { useAuth } from '../context/AuthContext.jsx'; // Import useAuth
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore'; // Import Firestore functions
+import { openGoogleCalendarLink } from '../utils/calendar.js';
 
 export default function Checklist() {
   const navigate = useNavigate();
@@ -143,7 +144,12 @@ export default function Checklist() {
   };
 
   const handleSetReminder = () => {
-    setIsReminderToOpen(true);
+    openGoogleCalendarLink({
+      summary: 'Election Day - Time to Vote!',
+      description: 'Reminder from CivicSaarthi: Today is election day. Make sure to carry your EPIC card or approved ID and head to your polling station.',
+      start: new Date().toISOString(), // In a real app, use the actual election date
+      end: new Date(new Date().getTime() + 60 * 60 * 1000).toISOString()
+    });
   };
 
   if (loadingChecklist) {
@@ -255,9 +261,9 @@ export default function Checklist() {
               },
               {
                 id: 'remind',
-                icon: 'notification_add',
-                title: 'Set Election Day Reminder',
-                sub: 'Add a calendar event for polling day.',
+                icon: 'calendar_add_on',
+                title: 'Add to Google Calendar',
+                sub: 'Set a reminder for election day.',
                 action: handleSetReminder,
               },
             ].map((step) => (

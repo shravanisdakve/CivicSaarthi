@@ -21,6 +21,14 @@ export const translations = {
     'hero.title': 'Understand Elections Step by Step',
     'hero.subtitle':
       'CivicSaarthi helps citizens understand election timelines, voter steps, key terms, and responsible participation through a neutral AI-powered guide.',
+    'hero.description':
+      'Understand the election process, follow timelines, complete readiness steps, and verify information through official sources.',
+    'qa.ask.desc': 'Get neutral answers instantly.',
+    'qa.journey.desc': 'Step-by-step guidance.',
+    'qa.timeline.desc': 'See all key dates and phases.',
+    'qa.checklist.desc': 'See what you need to prepare.',
+    'qa.booth.desc': 'Find your booth.',
+    'qa.sources.desc': 'Verified links.',
     'cta.startGuide': 'Start My Guide',
     'cta.askAI': 'Ask CivicSaarthi',
     'cta.viewTimeline': 'View Timeline',
@@ -133,6 +141,14 @@ export const translations = {
     'hero.title': 'चुनावों को चरण-दर-चरण समझें',
     'hero.subtitle':
       'CivicSaarthi नागरिकों को चुनाव समयसीमा, मतदाता चरणों, प्रमुख शब्दों और एक तटस्थ AI-संचालित गाइड के माध्यम से जिम्मेदार भागीदारी को समझने में मदद करता है।',
+    'hero.description':
+      'चुनावी प्रक्रिया को समझें, समयसीमा का पालन करें, तैयारी के कदम पूरे करें और आधिकारिक स्रोतों के माध्यम से जानकारी सत्यापित करें।',
+    'qa.ask.desc': 'तुरंत तटस्थ उत्तर प्राप्त करें।',
+    'qa.journey.desc': 'चरण-दर-चरण मार्गदर्शन।',
+    'qa.timeline.desc': 'सभी प्रमुख तिथियां और चरण देखें।',
+    'qa.checklist.desc': 'देखें कि आपको क्या तैयार करने की आवश्यकता है।',
+    'qa.booth.desc': 'अपना बूथ ढूंढें।',
+    'qa.sources.desc': 'सत्यापित लिंक।',
     'cta.startGuide': 'मेरी गाइड शुरू करें',
     'cta.askAI': 'CivicSaarthi से पूछें',
     'cta.viewTimeline': 'समयरेखा देखें',
@@ -244,6 +260,14 @@ export const translations = {
     'hero.title': 'निवडणुका टप्प्याटप्प्याने समजून घ्या',
     'hero.subtitle':
       'CivicSaarthi नागरिकांना निवडणूक वेळापत्रक, मतदार टप्पे, मुख्य संज्ञा आणि तटस्थ AI-आधारित मार्गदर्शकाद्वारे जबाबदार सहभाग समजून घेण्यास मदत करते.',
+    'hero.description':
+      'निवडणूक प्रक्रिया समजून घ्या, वेळापत्रकाचे पालन करा, तयारीचे टप्पे पूर्ण करा आणि अधिकृत स्रोतांद्वारे माहितीची पडताळणी करा.',
+    'qa.ask.desc': 'त्वरित तटस्थ उत्तरे मिळवा.',
+    'qa.journey.desc': 'टप्प्याटप्प्याने मार्गदर्शन.',
+    'qa.timeline.desc': 'सर्व महत्त्वाच्या तारखा आणि टप्पे पाहा.',
+    'qa.checklist.desc': 'तुम्हाला काय तयारी करावी लागेल ते पाहा.',
+    'qa.booth.desc': 'तुमचे मतदान केंद्र शोधा.',
+    'qa.sources.desc': 'सत्यापित लिंक्स.',
     'cta.startGuide': 'माझी मार्गदर्शिका सुरू करा',
     'cta.askAI': 'CivicSaarthi ला विचारा',
     'cta.viewTimeline': 'वेळापत्रक पाहा',

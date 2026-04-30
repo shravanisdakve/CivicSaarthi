@@ -5,6 +5,7 @@ import { phaseExplainers } from '../data/phaseExplainers.js';
 import PhaseExplainer from '../components/PhaseExplainer.jsx';
 import Button from '../components/Button.jsx';
 import { getProfile, saveProfile } from '../utils/profileStorage.js';
+import { openGoogleCalendarLink } from '../utils/calendar.js';
 
 const INITIAL_VISIBLE = 5;
 
@@ -366,6 +367,22 @@ export default function Timeline() {
                       <span className="material-symbols-outlined text-sm">smart_toy</span>
                       Ask Assistant for Detail
                     </Button>
+                    <button
+                      onClick={() => {
+                        const start = new Date(); // Use actual dates from data if available
+                        const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+                        openGoogleCalendarLink({
+                          summary: `Election Phase: ${activeStage.title}`,
+                          description: `CivicSaarthi Election Timeline: ${activeStage.shortDesc}\n\nKey Points:\n${activeStage.keyPoints.join('\n')}`,
+                          start: start.toISOString(),
+                          end: end.toISOString()
+                        });
+                      }}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 hover:border-primary hover:text-primary transition-all mt-1"
+                    >
+                      <span className="material-symbols-outlined text-sm">calendar_add_on</span>
+                      Add to Google Calendar
+                    </button>
                   </div>
                 </div>
               </>

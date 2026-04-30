@@ -13,5 +13,5 @@ export default {
     // Ignore node_modules except for specific packages that need to be transformed
     '/node_modules/(?!(some-es-module|another-es-module)/)',
   ],
-  testMatch: ['**/src/**/*.{test,spec}.{js,jsx}'],
+  testMatch: ['**/src/**/*.{test,spec}.{js,jsx}', '**/tests/**/*.spec.js'],
 };

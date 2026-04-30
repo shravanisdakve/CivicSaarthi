@@ -14,6 +14,7 @@ import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getKnowledgeContext, getSourceBadges } from './src/utils/knowledgeSearch.js';
+import { getSystemInstruction } from './src/data/systemInstructions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,11 +28,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://maps.googleapis.com", "https://apis.google.com", "https://www.gstatic.com", "https://*.firebaseapp.com"],
-      imgSrc: ["'self'", "data:", "https://maps.gstatic.com", "https://*.googleapis.com", "https://www.gstatic.com", "https://*.googleusercontent.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://maps.googleapis.com", "https://apis.google.com", "https://www.gstatic.com", "https://*.firebaseapp.com", "https://*.firebase.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https://maps.gstatic.com", "https://*.googleapis.com", "https://www.gstatic.com", "https://*.googleusercontent.com", "https://*.firebaseapp.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://r2cdn.perplexity.ai", "https://frontend-cdn.perplexity.ai"],
-      connectSrc: ["'self'", "https://*.googleapis.com", "https://*.firebaseapp.com", "https://civicsaarthi-6388d.firebaseapp.com", "https://oauth2.googleapis.com", "https://www.googleapis.com"], // Added OAuth and Calendar domains
-      frameSrc: ["'self'", "https://*.firebaseapp.com", "https://accounts.google.com"], // Added Google Accounts for OAuth
+      connectSrc: ["'self'", "https://*.googleapis.com", "https://*.firebaseapp.com", "https://*.firebase.com", "https://civicsaarthi-6388d.firebaseapp.com", "https://oauth2.googleapis.com", "https://www.googleapis.com", "https://*.perplexity.ai"],
+      frameSrc: ["'self'", "https://*.firebaseapp.com", "https://*.firebase.com", "https://accounts.google.com"],
     }
   }
 }));
@@ -290,7 +291,7 @@ const apiLimiter = rateLimit({
     "Too many requests from this IP, please try again after 15 minutes",
 });
 app.post('/api/chat', apiLimiter, async (req, res) => {
-  const { message, persona, history, image } = req.body; // Expect persona, history, and image from frontend
+  const { message, persona, history, image, language: lang = 'en-IN' } = req.body; // Expect persona, history, image, and language from frontend
   if (!process.env.GEMINI_API_KEY) {
     return res.json({ response: "AI is in local mode. Please configure GEMINI_API_KEY." });
   }
@@ -315,7 +316,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", tools: tools }); // Initialize model with tools
     const knowledge = getKnowledgeContext(message);
-    const systemInstruction = `You are CivicSaarthi AI, a non-partisan guide to the democratic process. Provide clear, concise, and unbiased information. If the user asks for a summary or simplification, provide it. If they ask for detailed steps, list them clearly. Always prioritize official sources. Your goal is to educate and empower citizens. You have access to tools that can provide real-time information. Use the 'getCurrentDateTime' tool when asked about the current date or time. Use the 'searchInternet' tool when asked questions that require up-to-date information not present in your internal knowledge base, or for general queries that would benefit from external web search.`;
+    const systemInstruction = getSystemInstruction(selectedPersona, lang) + knowledge;
 
     let chat;
     let geminiResponse;
@@ -378,9 +379,15 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
     let ttsAudio = null;
     if (isTextToSpeechConfigured && geminiResponse.response.text()) {
       try {
+        const langMap = {
+          'en': 'en-IN',
+          'hi': 'hi-IN',
+          'mr': 'mr-IN'
+        };
+        const voiceLang = langMap[lang] || 'en-IN';
         const [response] = await textToSpeechClient.synthesizeSpeech({
           input: { text: geminiResponse.response.text() },
-          voice: { languageCode: lang, ssmlGender: 'NEUTRAL' }, // Use detected language, default to neutral
+          voice: { languageCode: voiceLang, ssmlGender: 'NEUTRAL' },
           audioConfig: { audioEncoding: 'MP3' },
         });
         ttsAudio = Buffer.from(response.audioContent).toString('base64');

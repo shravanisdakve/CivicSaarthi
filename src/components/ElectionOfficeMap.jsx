@@ -136,6 +136,12 @@ export default function ElectionOfficeMap() {
     setPlacesError(null);
     setNearbyPlaces([]); // Clear previous places
 
+    if (!window.google || !window.google.maps || !window.google.maps.places) {
+      setPlacesError('Google Places API not loaded.');
+      setLoadingPlaces(false);
+      return;
+    }
+
     const service = new window.google.maps.places.PlacesService(map);
     const request = {
       location: location,
@@ -157,7 +163,7 @@ export default function ElectionOfficeMap() {
         setNearbyPlaces(results);
         // Add markers for nearby places
         results.forEach((place) => {
-          if (!place.geometry || !place.geometry.location) return;
+          if (!place.geometry || !place.geometry.location || !window.google.maps.Marker) return;
           const marker = new window.google.maps.Marker({
             map: map,
             position: place.geometry.location,
