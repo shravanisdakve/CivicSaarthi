@@ -10,9 +10,14 @@
     "preview": "vite preview",
     "server": "node server.js",
     "start": "node server.js",
-    "test": "node tests/test.js && node tests/quality_check.js"
+    "lint": "eslint \"{src,tests}/**/*.{js,jsx}\"",
+    "lint:fix": "eslint \"{src,tests}/**/*.{js,jsx}\" --fix",
+    "format": "prettier --write \"{src,tests,public}/**/*.{js,jsx,json,css,md}\"",
+    "test:jest": "jest",
+    "test": "node tests/logic.test.js && node tests/test.js && node tests/quality_check.js && npm run test:jest"
   },
   "dependencies": {
+    "@google-cloud/language": "^7.2.1",
     "@google-cloud/logging": "^11.2.1",
     "@google/generative-ai": "^0.24.0",
     "cors": "^2.8.5",
@@ -20,15 +25,33 @@
     "express": "^4.19.2",
     "express-rate-limit": "^8.4.1",
     "firebase": "^12.12.1",
+    "google-auth-library": "^10.6.2",
+    "googleapis": "^171.4.0",
+    "helmet": "^7.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.23.1"
+    "react-router-dom": "^6.23.1",
+    "@google-cloud/text-to-speech": "^5.0.1"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.28.6",
+    "@babel/preset-env": "^7.29.2",
+    "@babel/preset-react": "^7.28.5",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
+    "babel-jest": "^30.3.0",
     "concurrently": "^8.2.2",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "jest-fetch-mock": "^3.0.3",
     "postcss": "^8.4.38",
+    "prettier": "^3.8.3",
     "tailwindcss": "^3.4.4",
     "vite": "^5.3.1"
   }

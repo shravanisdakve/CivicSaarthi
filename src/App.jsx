@@ -4,7 +4,6 @@ import Layout from './components/Layout.jsx';
 import RouteLoader from './components/RouteLoader.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import OfflineStatus from './components/OfflineStatus.jsx';
-import { getProfile } from './utils/guestProfile.js';
 
 const Home = lazy(() => import('./pages/Home.jsx'));
 const ChoosePath = lazy(() => import('./pages/ChoosePath.jsx'));

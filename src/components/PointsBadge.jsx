@@ -18,7 +18,9 @@ export default function PointsBadge({ points }) {
   }
 
   return (
-    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${color} border border-current/10 shadow-sm`}>
+    <div
+      className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${color} border border-current/10 shadow-sm`}
+    >
       <span className="material-symbols-outlined text-[16px]">{icon}</span>
       {tier}
     </div>

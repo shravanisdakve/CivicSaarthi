@@ -37,31 +37,32 @@ export default class ErrorBoundary extends React.Component {
               Something went wrong
             </h1>
             <p className="text-slate-600 mb-8">
-              We encountered an unexpected issue. You can return to the home page or try refreshing the app.
+              We encountered an unexpected issue. You can return to the home page or try refreshing
+              the app.
             </p>
             <div className="flex flex-col gap-3">
-              <Button 
-                variant="primary" 
-                onClick={() => window.location.href = '/'}
+              <Button
+                variant="primary"
+                onClick={() => (window.location.href = '/')}
                 className="w-full"
               >
                 Return Home
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => window.location.href = '/assistant'}
+              <Button
+                variant="outline"
+                onClick={() => (window.location.href = '/assistant')}
                 className="w-full"
               >
                 Open Assistant
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => window.location.href = '/timeline'}
+              <Button
+                variant="outline"
+                onClick={() => (window.location.href = '/timeline')}
                 className="w-full"
               >
                 Open Timeline
               </Button>
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="text-sm font-bold text-slate-400 hover:text-primary transition-colors"
               >

@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { glossaryTerms } from '../data/glossary.js';
 import Badge from '../components/Badge.jsx';
 import Card from '../components/Card.jsx';
+import Button from '../components/Button.jsx';
 
 const CATEGORIES = ['All', 'Voting', 'Process', 'Security', 'Legal'];
 
@@ -24,26 +25,35 @@ export default function Glossary() {
   }, [search, activeCategory]);
 
   const [askingTerm, setAskingTerm] = useState(null);
-  const handleAskAI = (term) => {
+  const handleAskAI = useCallback((term) => {
     setAskingTerm(term);
     setTimeout(() => {
-      navigate(`/assistant?prompt=${encodeURIComponent(`Can you explain what ${term} means in the context of Indian elections?`)}`);
+      navigate(
+        `/assistant?prompt=${encodeURIComponent(`Can you explain what ${term} means in the context of Indian elections?`)}`
+      );
       setAskingTerm(null);
     }, 600);
-  };
+  }, [setAskingTerm, navigate]); // Dependencies
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearch('');
     setActiveCategory('All');
-  };
+  }, [setSearch, setActiveCategory]); // Dependencies
+
+  const handleCategoryClick = useCallback((cat) => {
+    setActiveCategory(cat);
+  }, [setActiveCategory]);
 
   return (
     <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-12">
       {/* Header */}
       <div className="text-center mb-10">
-        <h1 className="font-['Public_Sans'] text-3xl md:text-4xl font-bold text-on-surface mb-3">Election Glossary</h1>
+        <h1 className="font-['Public_Sans'] text-3xl md:text-4xl font-bold text-on-surface mb-3">
+          Election Glossary
+        </h1>
         <p className="text-on-surface-variant max-w-xl mx-auto text-sm">
-          A comprehensive guide to terminology used in the electoral process. Search or filter to find specific terms.
+          A comprehensive guide to terminology used in the electoral process. Search or filter to
+          find specific terms.
         </p>
       </div>
 
@@ -51,7 +61,12 @@ export default function Glossary() {
       <div className="bg-white rounded-xl border border-slate-200 shadow-card p-4 mb-8 flex flex-col md:flex-row gap-4 items-center sticky top-20 z-30">
         {/* Search */}
         <div className="relative w-full md:w-80">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl" aria-hidden="true">search</span>
+          <span
+            className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl"
+            aria-hidden="true"
+          >
+            search
+          </span>
           <input
             type="text"
             value={search}
@@ -61,11 +76,13 @@ export default function Glossary() {
             aria-label="Search glossary terms"
           />
           {search && (
-            <button 
+            <button
               onClick={() => setSearch('')}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
-              <span className="material-symbols-outlined text-sm" aria-hidden="true">close</span>
+              <span className="material-symbols-outlined text-sm" aria-hidden="true">
+                close
+              </span>
             </button>
           )}
         </div>
@@ -75,7 +92,7 @@ export default function Glossary() {
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => handleCategoryClick(cat)}
               className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${
                 activeCategory === cat
                   ? 'bg-primary text-white shadow-md'
@@ -91,10 +108,21 @@ export default function Glossary() {
       {/* Glossary Grid */}
       {filtered.length === 0 ? (
         <div className="text-center py-20 bg-surface-container-low rounded-2xl border-2 border-dashed border-slate-200">
-          <span className="material-symbols-outlined text-6xl mb-4 block text-slate-300" aria-hidden="true">find_in_page</span>
-          <p className="font-['Public_Sans'] text-xl font-bold text-on-surface mb-2">No matching terms found</p>
-          <p className="text-sm text-on-surface-variant mb-6">We couldn't find any results for your current search or filters.</p>
-          <Button variant="outline" onClick={clearFilters}>Clear all filters</Button>
+          <span
+            className="material-symbols-outlined text-6xl mb-4 block text-slate-300"
+            aria-hidden="true"
+          >
+            find_in_page
+          </span>
+          <p className="font-['Public_Sans'] text-xl font-bold text-on-surface mb-2">
+            No matching terms found
+          </p>
+          <p className="text-sm text-on-surface-variant mb-6">
+            We couldn&apos;t find any results for your current search or filters.
+          </p>
+          <Button variant="outline" onClick={clearFilters}>
+            Clear all filters
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -110,8 +138,12 @@ export default function Glossary() {
                   </h3>
                   <Badge variant={term.category.toLowerCase()}>{term.category}</Badge>
                 </div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">{term.fullForm}</p>
-                <p className="text-sm text-on-surface-variant leading-relaxed line-clamp-3">{term.definition}</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
+                  {term.fullForm}
+                </p>
+                <p className="text-sm text-on-surface-variant leading-relaxed line-clamp-3">
+                  {term.definition}
+                </p>
               </div>
               <div className="flex gap-2">
                 <button
@@ -132,7 +164,9 @@ export default function Glossary() {
                     </>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined text-sm" aria-hidden="true">smart_toy</span>
+                      <span className="material-symbols-outlined text-sm" aria-hidden="true">
+                        smart_toy
+                      </span>
                       Ask AI
                     </>
                   )}

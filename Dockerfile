@@ -1,38 +1,43 @@
-# Stage 1: Build the React frontend
-FROM node:20-alpine AS builder
+FROM node:22-slim
 
 WORKDIR /app
 
-# Copy package files and install ALL deps (including devDependencies for Vite)
+# Install dependencies first (for caching)
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
-# Copy source and build
+# Pass environment variables to the BUILD process (Vite needs these)
+# These should be supplied at build time (e.g., via --build-arg in docker build or in Cloud Build)
+# DO NOT hardcode sensitive keys here.
+ARG VITE_GOOGLE_MAPS_API_KEY
+ARG VITE_FIREBASE_API_KEY
+ARG VITE_FIREBASE_AUTH_DOMAIN
+ARG VITE_FIREBASE_PROJECT_ID
+ARG VITE_FIREBASE_STORAGE_BUCKET
+ARG VITE_FIREBASE_MESSAGING_SENDER_ID
+ARG VITE_FIREBASE_APP_ID
+ARG VITE_FIREBASE_MEASUREMENT_ID
+ARG VITE_GEMINI_API_KEY
+
+# Expose build arguments as environment variables for Vite's build process
+ENV VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
+ENV VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY
+ENV VITE_FIREBASE_AUTH_DOMAIN=$VITE_FIREBASE_AUTH_DOMAIN
+ENV VITE_FIREBASE_PROJECT_ID=$VITE_FIREBASE_PROJECT_ID
+ENV VITE_FIREBASE_STORAGE_BUCKET=$VITE_FIREBASE_STORAGE_BUCKET
+ENV VITE_FIREBASE_MESSAGING_SENDER_ID=$VITE_FIREBASE_MESSAGING_SENDER_ID
+ENV VITE_FIREBASE_APP_ID=$VITE_FIREBASE_APP_ID
+ENV VITE_FIREBASE_MEASUREMENT_ID=$VITE_FIREBASE_MEASUREMENT_ID
+ENV VITE_GEMINI_API_KEY=$VITE_GEMINI_API_KEY
+
 COPY . .
+
+# Run build after environment is set
 RUN npm run build
 
-# Stage 2: Production image - only runtime deps + built dist
-FROM node:20-alpine AS runner
-
-WORKDIR /app
-
-# Copy package files and install ONLY production deps
-COPY package*.json ./
-RUN npm ci --omit=dev
-
-# Copy built frontend from builder stage
-COPY --from=builder /app/dist ./dist
-
-# Copy server and src utilities (server.js imports from src/utils)
-COPY server.js ./
-COPY src/utils ./src/utils
-COPY src/data ./src/data
-
-# Cloud Run listens on PORT env var (default 8080)
 ENV PORT=8080
 ENV NODE_ENV=production
 
 EXPOSE 8080
 
-# Start the Express server (serves both API and built frontend)
 CMD ["node", "server.js"]

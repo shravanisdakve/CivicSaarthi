@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { glossaryTerms } from '../data/glossary.js';
 import { useTranslation } from '../hooks/useTranslation.js';
 import Card from '../components/Card.jsx';
@@ -13,19 +13,10 @@ export default function GlossaryDetail() {
   const [isAsking, setIsAsking] = useState(false);
   const [aiResponse, setAiResponse] = useState('');
   const [aiError, setAiError] = useState(false);
-  
+
   const term = glossaryTerms.find((t) => t.id === id);
 
-  if (!term) {
-    return (
-      <div className="max-w-screen-xl mx-auto px-6 py-16 text-center">
-        <h1 className="text-2xl font-bold mb-4">Term not found</h1>
-        <Button onClick={() => navigate('/glossary')}>Back to Glossary</Button>
-      </div>
-    );
-  }
-
-  const askInline = async (question) => {
+  const askInline = useCallback(async (question) => {
     if (!question.trim() || isAsking) return;
     setIsAsking(true);
     setAiResponse('');
@@ -44,23 +35,34 @@ export default function GlossaryDetail() {
     } finally {
       setIsAsking(false);
     }
-  };
+  }, [isAsking, lang, setAiResponse, setAiError, setIsAsking]); // Dependencies
 
-  const handleAsk = (e) => {
+  const handleAsk = useCallback((e) => {
     e.preventDefault();
     askInline(askInput);
     setAskInput('');
-  };
+  }, [askInline, askInput, setAskInput]); // Dependencies
 
-  const handleSuggested = (q) => {
+  const handleSuggested = useCallback((q) => {
     askInline(q);
-  };
+  }, [askInline]); // askInline is a dependency
+
+  if (!term) {
+    return (
+      <div className="max-w-screen-xl mx-auto px-6 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">Term not found</h1>
+        <Button onClick={() => navigate('/glossary')}>Back to Glossary</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-8 md:py-12">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
-        <Link to="/glossary" className="hover:text-primary transition-colors">Glossary</Link>
+        <Link to="/glossary" className="hover:text-primary transition-colors">
+          Glossary
+        </Link>
         <span className="material-symbols-outlined text-sm">chevron_right</span>
         <span className="font-semibold text-on-surface">{term.term}</span>
       </div>
@@ -74,9 +76,9 @@ export default function GlossaryDetail() {
                 <span className="material-symbols-outlined text-[14px]">verified</span>
                 Official-source guided
               </span>
-              <a 
-                href="https://voters.eci.gov.in/" 
-                target="_blank" 
+              <a
+                href="https://voters.eci.gov.in/"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-blue-200 transition-colors"
               >
@@ -84,7 +86,9 @@ export default function GlossaryDetail() {
                 Verify with ECI
               </a>
             </div>
-            <h1 className="font-['Public_Sans'] text-4xl md:text-5xl font-bold text-on-surface mb-2">{term.term}</h1>
+            <h1 className="font-['Public_Sans'] text-4xl md:text-5xl font-bold text-on-surface mb-2">
+              {term.term}
+            </h1>
             <p className="text-lg text-on-surface-variant">{term.fullForm}</p>
           </div>
 
@@ -92,7 +96,9 @@ export default function GlossaryDetail() {
           <Card className="p-6" hover={false} accent={true}>
             <div className="flex items-center gap-2 mb-3">
               <span className="material-symbols-outlined text-primary text-sm">menu_book</span>
-              <span className="text-xs font-bold tracking-widest uppercase text-primary">Definition</span>
+              <span className="text-xs font-bold tracking-widest uppercase text-primary">
+                Definition
+              </span>
             </div>
             <p className="text-on-surface text-base leading-relaxed">{term.definition}</p>
           </Card>
@@ -100,7 +106,9 @@ export default function GlossaryDetail() {
           {/* How it Works (if available) */}
           {term.howItWorks && (
             <div>
-              <h2 className="font-['Public_Sans'] text-2xl font-bold text-on-surface mb-5">How it Works</h2>
+              <h2 className="font-['Public_Sans'] text-2xl font-bold text-on-surface mb-5">
+                How it Works
+              </h2>
               <Card className="p-6" hover={false}>
                 <div className="space-y-6">
                   {term.howItWorks.map((step, idx) => (
@@ -113,7 +121,9 @@ export default function GlossaryDetail() {
                       </div>
                       <div>
                         <h3 className="font-semibold text-on-surface mb-1">{step.step}</h3>
-                        <p className="text-sm text-on-surface-variant leading-relaxed">{step.detail}</p>
+                        <p className="text-sm text-on-surface-variant leading-relaxed">
+                          {step.detail}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -127,7 +137,9 @@ export default function GlossaryDetail() {
             <div className="bg-primary-fixed-dim/30 rounded-xl p-6 border border-primary-fixed-dim/50">
               <div className="flex items-center gap-2 mb-3">
                 <span className="material-symbols-outlined text-primary">verified_user</span>
-                <h3 className="font-['Public_Sans'] font-semibold text-on-surface">Why it Matters</h3>
+                <h3 className="font-['Public_Sans'] font-semibold text-on-surface">
+                  Why it Matters
+                </h3>
               </div>
               <p className="text-sm text-on-surface-variant leading-relaxed">{term.whyItMatters}</p>
             </div>
@@ -140,12 +152,14 @@ export default function GlossaryDetail() {
           <div className="bg-surface-container-low rounded-xl border border-slate-200 p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <span className="material-symbols-outlined text-primary">smart_toy</span>
-              <h3 className="font-['Public_Sans'] font-semibold text-on-surface">Ask CivicSaarthi AI</h3>
+              <h3 className="font-['Public_Sans'] font-semibold text-on-surface">
+                Ask CivicSaarthi AI
+              </h3>
             </div>
             <p className="text-sm text-on-surface-variant mb-4">
               Still confused? Ask a specific question about {term.term}.
             </p>
-            
+
             <form onSubmit={handleAsk} className="mb-4">
               <div className="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
                 <input
@@ -155,8 +169,8 @@ export default function GlossaryDetail() {
                   value={askInput}
                   onChange={(e) => setAskInput(e.target.value)}
                 />
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isAsking || !askInput.trim()}
                   className="bg-primary text-white p-2 flex items-center justify-center hover:bg-primary-container disabled:opacity-70 transition-colors"
                 >
@@ -172,7 +186,7 @@ export default function GlossaryDetail() {
             {term.suggestedQuestions && term.suggestedQuestions.length > 0 && (
               <div className="flex flex-col gap-2">
                 {term.suggestedQuestions.map((q, idx) => (
-                  <button 
+                  <button
                     key={idx}
                     onClick={() => handleSuggested(q)}
                     disabled={isAsking}
@@ -192,9 +206,13 @@ export default function GlossaryDetail() {
               </div>
             )}
             {aiResponse && !isAsking && (
-              <div className={`mt-2 mb-3 p-3 rounded-xl text-sm leading-relaxed ${
-                aiError ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-primary/5 text-on-surface border border-primary/10'
-              }`}>
+              <div
+                className={`mt-2 mb-3 p-3 rounded-xl text-sm leading-relaxed ${
+                  aiError
+                    ? 'bg-red-50 text-red-700 border border-red-100'
+                    : 'bg-primary/5 text-on-surface border border-primary/10'
+                }`}
+              >
                 <div className="flex items-center gap-1 text-[10px] font-bold text-primary uppercase mb-2">
                   <span className="material-symbols-outlined text-[12px]">smart_toy</span>
                   CivicSaarthi AI
@@ -207,19 +225,26 @@ export default function GlossaryDetail() {
           {/* Related Terms */}
           {term.relatedTerms && term.relatedTerms.length > 0 && (
             <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-              <h3 className="text-xs font-bold tracking-widest uppercase text-slate-500 mb-4">Related Terms</h3>
+              <h3 className="text-xs font-bold tracking-widest uppercase text-slate-500 mb-4">
+                Related Terms
+              </h3>
               <div className="flex flex-col gap-2">
                 {term.relatedTerms.map((rtId) => {
-                  const relatedTerm = glossaryTerms.find(t => t.id === rtId);
+                  const relatedTerm = glossaryTerms.find((t) => t.id === rtId);
                   if (!relatedTerm) return null;
                   return (
-                    <Link 
-                      key={rtId} 
+                    <Link
+                      key={rtId}
                       to={`/glossary/${rtId}`}
                       className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 hover:text-primary transition-colors text-sm text-on-surface"
                     >
-                      <span>{relatedTerm.term} <span className="text-slate-400 text-xs">({relatedTerm.fullForm})</span></span>
-                      <span className="material-symbols-outlined text-sm text-slate-300">arrow_forward</span>
+                      <span>
+                        {relatedTerm.term}{' '}
+                        <span className="text-slate-400 text-xs">({relatedTerm.fullForm})</span>
+                      </span>
+                      <span className="material-symbols-outlined text-sm text-slate-300">
+                        arrow_forward
+                      </span>
                     </Link>
                   );
                 })}

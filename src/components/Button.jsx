@@ -7,6 +7,7 @@ export default function Button({
   onClick,
   type = 'button',
   disabled = false,
+  ariaLabel, // New prop for aria-label
   ...props
 }) {
   const base =
@@ -19,14 +20,11 @@ export default function Button({
   };
 
   const variants = {
-    primary:
-      'bg-primary text-white hover:bg-primary-container active:scale-95',
-    secondary:
-      'bg-secondary text-white hover:opacity-90 active:scale-95',
+    primary: 'bg-primary text-white hover:bg-primary-container active:scale-95',
+    secondary: 'bg-secondary text-white hover:opacity-90 active:scale-95',
     outline:
       'border border-outline text-on-surface bg-white hover:bg-surface-container-high active:scale-95',
-    ghost:
-      'text-primary hover:bg-surface-container-low active:scale-95',
+    ghost: 'text-primary hover:bg-surface-container-low active:scale-95',
   };
 
   return (
@@ -35,6 +33,8 @@ export default function Button({
       className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
       onClick={onClick}
       disabled={disabled}
+      aria-label={ariaLabel} // Apply aria-label if provided
+      aria-disabled={disabled} // Apply aria-disabled based on disabled prop
       {...props}
     >
       {children}

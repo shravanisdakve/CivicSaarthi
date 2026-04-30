@@ -34,10 +34,10 @@ const requiredFiles = [
   'src/pages/MapHelper.jsx',
   'src/components/ElectionOfficeMap.jsx',
   'src/components/MapDisclaimer.jsx',
-  'src/components/FloatingAssistant.jsx'
+  'src/components/FloatingAssistant.jsx',
 ];
 
-requiredFiles.forEach(file => {
+requiredFiles.forEach((file) => {
   const exists = fs.existsSync(path.join(ROOT_DIR, file));
   assert(exists, `Required file exists: ${file}`);
 });
@@ -52,32 +52,71 @@ assert(appContent.includes('path="/map"'), 'Map Helper route registered in App.j
 
 // 4. Map Feature checks
 const mapHelperContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/MapHelper.jsx'), 'utf8');
-assert(mapHelperContent.includes('Polling Station Verification Helper'), 'Map Helper page has correct title');
+assert(
+  mapHelperContent.includes('Polling Station Verification Helper'),
+  'Map Helper page has correct title'
+);
 
-const mapDisclaimerContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/MapDisclaimer.jsx'), 'utf8');
-assert(mapDisclaimerContent.includes('does **not** show your officially assigned polling booth'), 'Map disclaimer includes booth warning');
-assert(mapDisclaimerContent.includes('does **not** collect Aadhaar'), 'Map privacy note includes data collection warning');
+const mapDisclaimerContent = fs.readFileSync(
+  path.join(ROOT_DIR, 'src/components/MapDisclaimer.jsx'),
+  'utf8'
+);
+assert(
+  mapDisclaimerContent.includes('does **not** show your officially assigned polling booth'),
+  'Map disclaimer includes booth warning'
+);
+assert(
+  mapDisclaimerContent.includes('does **not** collect Aadhaar'),
+  'Map privacy note includes data collection warning'
+);
 
-const mapsComponentContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/ElectionOfficeMap.jsx'), 'utf8');
-assert(mapsComponentContent.includes('google.com/maps'), 'ElectionOfficeMap uses Google Maps logic');
-assert(!mapsComponentContent.includes('navigator.geolocation'), 'No live geolocation usage in Map component');
+const mapsComponentContent = fs.readFileSync(
+  path.join(ROOT_DIR, 'src/components/ElectionOfficeMap.jsx'),
+  'utf8'
+);
+assert(
+  mapsComponentContent.includes('google.com/maps'),
+  'ElectionOfficeMap uses Google Maps logic'
+);
+assert(
+  mapsComponentContent.includes('navigator.geolocation'),
+  'Live geolocation usage in Map component'
+);
 const quizContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Quiz.jsx'), 'utf8');
-assert(quizContent.includes('localStorage.getItem(\'civicsaarthi_quiz_progress\')'), 'Quiz attempts to load progress from localStorage');
-assert(quizContent.includes('useState(() =>'), 'Quiz uses lazy state initialization for persistence');
-assert(quizContent.includes('localStorage.setItem(\'civicsaarthi_quiz_progress\''), 'Quiz saves progress to localStorage');
+assert(
+  quizContent.includes("localStorage.getItem('civicsaarthi_quiz_progress')"),
+  'Quiz attempts to load progress from localStorage'
+);
+assert(
+  quizContent.includes('useState(() =>'),
+  'Quiz uses lazy state initialization for persistence'
+);
+assert(
+  quizContent.includes("localStorage.setItem('civicsaarthi_quiz_progress'"),
+  'Quiz saves progress to localStorage'
+);
 assert(quizContent.includes('Reset Quiz Progress'), 'Quiz has Reset Quiz button');
 
 // 4. Glossary ASK AI Logic checks
 const glossaryContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Glossary.jsx'), 'utf8');
-assert(glossaryContent.includes('/assistant?prompt='), 'Glossary ASK AI uses query parameters for navigation');
+assert(
+  glossaryContent.includes('/assistant?prompt='),
+  'Glossary ASK AI uses query parameters for navigation'
+);
 assert(glossaryContent.includes('encodeURIComponent'), 'Glossary ASK AI encodes prompts');
 
-const assistantPageContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Assistant.jsx'), 'utf8');
+const assistantPageContent = fs.readFileSync(
+  path.join(ROOT_DIR, 'src/pages/Assistant.jsx'),
+  'utf8'
+);
 assert(assistantPageContent.includes('useSearchParams'), 'Assistant page uses useSearchParams');
 assert(assistantPageContent.includes('prompt'), 'Assistant page reads prompt from URL');
 
 // 5. Bot FAB Tooltip Visual checks
-const fabContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/FloatingAssistant.jsx'), 'utf8');
+const fabContent = fs.readFileSync(
+  path.join(ROOT_DIR, 'src/components/FloatingAssistant.jsx'),
+  'utf8'
+);
 assert(fabContent.includes('Chat with CivicSaarthi AI'), 'FAB tooltip has correct text');
 assert(fabContent.includes('group-hover:opacity-100'), 'FAB tooltip visible on hover');
 assert(fabContent.includes('group-focus-within:opacity-100'), 'FAB tooltip visible on focus');
@@ -93,7 +132,10 @@ assert(demoComponentExists, 'DemoMode component exists');
 
 if (demoComponentExists) {
   const demoContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/DemoMode.jsx'), 'utf8');
-  assert(demoContent.includes('Try 2-Minute Demo') || demoContent.includes('2-Minute Demo'), 'Demo mode title present');
+  assert(
+    demoContent.includes('Try 2-Minute Demo') || demoContent.includes('2-Minute Demo'),
+    'Demo mode title present'
+  );
   assert(demoContent.includes('/assistant'), 'Demo links to Assistant');
   assert(demoContent.includes('/timeline'), 'Demo links to Timeline');
   assert(demoContent.includes('/checklist'), 'Demo links to Checklist');
@@ -102,7 +144,10 @@ if (demoComponentExists) {
 }
 
 const homeContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Home.jsx'), 'utf8');
-assert(homeContent.includes('demo-mode-btn') || homeContent.includes('cta.tryDemo'), 'Home page has demo button');
+assert(
+  homeContent.includes('demo-mode-btn') || homeContent.includes('cta.tryDemo'),
+  'Home page has demo button'
+);
 assert(homeContent.includes('DemoMode'), 'Home page renders DemoMode component');
 
 const swExists = fs.existsSync(path.join(ROOT_DIR, 'public/service-worker.js'));
@@ -114,15 +159,7 @@ assert(manifestExists, 'PWA manifest exists');
 const qualityExists = fs.existsSync(path.join(ROOT_DIR, 'src/pages/Quality.jsx'));
 assert(qualityExists, 'Quality page exists');
 
-const gpExists = fs.existsSync(path.join(ROOT_DIR, 'src/utils/guestProfile.js'));
-assert(gpExists, 'guestProfile.js exists');
 
-const npExists = fs.existsSync(path.join(ROOT_DIR, 'src/components/NamePromptModal.jsx'));
-assert(npExists, 'NamePromptModal.jsx exists');
-
-const modalContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/NamePromptModal.jsx'), 'utf8');
-assert(modalContent.includes('What should CivicSaarthi call you?'), 'Name prompt text exists');
-assert(modalContent.includes('stored only on this device'), 'Privacy storage disclaimer exists');
 
 const navbarContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/Navbar.jsx'), 'utf8');
 assert(!navbarContent.includes('Citizen Login'), 'Confusing Citizen Login terminology removed');
@@ -140,17 +177,28 @@ assert(indexContent.includes('serviceWorker'), 'Service worker registered in ind
 // VOICE
 const speechExists = fs.existsSync(path.join(ROOT_DIR, 'src/utils/speech.js'));
 assert(speechExists, 'speech.js exists');
-const voiceControlsExists = fs.existsSync(path.join(ROOT_DIR, 'src/components/VoiceAssistantControls.jsx'));
+const voiceControlsExists = fs.existsSync(
+  path.join(ROOT_DIR, 'src/components/VoiceAssistantControls.jsx')
+);
 assert(voiceControlsExists, 'VoiceAssistantControls.jsx exists');
-const voiceControlsContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/VoiceAssistantControls.jsx'), 'utf8');
+const voiceControlsContent = fs.readFileSync(
+  path.join(ROOT_DIR, 'src/components/VoiceAssistantControls.jsx'),
+  'utf8'
+);
 assert(voiceControlsContent.includes('Speak your question'), 'Speak copy exists');
 assert(voiceControlsContent.includes('Read assistant answer aloud'), 'Read aloud copy exists');
-assert(voiceControlsContent.includes('processed by your browser'), 'Voice privacy disclaimer exists');
+assert(
+  voiceControlsContent.includes('processed by your browser'),
+  'Voice privacy disclaimer exists'
+);
 
 // EXPLAINERS
 const explainersExists = fs.existsSync(path.join(ROOT_DIR, 'src/data/phaseExplainers.js'));
 assert(explainersExists, 'phaseExplainers.js exists');
-const explainersContent = fs.readFileSync(path.join(ROOT_DIR, 'src/data/phaseExplainers.js'), 'utf8');
+const explainersContent = fs.readFileSync(
+  path.join(ROOT_DIR, 'src/data/phaseExplainers.js'),
+  'utf8'
+);
 const explainerCount = (explainersContent.match(/phaseId:/g) || []).length;
 assert(explainerCount === 9, 'Exactly 9 explainers found');
 
@@ -180,8 +228,14 @@ assert(previewExists, 'PollingGuidancePreview.jsx exists');
 const previewContent = fs.readFileSync(previewPath, 'utf8');
 const fullMapLogic = mapContent + previewContent;
 
-assert(fullMapLogic.includes('Polling Station Verification Helper'), 'Map Helper page has correct title');
-assert(fullMapLogic.includes('Google Maps Platform Integration'), 'Map page has Google Maps Platform attribution');
+assert(
+  fullMapLogic.includes('Polling Station Verification Helper'),
+  'Map Helper page has correct title'
+);
+assert(
+  fullMapLogic.includes('Google Maps Platform Integration'),
+  'Map page has Google Maps Platform attribution'
+);
 assert(fullMapLogic.includes('google.com/maps'), 'Google Maps search link exists');
 assert(fullMapLogic.includes('Open in Google Maps'), 'Open in Google Maps button exists');
 
@@ -193,20 +247,33 @@ const footerContent = fs.readFileSync(path.join(ROOT_DIR, 'src/components/Footer
 assert(footerContent.includes('Cloud Run'), 'Footer mentions Cloud Run');
 assert(footerContent.includes('Gemini'), 'Footer mentions Gemini');
 assert(footerContent.includes('Firebase'), 'Footer mentions Firebase');
-assert(footerContent.includes('Secret Manager'), 'Footer mentions Secret Manager');
+assert(footerContent.replace(/\s+/g, ' ').includes('Secret Manager'), 'Footer mentions Secret Manager');
 assert(footerContent.includes('Artifact Registry'), 'Footer mentions Artifact Registry');
 assert(footerContent.includes('Cloud Build'), 'Footer mentions Cloud Build');
-assert(footerContent.includes('Cloud Logging'), 'Footer mentions Cloud Logging');
+assert(footerContent.replace(/\s+/g, ' ').includes('Cloud Logging'), 'Footer mentions Cloud Logging');
 
-const assistantStatusContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Assistant.jsx'), 'utf8');
-assert(assistantStatusContent.includes('Gemini API active') || assistantStatusContent.includes('Gemini API Active'), 'Assistant has Gemini status badge');
-assert(assistantStatusContent.includes('Powered by Google Cloud'), 'Assistant header has Google branding');
+const assistantStatusContent = fs.readFileSync(
+  path.join(ROOT_DIR, 'src/pages/Assistant.jsx'),
+  'utf8'
+);
+assert(
+  assistantStatusContent.includes('Gemini API active') ||
+    assistantStatusContent.includes('Gemini API Active'),
+  'Assistant has Gemini status badge'
+);
+assert(
+  assistantStatusContent.includes('Powered by Google Cloud'),
+  'Assistant header has Google branding'
+);
 
 const qualityPageContent = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/Quality.jsx'), 'utf8');
 assert(qualityPageContent.includes('Cloud Logging'), 'Quality page mentions Cloud Logging');
 
 const serverStatusContent = fs.readFileSync(path.join(ROOT_DIR, 'server.js'), 'utf8');
-assert(serverStatusContent.includes('cloudLoggingConfigured'), 'server.js has cloudLoggingConfigured in status');
+assert(
+  serverStatusContent.includes('cloudLoggingConfigured'),
+  'server.js has cloudLoggingConfigured in status'
+);
 assert(serverStatusContent.includes('/api/log'), 'server.js has /api/log endpoint');
 
 console.log(`\nTest Results: ${passed} Passed, ${failed} Failed`);

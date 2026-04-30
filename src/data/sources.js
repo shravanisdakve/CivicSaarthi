@@ -3,7 +3,8 @@ export const officialSources = [
   {
     id: 'eci',
     name: 'Election Commission of India (ECI)',
-    description: 'The supreme constitutional authority responsible for administering election processes in India.',
+    description:
+      'The supreme constitutional authority responsible for administering election processes in India.',
     category: 'Governing Body',
     url: 'https://eci.gov.in',
     icon: 'account_balance',
@@ -13,7 +14,8 @@ export const officialSources = [
   {
     id: 'nvsp',
     name: "National Voters' Service Portal",
-    description: 'Register to vote, correct details, track application status, and search your name in the electoral roll.',
+    description:
+      'Register to vote, correct details, track application status, and search your name in the electoral roll.',
     category: 'Voter Services',
     url: 'https://nvsp.in',
     icon: 'how_to_reg',
@@ -23,7 +25,8 @@ export const officialSources = [
   {
     id: 'sveep',
     name: 'SVEEP Portal',
-    description: "Systematic Voters' Education and Electoral Participation program for voter awareness and literacy.",
+    description:
+      "Systematic Voters' Education and Electoral Participation program for voter awareness and literacy.",
     category: 'Education',
     url: 'https://sveep.eci.gov.in',
     icon: 'school',
@@ -33,7 +36,8 @@ export const officialSources = [
   {
     id: 'kyc',
     name: 'Know Your Candidate (KYC)',
-    description: 'Official ECI application to view details of candidates contesting elections, including criminal antecedents.',
+    description:
+      'Official ECI application to view details of candidates contesting elections, including criminal antecedents.',
     category: 'Mobile App',
     url: 'https://eci.gov.in/candidate-information-1/',
     icon: 'person_search',
@@ -43,7 +47,8 @@ export const officialSources = [
   {
     id: 'cvigil',
     name: 'cVIGIL',
-    description: 'Report Model Code of Conduct violations directly to the Election Commission for fast-track resolution.',
+    description:
+      'Report Model Code of Conduct violations directly to the Election Commission for fast-track resolution.',
     category: 'Mobile App',
     url: 'https://cvigil.eci.gov.in',
     icon: 'report',

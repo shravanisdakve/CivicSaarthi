@@ -1,4 +1,4 @@
-import { getProfile, saveProfile } from './guestProfile.js';
+import { getProfile, saveProfile } from './profileStorage.js';
 import { badges } from '../data/badges.js';
 
 export function checkNewBadges() {
@@ -24,7 +24,9 @@ export function checkNewBadges() {
   // 3. Glossary Guru
   if (!currentBadges.includes('glossary-guru')) {
     const history = JSON.parse(sessionStorage.getItem('civicChatHistory') || '[]');
-    const glossaryQueries = history.filter(m => m.text && (m.text.includes('What is') || m.text.includes('Explain'))).length;
+    const glossaryQueries = history.filter(
+      (m) => m.text && (m.text.includes('What is') || m.text.includes('Explain'))
+    ).length;
     if (glossaryQueries >= 5) {
       newEarned.push('glossary-guru');
     }
@@ -56,11 +58,13 @@ export function checkNewBadges() {
 
   // 7. Democracy Champion
   if (!currentBadges.includes('democracy-champion')) {
-    const hasStarter = currentBadges.includes('civic-starter') || newEarned.includes('civic-starter');
+    const hasStarter =
+      currentBadges.includes('civic-starter') || newEarned.includes('civic-starter');
     const hasQuiz = currentBadges.includes('quiz-scholar') || newEarned.includes('quiz-scholar');
     const hasReady = currentBadges.includes('voter-ready') || newEarned.includes('voter-ready');
-    const hasExplorer = currentBadges.includes('election-explorer') || newEarned.includes('election-explorer');
-    
+    const hasExplorer =
+      currentBadges.includes('election-explorer') || newEarned.includes('election-explorer');
+
     if (hasStarter && hasQuiz && hasReady && hasExplorer) {
       newEarned.push('democracy-champion');
     }
@@ -69,7 +73,7 @@ export function checkNewBadges() {
   if (newEarned.length > 0) {
     const updatedBadges = [...currentBadges, ...newEarned];
     saveProfile({ badges: updatedBadges });
-    return newEarned.map(id => badges.find(b => b.id === id));
+    return newEarned.map((id) => badges.find((b) => b.id === id));
   }
 
   return [];

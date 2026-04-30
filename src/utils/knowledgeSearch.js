@@ -7,31 +7,32 @@ import { officialKnowledge } from '../data/officialKnowledge.js';
  */
 export function searchKnowledge(message) {
   if (!message) return [];
-  
+
   const query = message.toLowerCase();
-  
+
   // Scoring function based on keyword matches
-  const results = officialKnowledge.map(entry => {
-    let score = 0;
-    
-    // Exact match in title
-    if (query.includes(entry.title.toLowerCase())) score += 10;
-    
-    // Match in keywords
-    entry.keywords.forEach(keyword => {
-      if (query.includes(keyword.toLowerCase())) {
-        score += 5;
-      }
-    });
-    
-    // Partial match in summary
-    if (query.includes(entry.summary.toLowerCase().substring(0, 20))) score += 2;
-    
-    return { ...entry, score };
-  })
-  .filter(item => item.score > 0)
-  .sort((a, b) => b.score - a.score);
-  
+  const results = officialKnowledge
+    .map((entry) => {
+      let score = 0;
+
+      // Exact match in title
+      if (query.includes(entry.title.toLowerCase())) score += 10;
+
+      // Match in keywords
+      entry.keywords.forEach((keyword) => {
+        if (query.includes(keyword.toLowerCase())) {
+          score += 5;
+        }
+      });
+
+      // Partial match in summary
+      if (query.includes(entry.summary.toLowerCase().substring(0, 20))) score += 2;
+
+      return { ...entry, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score);
+
   return results.slice(0, 2); // Return top 2 matches
 }
 
@@ -40,16 +41,16 @@ export function searchKnowledge(message) {
  */
 export function getKnowledgeContext(message) {
   const matches = searchKnowledge(message);
-  if (matches.length === 0) return "";
-  
-  let context = "\n\nOFFICIAL KNOWLEDGE CONTEXT:\n";
-  matches.forEach(m => {
+  if (matches.length === 0) return '';
+
+  let context = '\n\nOFFICIAL KNOWLEDGE CONTEXT:\n';
+  matches.forEach((m) => {
     context += `Topic: ${m.title}\n`;
     context += `Summary: ${m.summary}\n`;
     context += `Official Steps: ${m.steps.join('; ')}\n`;
     context += `Source: ${m.sourceName} (${m.sourceUrl})\n\n`;
   });
-  
+
   return context;
 }
 
@@ -58,10 +59,10 @@ export function getKnowledgeContext(message) {
  */
 export function getSourceBadges(message) {
   const matches = searchKnowledge(message);
-  return matches.map(m => ({
+  return matches.map((m) => ({
     id: m.id,
     title: m.title,
     sourceName: m.sourceName,
-    sourceUrl: m.sourceUrl
+    sourceUrl: m.sourceUrl,
   }));
 }

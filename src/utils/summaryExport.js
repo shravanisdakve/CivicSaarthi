@@ -1,22 +1,31 @@
-/**
- * Utility to generate and download a personalized Election Readiness Summary.
- * Generates a clean HTML file locally in the browser without backend calls or heavy PDF libraries.
- */
+import { translations } from '../data/translations.js';
+import { getLanguage } from './language.js';
 
-export function downloadReadinessSummary({ persona, checklistItems = [], readinessPercent = 0, nextAction = '' }) {
-  const completedSteps = checklistItems.filter(item => item.completed);
-  const pendingSteps = checklistItems.filter(item => !item.completed);
-  
+export function downloadReadinessSummary({
+  persona,
+  checklistItems = [],
+  readinessPercent = 0,
+  nextAction = '',
+  lang = 'en', // Add lang parameter
+}) {
+  const completedSteps = checklistItems.filter((item) => item.completed);
+  const pendingSteps = checklistItems.filter((item) => !item.completed);
+
+  const t = (key) => {
+    const dict = translations[lang] || translations.en;
+    return dict[key] || translations.en[key] || key;
+  };
+
   const dateStr = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
   // Generate HTML content
   const htmlContent = `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CivicSaarthi Election Readiness Summary</title>
+  <title>${t('summary.title')}</title>
   <style>
     :root {
       --primary: #3b82f6; /* Adjust to match app primary */
@@ -120,48 +129,56 @@ export function downloadReadinessSummary({ persona, checklistItems = [], readine
   
   <div class="container">
     <header>
-      <h1>CivicSaarthi Election Readiness Summary</h1>
-      <div class="subtitle">Understand. Prepare. Verify. Vote.</div>
+      <h1>${t('summary.title')}</h1>
+      <div class="subtitle">${t('summary.subtitle')}</div>
       <div class="meta">Generated on: ${dateStr}</div>
     </header>
 
     <div class="stats-card">
       <div class="stat">
-        <div class="stat-value">${persona || 'General Citizen'}</div>
-        <div class="stat-label">Selected Path</div>
+        <div class="stat-value">${persona || t('summary.generalCitizen')}</div>
+        <div class="stat-label">${t('summary.selectedPath')}</div>
       </div>
       <div class="stat">
         <div class="stat-value">${readinessPercent}%</div>
-        <div class="stat-label">Readiness Score</div>
+        <div class="stat-label">${t('summary.readinessScore')}</div>
       </div>
     </div>
 
-    <h2>Recommended Next Action</h2>
-    <p><strong>${nextAction || 'Review your pending steps below to complete your readiness journey.'}</strong></p>
+    <h2>${t('summary.recoNextAction')}</h2>
+    <p><strong>${nextAction || t('summary.recoNextActionDesc')}</strong></p>
 
-    <h2>Completed Steps (${completedSteps.length})</h2>
-    ${completedSteps.length > 0 ? `
+    <h2>${t('summary.completedSteps')} (${completedSteps.length})</h2>
+    ${
+      completedSteps.length > 0
+        ? `
       <ul>
-        ${completedSteps.map(item => `<li><span class="completed">✓</span> ${item.text || item.label || 'Task'}</li>`).join('')}
+        ${completedSteps.map((item) => `<li><span class="completed">✓</span> ${item.text || item.label || t('summary.task')}</li>`).join('')}
       </ul>
-    ` : '<p>No steps completed yet. Let\'s get started!</p>'}
+    `
+        : `<p>${t('summary.noStepsCompleted')}</p>`
+    }
 
-    <h2>Pending Steps (${pendingSteps.length})</h2>
-    ${pendingSteps.length > 0 ? `
+    <h2>${t('summary.pendingSteps')} (${pendingSteps.length})</h2>
+    ${
+      pendingSteps.length > 0
+        ? `
       <ul>
-        ${pendingSteps.map(item => `<li><span class="pending">○</span> ${item.text || item.label || 'Task'}</li>`).join('')}
+        ${pendingSteps.map((item) => `<li><span class="pending">○</span> ${item.text || item.label || t('summary.task')}</li>`).join('')}
       </ul>
-    ` : '<p>All steps completed! You are fully prepared.</p>'}
+    `
+        : `<p>${t('summary.allStepsCompleted')}</p>`
+    }
 
     <div class="disclaimer-section">
       <div class="disclaimer-box">
-        <strong>Privacy Note:</strong> CivicSaarthi does not collect Aadhaar, voter ID, phone number, address, political preference, or live location.
+        <strong>${t('summary.privacyNoteTitle')}:</strong> ${t('summary.privacyNoteDesc')}
       </div>
       <div class="neutrality-box">
-        <strong>Neutrality Note:</strong> CivicSaarthi explains election processes and does not support or oppose any party or candidate.
+        <strong>${t('summary.neutralityNoteTitle')}:</strong> ${t('summary.neutralityNoteDesc')}
       </div>
       <div class="official-box">
-        <strong>Official Verification Reminder:</strong> Always verify registration status, polling station, voting dates, and candidate information through official election sources.
+        <strong>${t('summary.officialNoteTitle')}:</strong> ${t('summary.officialNoteDesc')}
       </div>
     </div>
   </div>
@@ -172,13 +189,13 @@ export function downloadReadinessSummary({ persona, checklistItems = [], readine
   // Create Blob and trigger download
   const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  
+
   const a = document.createElement('a');
   a.href = url;
   a.download = `civic-saarthi-readiness-summary.html`;
   document.body.appendChild(a);
   a.click();
-  
+
   // Cleanup
   setTimeout(() => {
     document.body.removeChild(a);

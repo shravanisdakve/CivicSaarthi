@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Card from './Card.jsx';
 import Button from './Button.jsx';
 
@@ -7,12 +7,14 @@ export default function VoterMap() {
   const [searchQuery, setSearchQuery] = useState('Election Office near me');
   const [activeQuery, setActiveQuery] = useState('Election Office near me');
 
-  const handleSearch = (e) => {
+  const handleSearch = useCallback((e) => {
     e.preventDefault();
     setActiveQuery(searchQuery);
-  };
+  }, [searchQuery, setActiveQuery]); // Dependencies
 
-  const mapUrl = `https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=${encodeURIComponent(activeQuery)}`;
+  const mapUrl = useMemo(() =>
+    `https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=${encodeURIComponent(activeQuery)}`
+  , [apiKey, activeQuery]); // Dependencies
 
   if (!apiKey) {
     return (
@@ -20,15 +22,26 @@ export default function VoterMap() {
         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
           <span className="material-symbols-outlined text-3xl">map_off</span>
         </div>
-        <h3 className="text-xl font-bold text-slate-900 mb-2 font-['Public_Sans']">Maps Platform Inactive</h3>
+        <h3 className="text-xl font-bold text-slate-900 mb-2 font-['Public_Sans']">
+          Maps Platform Inactive
+        </h3>
         <p className="text-slate-500 max-w-sm mx-auto mb-8 text-sm">
-          A valid Google Maps API Key is required to display the interactive helper. You can still use official external links.
+          A valid Google Maps API Key is required to display the interactive helper. You can still
+          use official external links.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <Button variant="outline" onClick={() => window.open('https://voters.eci.gov.in/', '_blank')}>
+          <Button
+            variant="outline"
+            onClick={() => window.open('https://voters.eci.gov.in/', '_blank')}
+          >
             ECI Voter Portal
           </Button>
-          <Button variant="outline" onClick={() => window.open('https://www.google.com/maps/search/election+office+near+me', '_blank')}>
+          <Button
+            variant="outline"
+            onClick={() =>
+              window.open('https://www.google.com/maps/search/election+office+near+me', '_blank')
+            }
+          >
             Open Maps Directly
           </Button>
         </div>
@@ -41,7 +54,9 @@ export default function VoterMap() {
       <Card className="p-4 bg-white shadow-md border border-slate-100 overflow-hidden">
         <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-grow">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">search</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">
+              search
+            </span>
             <input
               type="text"
               value={searchQuery}
@@ -66,11 +81,13 @@ export default function VoterMap() {
           allowFullScreen
           src={mapUrl}
         ></iframe>
-        
+
         {/* Safe Overlay Label */}
         <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-4 py-2 rounded-full border border-slate-100 shadow-lg flex items-center gap-2 pointer-events-none">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">Official Maps Platform Live</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">
+            Official Maps Platform Live
+          </span>
         </div>
       </Card>
 
@@ -78,8 +95,8 @@ export default function VoterMap() {
         {[
           { label: 'Offices', query: 'Election Commission Office', icon: 'account_balance' },
           { label: 'Help Centers', query: 'Voter Registration Center', icon: 'info' },
-          { label: 'Post Offices', query: 'Post Office near me', icon: 'mail' }
-        ].map(filter => (
+          { label: 'Post Offices', query: 'Post Office near me', icon: 'mail' },
+        ].map((filter) => (
           <button
             key={filter.label}
             onClick={() => {

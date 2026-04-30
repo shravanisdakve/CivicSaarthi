@@ -1,0 +1,172 @@
+﻿
+> civic-saarthi@1.0.0 lint
+> eslint "{src,tests}/**/*.{js,jsx}"
+
+
+D:\WORKHERE\CivicSaarthi\src\components\AuthModal.jsx
+  3:8  warning  'Button' is defined but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\components\Dialog.jsx
+  2:8  warning  'Button' is defined but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\components\ElectionOfficeMap.jsx
+  11:10  warning  'nearbyPlaces' is assigned a value but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\components\FloatingAssistant.jsx
+   44:11  warning  't' is assigned a value but never used                                                                                                                                                                                                    no-unused-vars
+   49:9   warning  The 'scrollToBottom' function makes the dependencies of useEffect Hook (at line 157) change on every render. Move it inside the useEffect callback. Alternatively, wrap the definition of 'scrollToBottom' in its own useCallback() Hook  react-hooks/exhaustive-deps
+   65:9   warning  The 'startJourney' function makes the dependencies of useCallback Hook (at line 130) change on every render. To fix this, wrap the definition of 'startJourney' in its own useCallback() Hook                                             react-hooks/exhaustive-deps
+  159:9   warning  The 'sendMessage' function makes the dependencies of useCallback Hook (at line 130) change on every render. To fix this, wrap the definition of 'sendMessage' in its own useCallback() Hook                                               react-hooks/exhaustive-deps
+  219:14  warning  'err' is defined but never used                                                                                                                                                                                                           no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\components\MapDisclaimer.jsx
+  4:11  warning  't' is assigned a value but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\components\Navbar.jsx
+  31:17  warning  'loading' is assigned a value but never used   no-unused-vars
+  34:9   warning  'navigate' is assigned a value but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\components\PollingGuidancePreview.jsx
+  2:8  warning  'Button' is defined but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\components\PollingStationHelper.jsx
+  8:9  warning  'navigate' is assigned a value but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\components\ProductPreview.jsx
+   8:9   warning  'totalSteps' is assigned a value but never used                  no-unused-vars
+  48:18  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\WORKHERE\CivicSaarthi\src\components\RouteLoader.jsx
+  1:8  warning  'LoadingOverlay' is defined but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\components\SmartNextStep.jsx
+  9:9  warning  'navigate' is assigned a value but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\components\UserMenu.jsx
+  53:6  warning  React Hook useCallback has unnecessary dependencies: 'checklistItems' and 'downloadReadinessSummary'. Either exclude them or remove the dependency array. Outer scope values like 'checklistItems' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+
+D:\WORKHERE\CivicSaarthi\src\components\VoiceAssistantControls.jsx
+   1:20  warning  'useEffect' is defined but never used                                                                                           no-unused-vars
+  18:26  error    React Hook "useCallback" is called conditionally. React Hooks must be called in the exact same order in every component render  react-hooks/rules-of-hooks
+  46:31  error    React Hook "useCallback" is called conditionally. React Hooks must be called in the exact same order in every component render  react-hooks/rules-of-hooks
+  55:22  error    React Hook "useCallback" is called conditionally. React Hooks must be called in the exact same order in every component render  react-hooks/rules-of-hooks
+
+D:\WORKHERE\CivicSaarthi\src\components\WelcomeIntro.jsx
+  5:8   warning  'Card' is defined but never used        no-unused-vars
+  9:11  warning  't' is assigned a value but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\context\AuthContext.jsx
+  36:6  warning  React Hook useEffect has an unnecessary dependency: 'saveProfile'. Either exclude it or remove the dependency array. Outer scope values like 'saveProfile' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+
+D:\WORKHERE\CivicSaarthi\src\context\LanguageContext.jsx
+  1:35  warning  'useEffect' is defined but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\data\translations.js
+  157:5  error  Duplicate key 'cta.viewTimeline'  no-dupe-keys
+  270:5  error  Duplicate key 'cta.viewTimeline'  no-dupe-keys
+
+D:\WORKHERE\CivicSaarthi\src\pages\Assistant.jsx
+   97:11  warning  't' is assigned a value but never used                                                                                           no-unused-vars
+  137:6   warning  React Hook useEffect has missing dependencies: 'WELCOME' and 'messages'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  149:6   warning  React Hook useEffect has missing dependencies: 'messages' and 'sendMessage'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  200:14  warning  'err' is defined but never used                                                                                                  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\pages\Checklist.jsx
+   10:15  warning  'getDoc' is defined but never used                                                 no-unused-vars
+   10:23  warning  'setDoc' is defined but never used                                                 no-unused-vars
+  109:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+D:\WORKHERE\CivicSaarthi\src\pages\ChoosePath.jsx
+  80:70  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\WORKHERE\CivicSaarthi\src\pages\Glossary.jsx
+  121:22  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\WORKHERE\CivicSaarthi\src\pages\Home.jsx
+  1:20  warning  'useEffect' is defined but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\pages\MapHelper.jsx
+  8:20  error  'useNavigate' is not defined  no-undef
+
+D:\WORKHERE\CivicSaarthi\src\pages\Profile.jsx
+  11:8   warning  'Dialog' is defined but never used                                                 no-unused-vars
+  20:10  warning  'isResetOpen' is assigned a value but never used                                   no-unused-vars
+  22:10  warning  'loadingChecklist' is assigned a value but never used                              no-unused-vars
+  23:10  warning  'checklistError' is assigned a value but never used                                no-unused-vars
+  84:9   warning  'handleConfirmReset' is assigned a value but never used                            no-unused-vars
+  88:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+D:\WORKHERE\CivicSaarthi\src\pages\Quality.jsx
+   1:8   warning  'Layout' is defined but never used                               no-unused-vars
+  21:55  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  68:82  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\WORKHERE\CivicSaarthi\src\pages\Quiz.jsx
+   8:10  warning  'trackVisit' is defined but never used  no-unused-vars
+  19:16  warning  'e' is defined but never used           no-unused-vars
+  30:16  warning  'e' is defined but never used           no-unused-vars
+  41:16  warning  'e' is defined but never used           no-unused-vars
+  52:16  warning  'e' is defined but never used           no-unused-vars
+  63:16  warning  'e' is defined but never used           no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\pages\Safety.jsx
+  40:45  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  40:79  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  76:17  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  76:54  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  82:17  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  82:38  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  88:17  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  88:56  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+D:\WORKHERE\CivicSaarthi\src\pages\Timeline.jsx
+  33:6  warning  React Hook useCallback has an unnecessary dependency: 'saveProfile'. Either exclude it or remove the dependency array. Outer scope values like 'saveProfile' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+
+D:\WORKHERE\CivicSaarthi\src\utils\recommendations.js
+  7:9  warning  'profile' is assigned a value but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\utils\shareText.js
+  40:14  warning  'err' is defined but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\src\utils\summaryExport.js
+  2:10  warning  'getLanguage' is defined but never used  no-unused-vars
+
+D:\WORKHERE\CivicSaarthi\tests\logic.test.js
+   5:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   8:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  12:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  20:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  23:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  30:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  38:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  46:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  49:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  56:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  58:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+D:\WORKHERE\CivicSaarthi\tests\quality_check.js
+    7:1  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   11:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   28:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   33:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   57:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   62:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   75:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   80:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   90:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   95:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  108:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  113:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  159:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  169:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+D:\WORKHERE\CivicSaarthi\tests\test.js
+    5:10  warning  'glossaryTerms' is defined but never used                                          no-unused-vars
+    7:10  warning  'getLocalResponse' is defined but never used                                       no-unused-vars
+   18:5   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   26:1   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  279:1   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  283:3   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+Γ£û 97 problems (19 errors, 78 warnings)
+

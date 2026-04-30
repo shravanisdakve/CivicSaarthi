@@ -2,21 +2,27 @@ const STORAGE_KEY = 'civicProfile';
 
 const defaultProfile = {
   name: 'Guest Citizen',
-  email: '',
   avatar: '',
-  authProvider: 'none', // 'none', 'guest', 'google'
   selectedPersona: 'first-time',
   checklistProgress: {},
   quizScore: null,
   readinessPoints: 0,
-  lastActiveAt: new Date().toISOString()
+  lastActiveAt: new Date().toISOString(),
 };
 
 export function getProfile() {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return { ...defaultProfile };
-    return { ...defaultProfile, ...JSON.parse(data) };
+    let parsed = {};
+    if (data) {
+      parsed = JSON.parse(data);
+    }
+    const finalProfile = { ...defaultProfile, ...parsed };
+    // Strict safety check for string methods (split, trim) used across the app
+    if (!finalProfile.name || typeof finalProfile.name !== 'string') {
+      finalProfile.name = 'Guest Citizen';
+    }
+    return finalProfile;
   } catch {
     return { ...defaultProfile };
   }
@@ -42,8 +48,12 @@ export function clearProfile() {
     // Legacy keys cleanup
     localStorage.removeItem('civicPersona');
     localStorage.removeItem('civicChecklist');
+    localStorage.removeItem('civicIntroSeen'); // Add this for cleanup
+    localStorage.removeItem('civicChatHistory'); // Add this for cleanup
     window.dispatchEvent(new Event('civicProfileUpdated'));
-  } catch {}
+  } catch (e) { // Add error logging
+    console.error('Failed to clear profile', e);
+  }
 }
 
 export function getSelectedPersona() {
@@ -68,7 +78,7 @@ export function getChecklistProgress() {
       saveProfile({ checklistProgress: parsed });
       localStorage.removeItem('civicChecklist');
       return parsed;
-    } catch {}
+    } catch { return {}; }
   }
   return getProfile().checklistProgress || {};
 }
@@ -92,22 +102,22 @@ export function saveQuizProgress(score) {
 
 export function calculateReadinessPoints(profile = getProfile()) {
   let points = 0;
-  
+
   // Checklist points (10 per item)
   const checklist = profile.checklistProgress || {};
   const completedChecklistItems = Object.values(checklist).filter(Boolean).length;
   points += completedChecklistItems * 10;
-  
+
   // Quiz points (20 per correct answer, max 100)
   if (profile.quizScore !== null) {
-    points += (profile.quizScore * 20);
+    points += profile.quizScore * 20;
   }
-  
+
   // Persona selection bonus (10 points)
   if (profile.selectedPersona) {
     points += 10;
   }
-  
+
   saveProfile({ readinessPoints: points });
   return points;
 }

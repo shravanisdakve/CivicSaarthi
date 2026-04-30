@@ -14,21 +14,43 @@ export default function Footer() {
               Understand. Prepare. Verify. Vote.
             </p>
           </div>
-          
+
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest">Platform</h3>
             <ul className="space-y-2 text-sm text-slate-500">
-              <li><Link to="/about" className="hover:text-primary">About Project</Link></li>
-              <li><Link to="/architecture" className="hover:text-primary">Architecture</Link></li>
-              <li><Link to="/sources" className="hover:text-primary">Verified Sources</Link></li>
+              <li>
+                <Link to="/about" className="hover:text-primary">
+                  About Project
+                </Link>
+              </li>
+              <li>
+                <Link to="/architecture" className="hover:text-primary">
+                  Architecture
+                </Link>
+              </li>
+              <li>
+                <Link to="/sources" className="hover:text-primary">
+                  Verified Sources
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest">Trust & Safety</h3>
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest">
+              Trust & Safety
+            </h3>
             <ul className="space-y-2 text-sm text-slate-500">
-              <li><Link to="/safety" className="hover:text-primary">Safety Policy</Link></li>
-              <li><Link to="/safety" className="hover:text-primary">Privacy Notes</Link></li>
+              <li>
+                <Link to="/safety" className="hover:text-primary">
+                  Safety Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/safety" className="hover:text-primary">
+                  Privacy Notes
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
@@ -36,10 +58,16 @@ export default function Footer() {
         <div className="pt-8 border-t border-slate-100 space-y-6">
           <div className="flex flex-col md:flex-row justify-between gap-6">
             <div className="space-y-2">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Google Services Infrastructure</p>
-              <p className="text-xs text-slate-500">Built for PromptWars Challenge 2. Deployed on Google Cloud Run.</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Google Services Infrastructure
+              </p>
+              <p className="text-xs text-slate-500">
+                Built for PromptWars Challenge 2. Deployed on Google Cloud Run.
+              </p>
               <p className="text-[10px] text-primary font-black leading-relaxed max-w-2xl">
-                Powered by Google Cloud Run, Gemini 2.5 Flash, Firebase Authentication, Secret Manager, Google Maps Platform, Cloud Build, Artifact Registry, and Google Cloud Logging.
+                Powered by Google Cloud Run, Gemini 1.5 Flash, Firebase Authentication, Secret
+                Manager, Google Maps Platform, Cloud Build, Artifact Registry, and Google Cloud
+                Logging.
               </p>
             </div>
             <div className="text-right space-y-1">
@@ -50,8 +78,9 @@ export default function Footer() {
 
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
             <p className="text-[10px] text-slate-400 leading-relaxed italic text-center">
-              CivicSaarthi does not support or oppose any party or candidate. It does not show officially assigned polling booths. 
-              Always verify final election details through official voter services.
+              CivicSaarthi does not support or oppose any party or candidate. It does not show
+              officially assigned polling booths. Always verify final election details through
+              official voter services.
             </p>
           </div>
         </div>

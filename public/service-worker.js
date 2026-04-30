@@ -1,11 +1,5 @@
 const CACHE_NAME = 'civicsaarthi-v1';
-const OFFLINE_URLS = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest',
-  '/logo.svg',
-  '/avatar.png'
-];
+const OFFLINE_URLS = ['/', '/index.html', '/manifest.webmanifest', '/logo.svg', '/avatar.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -39,9 +33,7 @@ self.addEventListener('fetch', (event) => {
 
   // NetworkFirst strategy for navigation (index.html) to avoid MIME/Chunk errors
   if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match('/'))
-    );
+    event.respondWith(fetch(event.request).catch(() => caches.match('/')));
     return;
   }
 

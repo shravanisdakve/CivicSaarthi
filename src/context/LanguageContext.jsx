@@ -15,10 +15,13 @@ export function LanguageProvider({ children }) {
     window.dispatchEvent(new CustomEvent('civicLanguageChanged', { detail: newLang }));
   };
 
-  const t = useCallback((key) => {
-    const dictionary = translations[language] || translations.en;
-    return dictionary[key] || translations.en[key] || key;
-  }, [language]);
+  const t = useCallback(
+    (key) => {
+      const dictionary = translations[language] || translations.en;
+      return dictionary[key] || translations.en[key] || key;
+    },
+    [language]
+  );
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>

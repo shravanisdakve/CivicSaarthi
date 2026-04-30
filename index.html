@@ -12,7 +12,17 @@
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#1A237E" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://maps.gstatic.com https://*.googleapis.com; frame-src https://www.google.com;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://maps.gstatic.com https://*.googleapis.com; frame-src https://www.google.com;" />
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=%VITE_GOOGLE_ANALYTICS_ID%"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '%VITE_GOOGLE_ANALYTICS_ID%');
+    </script>
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -35,6 +45,12 @@
       }
     }
     </script>
+    <style>
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .5; }
+      }
+    </style>
   </head>
   <body>
     <div id="root">
@@ -45,14 +61,13 @@
         <div style="margin-top: 32px; color: #94A3B8; font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;">
           Loading CivicSaarthi...
         </div>
-        <style>
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
-          }
-        </style>
       </div>
     </div>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=%VITE_GOOGLE_MAPS_API_KEY%&libraries=places"
+    ></script>
     <script type="module" src="/src/main.jsx" onerror="handleModuleError()"></script>
     <script>
       function handleModuleError() {

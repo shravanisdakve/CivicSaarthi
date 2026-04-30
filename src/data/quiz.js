@@ -5,7 +5,8 @@ export const quizQuestions = [
     question: 'What is the minimum age required to vote in Indian elections?',
     options: ['16 years', '18 years', '21 years', '25 years'],
     correct: 1,
-    explanation: 'As per Article 326 of the Indian Constitution, every citizen who is 18 years of age or above is eligible to vote.',
+    explanation:
+      'As per Article 326 of the Indian Constitution, every citizen who is 18 years of age or above is eligible to vote.',
   },
   {
     id: 2,
@@ -17,7 +18,8 @@ export const quizQuestions = [
       'Verified Voter Privacy Audit Trail',
     ],
     correct: 1,
-    explanation: 'VVPAT stands for Voter Verifiable Paper Audit Trail — an independent verification system attached to EVMs.',
+    explanation:
+      'VVPAT stands for Voter Verifiable Paper Audit Trail — an independent verification system attached to EVMs.',
   },
   {
     id: 3,
@@ -29,7 +31,8 @@ export const quizQuestions = [
       "The candidates' social media profiles.",
     ],
     correct: 1,
-    explanation: "It's crucial to verify your registration on the electoral roll and know exactly where your polling booth is located before polling day.",
+    explanation:
+      "It's crucial to verify your registration on the electoral roll and know exactly where your polling booth is located before polling day.",
   },
   {
     id: 4,
@@ -41,7 +44,8 @@ export const quizQuestions = [
       'No Other Transfer Available',
     ],
     correct: 1,
-    explanation: 'NOTA stands for None Of The Above. It allows voters to officially reject all candidates without abstaining from voting.',
+    explanation:
+      'NOTA stands for None Of The Above. It allows voters to officially reject all candidates without abstaining from voting.',
   },
   {
     id: 5,
@@ -53,6 +57,7 @@ export const quizQuestions = [
       'On nomination filing day',
     ],
     correct: 2,
-    explanation: 'The MCC comes into effect immediately on the date of election announcement and remains active until the election process is complete.',
+    explanation:
+      'The MCC comes into effect immediately on the date of election announcement and remains active until the election process is complete.',
   },
 ];

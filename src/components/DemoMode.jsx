@@ -10,11 +10,7 @@ const DEMO_STEPS = [
     title: 'CivicSaarthi — Your Election-Readiness Companion',
     description:
       'CivicSaarthi is a multilingual, privacy-first, official-source-guided election-readiness companion. No login required. No sensitive data collected. Completely neutral.',
-    highlights: [
-      'English · Hindi · Marathi',
-      'Official-source grounded AI',
-      'Zero PII collection',
-    ],
+    highlights: ['English · Hindi · Marathi', 'Official-source grounded AI', 'Zero PII collection'],
     action: null,
     actionLabel: null,
   },
@@ -58,11 +54,7 @@ const DEMO_STEPS = [
     title: 'Civic Achievement Badges',
     description:
       'Earn progressive badges for your civic learning. No political scoring — just educational milestones that persist locally on your device.',
-    highlights: [
-      '7 progressive badges',
-      'Non-partisan achievements',
-      'Visual progress tracking',
-    ],
+    highlights: ['7 progressive badges', 'Non-partisan achievements', 'Visual progress tracking'],
     action: 'goHome',
     actionLabel: 'View Achievements →',
   },
@@ -106,11 +98,7 @@ const DEMO_STEPS = [
     title: 'Share Your Civic Readiness',
     description:
       'Inspire others to be voter-ready. One-click social sharing to LinkedIn and X (Twitter) with privacy-protected templates.',
-    highlights: [
-      'Privacy-first templates',
-      'LinkedIn & X integration',
-      'Name-inclusion toggle',
-    ],
+    highlights: ['Privacy-first templates', 'LinkedIn & X integration', 'Name-inclusion toggle'],
     action: 'goChecklist',
     actionLabel: 'Test Social Share →',
   },
@@ -136,6 +124,12 @@ export default function DemoMode({ isOpen, onClose }) {
   const [currentStep, setCurrentStep] = useState(0);
   const navigate = useNavigate();
 
+  // Wrap original onClose to set localStorage flag
+  const handleClose = () => {
+    localStorage.setItem('civicDemoSeen', 'true');
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   const step = DEMO_STEPS[currentStep];
@@ -145,27 +139,27 @@ export default function DemoMode({ isOpen, onClose }) {
     switch (step.action) {
       case 'goAssistant':
         navigate('/assistant');
-        onClose();
+        handleClose();
         break;
       case 'goTimeline':
         navigate('/timeline');
-        onClose();
+        handleClose();
         break;
       case 'goHome':
         navigate('/');
-        onClose();
+        handleClose();
         break;
       case 'goChecklist':
         navigate('/checklist');
-        onClose();
+        handleClose();
         break;
       case 'goMap':
         navigate('/map');
-        onClose();
+        handleClose();
         break;
       case 'testNeutrality':
         navigate('/assistant?prompt=Which%20party%20should%20I%20vote%20for%3F');
-        onClose();
+        handleClose();
         break;
       default:
         break;
@@ -174,8 +168,7 @@ export default function DemoMode({ isOpen, onClose }) {
 
   const handleNext = () => {
     if (isLast) {
-      localStorage.setItem('civicDemoSeen', 'true');
-      onClose();
+      handleClose();
     } else {
       setCurrentStep((s) => s + 1);
     }
@@ -193,14 +186,10 @@ export default function DemoMode({ isOpen, onClose }) {
       aria-label="2-Minute Demo Mode"
     >
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
       <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
-
         {/* Progress Bar */}
         <div className="h-1.5 bg-slate-100 w-full">
           <div
@@ -223,7 +212,7 @@ export default function DemoMode({ isOpen, onClose }) {
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
             aria-label="Close demo"
           >
@@ -236,9 +225,7 @@ export default function DemoMode({ isOpen, onClose }) {
           <h2 className="font-['Public_Sans'] text-lg font-extrabold text-on-surface mb-3 leading-snug">
             {step.title}
           </h2>
-          <p className="text-sm text-on-surface-variant leading-relaxed mb-5">
-            {step.description}
-          </p>
+          <p className="text-sm text-on-surface-variant leading-relaxed mb-5">{step.description}</p>
 
           {/* Highlights */}
           <div className="bg-slate-50 rounded-xl p-4 mb-6 space-y-2">

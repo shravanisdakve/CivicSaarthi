@@ -1,16 +1,22 @@
-// Social Sharing Utilities
-// No personal data inclusion by default.
+import { translations } from '../data/translations.js';
+import { getLanguage } from './language.js';
 
 export function getShareText(status = 'learning', name = null) {
-  const base = "I’m building my election readiness with CivicSaarthi — a privacy-first, official-source-guided election learning companion. Understand. Prepare. Verify. Vote.";
-  const ready = "I’m voter-ready with CivicSaarthi: checklist complete, quiz practiced, and official sources verified. Understand. Prepare. Verify. Vote.";
-  
+  const lang = getLanguage();
+  const t = (key) => {
+    const dict = translations[lang] || translations.en;
+    return dict[key] || translations.en[key] || key;
+  };
+
+  const base = t('share.base');
+  const ready = t('share.ready');
+
   let message = status === 'ready' ? ready : base;
-  
+
   if (name) {
     message = `Hi, I'm ${name}. ` + message;
   }
-  
+
   return message;
 }
 

@@ -17,12 +17,12 @@ export default function Layout() {
     const handleOpenIntro = () => setIsIntroOpen(true);
     window.addEventListener('civicOpenIntro', handleOpenIntro);
     return () => window.removeEventListener('civicOpenIntro', handleOpenIntro);
-  }, []);
+  }, [setIsIntroOpen]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fbf8ff]">
-      <a 
-        href="#main-content" 
+      <a
+        href="#main-content"
         className="absolute top-0 left-0 w-full bg-primary text-white text-center py-2 -translate-y-full focus:translate-y-0 transition-transform z-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
       >
         Skip to main content

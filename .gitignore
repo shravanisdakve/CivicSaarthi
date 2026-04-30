@@ -7,3 +7,28 @@ dist
 *.log
 .DS_Store
 Thumbs.db
+
+# VSCode specific
+.vscode/
+
+# Test coverage
+coverage/
+
+# Local configuration files
+*.local
+
+# Temporary / Backup files
+*.bak
+*.swp
+*.tmp
+
+# Archival files
+*.tgz
+*.zip
+
+# Package manager debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+pnpm-lock.yaml

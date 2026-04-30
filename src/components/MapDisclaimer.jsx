@@ -12,12 +12,18 @@ export default function MapDisclaimer() {
         <div>
           <h3 className="text-amber-900 font-bold mb-2">Important Mapping Disclaimer</h3>
           <p className="text-amber-800 text-sm leading-relaxed mb-4">
-            CivicSaarthi does **not** show your officially assigned polling booth. This map is provided to help you find nearby **Election Offices, Voter Help Centers, or official assistance locations** for guidance.
+            CivicSaarthi does **not** show your officially assigned polling booth. This map is
+            provided to help you find nearby **Election Offices, Voter Help Centers, or official
+            assistance locations** for guidance.
           </p>
           <div className="bg-white/60 rounded-xl p-4 border border-amber-100">
-            <h4 className="text-[10px] font-bold text-amber-900 uppercase tracking-widest mb-1">Privacy Guarantee</h4>
+            <h4 className="text-[10px] font-bold text-amber-900 uppercase tracking-widest mb-1">
+              Privacy Guarantee
+            </h4>
             <p className="text-[11px] text-amber-800 italic">
-              CivicSaarthi does **not** collect Aadhaar, Voter ID, phone numbers, exact residential addresses, live location coordinates, or political preferences. Your search is processed locally.
+              CivicSaarthi does **not** collect Aadhaar, Voter ID, phone numbers, exact residential
+              addresses, live location coordinates, or political preferences. Your search is
+              processed locally.
             </p>
           </div>
         </div>

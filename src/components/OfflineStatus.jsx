@@ -25,14 +25,13 @@ export default function OfflineStatus() {
           <span className="material-symbols-outlined text-[20px]">cloud_off</span>
         </div>
         <div>
-          <p className="text-sm font-bold text-amber-900 leading-tight">
-            Offline Guide Mode
-          </p>
+          <p className="text-sm font-bold text-amber-900 leading-tight">Offline Guide Mode</p>
           <p className="text-xs text-amber-700 mt-1">
-            CivicSaarthi is using built-in civic guidance. AI responses and maps will return when you are back online.
+            CivicSaarthi is using built-in civic guidance. AI responses and maps will return when
+            you are back online.
           </p>
         </div>
-        <button 
+        <button
           onClick={() => setIsOffline(false)}
           className="text-amber-400 hover:text-amber-600 ml-auto"
         >

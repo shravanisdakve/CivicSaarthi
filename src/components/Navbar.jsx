@@ -1,10 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
-import { getProfile } from '../utils/guestProfile.js';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { getProfile } from '../utils/profileStorage.js';
 import { useTranslation } from '../hooks/useTranslation.js';
 import GuestProfileChip from './GuestProfileChip.jsx';
-import NamePromptModal from './NamePromptModal.jsx';
+import AuthModal from './AuthModal.jsx';
 import LanguageToggle from './LanguageToggle.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const MAIN_LINKS = [
   { to: '/', label: 'nav.home' },
@@ -25,30 +26,31 @@ const ALL_LINKS = [...MAIN_LINKS, ...MORE_LINKS];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [namePromptOpen, setNamePromptOpen] = useState(false);
+  const { user, loading } = useAuth();
   const [profile, setProfile] = useState(getProfile());
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [moreOpen, setMoreOpen] = useState(false);
-  const menuRef = useRef(null);
+  const menuRef = useRef(null); // Explicitly declare menuRef
+
+  const handleOutsideClick = useCallback((e) => {
+    if (menuRef.current && !menuRef.current.contains(e.target)) {
+      setMenuOpen(false);
+    }
+  }, [menuRef, setMenuOpen]); // Add menuRef to dependencies
+
+  const handleEscape = useCallback((e) => {
+    if (e.key === 'Escape') {
+      setMenuOpen(false);
+      setMoreOpen(false);
+    }
+  }, [setMenuOpen, setMoreOpen]); // Correct dependencies
 
   useEffect(() => {
     const handleProfileUpdate = () => setProfile(getProfile());
     const handleOpenAuth = () => setNamePromptOpen(true);
-    
-    const handleOutsideClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false);
-      }
-    };
-    
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        setMenuOpen(false);
-        setMoreOpen(false);
-      }
-    };
 
     window.addEventListener('civicProfileUpdated', handleProfileUpdate);
     window.addEventListener('civicOpenAuth', handleOpenAuth);
@@ -61,29 +63,38 @@ export default function Navbar() {
       document.removeEventListener('mousedown', handleOutsideClick);
       document.removeEventListener('keydown', handleEscape);
     };
-  }, []);
+  }, [handleOutsideClick, handleEscape]); // Correct dependencies and order
 
-  const closeNamePrompt = () => setNamePromptOpen(false);
+  // Update profile when user state changes
+  useEffect(() => {
+    if (user) {
+      setProfile(user);
+    } else {
+      setProfile(getProfile());
+    }
+  }, [user]);
 
-  const handleStartGuide = () => {
+  const closeAuthModal = () => setNamePromptOpen(false);
+
+  const handleStartGuide = useCallback(() => {
     const seen = localStorage.getItem('civicIntroSeen') === 'true';
     if (!seen) {
       window.dispatchEvent(new CustomEvent('civicOpenIntro'));
     } else {
       window.dispatchEvent(new CustomEvent('civicOpenChat', { detail: { mode: 'guide' } }));
     }
-  };
+  }, []); // Empty dependency array as it only depends on localStorage and window events
 
-  const handleAssistantClick = () => {
+  const handleAssistantClick = useCallback(() => {
     window.dispatchEvent(new CustomEvent('civicOpenChat'));
-  };
+  }, []); // Empty dependency array as it only depends on window events
 
-  const linkClass = ({ isActive }) =>
+  const linkClass = useCallback(({ isActive }) =>
     `font-['Public_Sans'] text-sm tracking-tight transition-colors pb-1 ${
       isActive
         ? 'text-primary font-semibold border-b-2 border-primary'
         : 'text-slate-600 hover:text-primary'
-    }`;
+    }`, []); // Empty dependency array as it only depends on isActive which is a prop
 
   const isSignedIn = profile.authProvider !== 'none';
 
@@ -93,7 +104,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between px-6 md:px-8 py-3 max-w-screen-xl mx-auto">
           {/* Brand */}
           <NavLink to="/" className="flex items-center gap-2 group flex-shrink-0">
-            <img src="/logo.svg" alt="CivicSaarthi Logo" className="w-7 h-7 transition-transform group-hover:scale-110" />
+            <img
+              src="/logo.svg"
+              alt="CivicSaarthi Logo"
+              className="w-7 h-7 transition-transform group-hover:scale-110"
+            />
             <span className="text-lg font-extrabold tracking-tight text-primary font-['Public_Sans']">
               CivicSaarthi
             </span>
@@ -104,7 +119,7 @@ export default function Navbar() {
             {MAIN_LINKS.map((link) => {
               if (link.isChat) {
                 return (
-                  <button 
+                  <button
                     key="nav-assistant"
                     onClick={handleAssistantClick}
                     className="font-['Public_Sans'] text-xs font-medium tracking-tight transition-colors pb-1 text-slate-600 hover:text-primary whitespace-nowrap"
@@ -119,10 +134,14 @@ export default function Navbar() {
                 </NavLink>
               );
             })}
-            
+
             {/* More Dropdown */}
-            <div className="relative group" onMouseEnter={() => setMoreOpen(true)} onMouseLeave={() => setMoreOpen(false)}>
-              <button 
+            <div
+              className="relative group"
+              onMouseEnter={() => setMoreOpen(true)}
+              onMouseLeave={() => setMoreOpen(false)}
+            >
+              <button
                 className={`font-['Public_Sans'] text-xs font-medium tracking-tight transition-colors pb-1 flex items-center gap-1 ${moreOpen ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}
                 aria-haspopup="true"
                 aria-expanded={moreOpen}
@@ -131,11 +150,13 @@ export default function Navbar() {
               </button>
               {moreOpen && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-slate-100 shadow-xl rounded-xl py-2 flex flex-col z-50">
-                  {MORE_LINKS.map(link => (
-                    <NavLink 
-                      key={link.to} 
-                      to={link.to} 
-                      className={({ isActive }) => `px-4 py-2 text-sm transition-colors ${isActive ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-primary'}`}
+                  {MORE_LINKS.map((link) => (
+                    <NavLink
+                      key={link.to}
+                      to={link.to}
+                      className={({ isActive }) =>
+                        `px-4 py-2 text-sm transition-colors ${isActive ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-primary'}`
+                      }
                       onClick={() => setMoreOpen(false)}
                     >
                       {t(link.label)}
@@ -149,14 +170,23 @@ export default function Navbar() {
           {/* Actions */}
           <div className="hidden xl:flex items-center gap-3">
             <LanguageToggle />
-            
+
             <button
               onClick={handleStartGuide}
               className="text-[10px] font-bold text-primary px-3 py-1.5 rounded-lg hover:bg-surface-container-low transition-colors whitespace-nowrap uppercase tracking-wider"
             >
               {t('cta.startGuide')}
             </button>
-            
+
+            {!isSignedIn && (
+              <button
+                onClick={() => setNamePromptOpen(true)}
+                className="bg-primary text-white text-[10px] font-bold px-4 py-2 rounded-xl hover:bg-primary/90 transition-all shadow-md uppercase tracking-wider"
+              >
+                Sign In
+              </button>
+            )}
+
             <GuestProfileChip profile={profile} onOpenNamePrompt={() => setNamePromptOpen(true)} />
           </div>
 
@@ -169,7 +199,9 @@ export default function Navbar() {
               aria-label="Toggle menu"
               aria-expanded={menuOpen}
             >
-              <span className="material-symbols-outlined" aria-hidden="true">{menuOpen ? 'close' : 'menu'}</span>
+              <span className="material-symbols-outlined" aria-hidden="true">
+                {menuOpen ? 'close' : 'menu'}
+              </span>
             </button>
           </div>
         </div>
@@ -184,9 +216,9 @@ export default function Navbar() {
             {ALL_LINKS.map((link) => {
               if (link.isChat) {
                 return (
-                  <button 
+                  <button
                     key="mobile-nav-assistant"
-                    onClick={() => { 
+                    onClick={() => {
                       handleAssistantClick();
                       setMenuOpen(false);
                     }}
@@ -209,20 +241,41 @@ export default function Navbar() {
               );
             })}
             <div className="flex flex-col gap-3 pt-2 border-t border-slate-100">
-              <GuestProfileChip profile={profile} onOpenNamePrompt={() => { setNamePromptOpen(true); setMenuOpen(false); }} />
-              
+              <GuestProfileChip
+                profile={profile}
+                onOpenNamePrompt={() => {
+                  setNamePromptOpen(true);
+                  setMenuOpen(false);
+                }}
+              />
+
               <button
-                onClick={() => { handleStartGuide(); setMenuOpen(false); }}
-                className="bg-primary text-white text-sm font-semibold py-2 rounded-full"
+                onClick={() => {
+                  handleStartGuide();
+                  setMenuOpen(false);
+                }}
+                className="bg-primary/10 text-primary text-sm font-bold py-2.5 rounded-xl transition-all"
               >
                 {t('cta.startGuide')}
               </button>
+
+              {!isSignedIn && (
+                <button
+                  onClick={() => {
+                    setNamePromptOpen(true);
+                    setMenuOpen(false);
+                  }}
+                  className="bg-primary text-white text-sm font-bold py-2.5 rounded-xl shadow-md transition-all"
+                >
+                  Sign In
+                </button>
+              )}
             </div>
           </nav>
         )}
       </header>
 
-      <NamePromptModal isOpen={namePromptOpen} onClose={closeNamePrompt} />
+      <AuthModal isOpen={namePromptOpen} onClose={closeAuthModal} />
     </>
   );
 }

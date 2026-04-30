@@ -1,36 +1,25 @@
-import { useEffect, useRef } from 'react';
-import { loginAsGuest, loginWithGoogle } from '../utils/auth.js';
+import { useEffect, useRef, useState } from 'react';
+import { loginWithGoogle, loginWithEmail, registerWithEmail } from '../utils/auth.js';
 import Button from './Button.jsx';
 
 export default function AuthModal({ isOpen, onClose }) {
   const modalRef = useRef(null);
-  const firstFocusRef = useRef(null);
+  const signinTabRef = useRef(null); // Ref for Sign In tab button
+  const [mode, setMode] = useState('signin'); // 'signin' | 'register'
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
-      // Small delay to ensure render is complete
+      // Set initial focus to the Sign In tab when modal opens
       const timer = setTimeout(() => {
-        firstFocusRef.current?.focus();
-      }, 50);
-      
+        signinTabRef.current?.focus();
+      }, 50); // Small delay to ensure element is rendered and focusable
+
       const handleKeyDown = (e) => {
         if (e.key === 'Escape') onClose();
-        
-        // Trap focus (basic)
-        if (e.key === 'Tab') {
-          const focusables = modalRef.current?.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-          if (focusables && focusables.length > 0) {
-            const first = focusables[0];
-            const last = focusables[focusables.length - 1];
-            if (e.shiftKey && document.activeElement === first) {
-              e.preventDefault();
-              last.focus();
-            } else if (!e.shiftKey && document.activeElement === last) {
-              e.preventDefault();
-              first.focus();
-            }
-          }
-        }
       };
       window.addEventListener('keydown', handleKeyDown);
       return () => {
@@ -42,78 +31,287 @@ export default function AuthModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const handleGuest = () => {
-    loginAsGuest();
-    onClose();
-  };
-
   const handleGoogle = async () => {
+    setLoading(true);
+    setError('');
     try {
       await loginWithGoogle();
       onClose();
     } catch (err) {
-      console.error("Login failed:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      if (mode === 'signin') {
+        await loginWithEmail(email, password);
+      } else {
+        await registerWithEmail(email, password);
+      }
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-      <div 
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+      <div
         ref={modalRef}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden outline-none animate-in fade-in zoom-in duration-200"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
+        className="bg-white rounded-[32px] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200"
+        role="dialog" // Added role for accessibility
+        aria-modal="true" // Added aria-modal for accessibility
+        aria-labelledby="auth-modal-title" // Links to the h2 below
       >
-        <div className="flex items-center justify-between p-4 border-b border-slate-100">
+        <div className="p-6 pb-2 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary icon-fill">how_to_vote</span>
-            <span className="font-['Public_Sans'] font-bold text-on-surface">CivicSaarthi</span>
+            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+              <span className="material-symbols-outlined text-primary icon-fill">
+                shield_person
+              </span>
+            </div>
+            <span className="text-xl font-black text-slate-900 tracking-tight">CivicSaarthi</span>
           </div>
-          <button 
+          <button
             onClick={onClose}
-            aria-label="Close authentication modal"
-            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-500 transition-colors focus-visible:ring-2 focus-visible:ring-primary"
+            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-400 transition-colors"
+            aria-label="Close authentication dialog"
           >
+            {' '}
+            {/* Added aria-label */}
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
-        <div className="p-8">
-          <h2 id="modal-title" className="text-2xl font-bold font-['Public_Sans'] text-on-surface mb-2 text-center">Your Civic Identity</h2>
-          <p className="text-on-surface-variant text-sm text-center mb-8 font-medium">
-            Sign in to sync your civic readiness dashboard, or continue as guest to keep everything on this device.
-          </p>
+        <div className="px-8 pt-4 pb-10">
+          <div className="mb-8">
+            <h2 id="auth-modal-title" className="text-3xl font-black text-slate-900 mb-1">
+              {mode === 'signin' ? 'Welcome back!' : 'Join CivicSaarthi'}
+            </h2>
+            <p className="text-slate-500 font-medium">
+              {mode === 'signin'
+                ? 'Sign in to access your civic dashboard.'
+                : 'Create an account to start your civic journey.'}
+            </p>
+          </div>
 
-          <div className="flex flex-col gap-4">
+          <div role="tablist" className="bg-slate-100 p-1.5 rounded-2xl flex mb-6">
+            {' '}
+            {/* Added role="tablist" */}
             <button
-              ref={firstFocusRef}
-              onClick={handleGoogle}
-              className="w-full flex items-center justify-center gap-3 py-3 border border-slate-300 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-50 transition-colors shadow-sm focus-visible:ring-2 focus-visible:ring-primary outline-none"
+              id="signin-tab" // Added id
+              onClick={() => setMode('signin')}
+              role="tab" // Added role="tab"
+              aria-selected={mode === 'signin'} // Added aria-selected
+              aria-controls="signin-panel" // Added aria-controls
+              className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === 'signin' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
             >
-              <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google Logo" className="w-5 h-5" />
+              Sign In
+            </button>
+            <button
+              id="register-tab" // Added id
+              onClick={() => setMode('register')}
+              role="tab" // Added role="tab"
+              aria-selected={mode === 'register'} // Added aria-selected
+              aria-controls="register-panel" // Added aria-controls
+              className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === 'register' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Register
+            </button>
+          </div>
+
+          <div
+            id="signin-panel" // Added id for aria-controls
+            role="tabpanel" // Added role="tabpanel"
+            aria-labelledby="signin-tab" // Added aria-labelledby
+            hidden={mode !== 'signin'} // Hidden if not active
+          >
+            <button
+              onClick={handleGoogle}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-sm text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm mb-6 disabled:opacity-50"
+            >
+              <img
+                src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png"
+                alt="Google"
+                className="w-5 h-5"
+              />
               Continue with Google
             </button>
-            
-            <div className="relative flex items-center py-2">
+
+            <div className="relative flex items-center mb-6">
               <div className="flex-grow border-t border-slate-200"></div>
-              <span className="flex-shrink-0 mx-4 text-slate-400 text-[10px] uppercase tracking-widest font-bold">Privacy-First Access</span>
+              <span className="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium">
+                or with email
+              </span>
               <div className="flex-grow border-t border-slate-200"></div>
             </div>
 
-            <Button variant="primary" onClick={handleGuest} className="w-full justify-center py-3 rounded-xl font-bold shadow-md">
-              Continue as Guest
-            </Button>
-            <p className="text-[10px] text-slate-500 text-center mt-1 font-medium">
-              Guest mode stores your progress <span className="text-primary font-bold">privately</span> on your local device.
-            </p>
-          </div>
-        </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === 'signin' &&
+                error && ( // Conditionally render error for signin mode
+                  <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-xs font-bold animate-shake">
+                    {error}
+                  </div>
+                )}
 
-        <div className="bg-slate-50 p-5 text-xs text-slate-600 border-t border-slate-100 flex items-start gap-3">
-          <span className="material-symbols-outlined text-[20px] text-primary/60 shrink-0 mt-0.5 icon-fill">shield</span>
-          <p className="leading-relaxed">
-            <strong>Commitment to Privacy:</strong> CivicSaarthi does not collect Aadhaar, voter ID, phone number, address, live location, or political preferences.
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                  mail
+                </span>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email address"
+                  className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
+                  aria-label="Email address"
+                />
+              </div>
+
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                  lock
+                </span>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password (min. 6 characters)"
+                  className="w-full pl-12 pr-12 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
+                  aria-label="Password"
+                />
+                <button
+                  type="button"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <span className="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-slate-800 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[20px]">login</span>
+                    {mode === 'signin' ? 'Sign In' : 'Create Account'}
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          <div
+            id="register-panel" // Added id for aria-controls
+            role="tabpanel" // Added role="tabpanel"
+            aria-labelledby="register-tab" // Added aria-labelledby
+            hidden={mode !== 'register'} // Hidden if not active
+          >
+            <button
+              onClick={handleGoogle}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-sm text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm mb-6 disabled:opacity-50"
+            >
+              <img
+                src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png"
+                alt="Google"
+                className="w-5 h-5"
+              />
+              Continue with Google
+            </button>
+
+            <div className="relative flex items-center mb-6">
+              <div className="flex-grow border-t border-slate-200"></div>
+              <span className="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium">
+                or with email
+              </span>
+              <div className="flex-grow border-t border-slate-200"></div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === 'register' &&
+                error && ( // Conditionally render error for register mode
+                  <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-xs font-bold animate-shake">
+                    {error}
+                  </div>
+                )}
+
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                  mail
+                </span>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email address"
+                  className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
+                  aria-label="Email address"
+                />
+              </div>
+
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                  lock
+                </span>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password (min. 6 characters)"
+                  className="w-full pl-12 pr-12 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
+                  aria-label="Password"
+                />
+                <button
+                  type="button"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <span className="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-slate-800 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[20px]">login</span>
+                    Create Account
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          <p className="text-center mt-6 text-sm text-slate-500 font-medium">
+            {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
+            <button
+              onClick={() => setMode(mode === 'signin' ? 'register' : 'signin')}
+              className="text-slate-900 font-black hover:underline"
+            >
+              {mode === 'signin' ? 'Register free' : 'Sign in here'}
+            </button>
           </p>
         </div>
       </div>

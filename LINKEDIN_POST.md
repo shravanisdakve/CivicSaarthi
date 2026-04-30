@@ -16,11 +16,11 @@ Election processes can be complex and overwhelming. CivicSaarthi turns that comp
 
 ### 🛠️ Built with Google Cloud:
 - **Cloud Run**: High-performance container hosting.
-- **Gemini Pro**: The brains behind our neutral civic assistant.
+- **Gemini 1.5 Flash**: The brains behind our neutral civic assistant.
 - **Secret Manager**: Enterprise-grade API key protection.
 - **Cloud Build & Artifact Registry**: Modern CI/CD pipeline.
 - **Google Maps Platform**: Helping citizens find their local help centers.
 
-Check it out live: [YOUR_CLOUD_RUN_URL]
+Check it out live: [YOUR_CLOUD_RUN_URL] <!-- IMPORTANT: Replace with actual URL before posting! -->
 
 #GoogleCloud #GeminiAI #CivicSaarthi #ElectionReadiness #AIforGood #GooglePromptWars

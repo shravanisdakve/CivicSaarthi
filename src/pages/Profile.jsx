@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProfile, clearProfile, getChecklistProgress } from '../utils/profileStorage.js';
+import { getProfile, clearProfile } from '../utils/profileStorage.js';
 import { PERSONAS } from '../data/personas.js';
 import { getSmartRecommendation } from '../utils/recommendations.js';
 import { checklistItems } from '../data/checklist.js';
@@ -9,44 +9,115 @@ import Button from '../components/Button.jsx';
 import PointsBadge from '../components/PointsBadge.jsx';
 import NotificationPanel from '../components/NotificationPanel.jsx';
 import Dialog from '../components/Dialog.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { user, db } = useAuth();
+
   const [profile, setProfile] = useState(getProfile());
   const [isResetOpen, setIsResetOpen] = useState(false);
+  const [userChecklist, setUserChecklist] = useState({});
+  const [loadingChecklist, setLoadingChecklist] = useState(true);
+  const [checklistError, setChecklistError] = useState(null);
+
+  const resetButtonRef = useRef(null);
 
   useEffect(() => {
     const handleUpdate = () => setProfile(getProfile());
     window.addEventListener('civicProfileUpdated', handleUpdate);
-    return () => window.removeEventListener('civicProfileUpdated', handleUpdate);
-  }, []);
 
-  const persona = PERSONAS.find(p => p.id === profile.selectedPersona) || PERSONAS[0];
-  const checklist = getChecklistProgress();
+    if (user && db) {
+      setLoadingChecklist(true);
+      setChecklistError(null);
+
+      const userDocRef = doc(db, 'users', user.email);
+
+      const unsubscribe = onSnapshot(
+        userDocRef,
+        (docSnap) => {
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
+            setUserChecklist(userData.checklist || {});
+          } else {
+            setUserChecklist({});
+          }
+
+          setLoadingChecklist(false);
+        },
+        (error) => {
+          console.error('Error fetching checklist:', error);
+          setChecklistError('Failed to load checklist. Please try again.');
+          setLoadingChecklist(false);
+        }
+      );
+
+      return () => {
+        window.removeEventListener('civicProfileUpdated', handleUpdate);
+        unsubscribe();
+      };
+    }
+
+    setUserChecklist({});
+    setLoadingChecklist(false);
+
+    return () => {
+      window.removeEventListener('civicProfileUpdated', handleUpdate);
+    };
+  }, [user, db]);
+
+  const persona =
+    PERSONAS.find((p) => p.id === profile.selectedPersona) || PERSONAS[0];
+
+  const checklist = userChecklist;
   const completedCount = Object.values(checklist).filter(Boolean).length;
   const totalSteps = checklistItems.length;
-  const readinessPct = Math.round((completedCount / totalSteps) * 100);
+  const readinessPct =
+    totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
 
-  const recommendation = getSmartRecommendation(profile.selectedPersona, completedCount)[0];
+  const recommendation =
+    getSmartRecommendation(profile.selectedPersona, completedCount)[0];
 
   const handleResetTrigger = () => setIsResetOpen(true);
-  
-  const handleConfirmReset = () => {
+
+  const handleConfirmReset = async () => {
+    if (user && db) {
+      try {
+        await updateDoc(doc(db, 'users', user.email), { checklist: {} });
+        console.log('Firestore checklist cleared.');
+      } catch (error) {
+        console.error('Error clearing Firestore checklist:', error);
+        setChecklistError('Failed to clear online checklist.');
+      }
+    }
+
     clearProfile();
     navigate('/');
   };
 
   const handleDownload = async () => {
-    const { downloadReadinessSummary } = await import('../utils/summaryExport.js');
+    const { downloadReadinessSummary } = await import(
+      '../utils/summaryExport.js'
+    );
+
     downloadReadinessSummary({
       persona: profile.selectedPersona,
-      checklistItems: checklistItems.map(i => ({ ...i, completed: !!checklist[i.id] })),
+      checklistItems: checklistItems.map((item) => ({
+        ...item,
+        completed: !!checklist[item.id],
+      })),
       readinessPercent: readinessPct,
-      nextAction: recommendation?.title || 'Review your checklist'
+      nextAction: recommendation?.title || 'Review your checklist',
     });
   };
 
-  const initials = profile.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  const initials = profile.name
+    .split(' ')
+    .map((name) => name[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase();
 
   return (
     <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-12 bg-[#fbf8ff]">
@@ -92,6 +163,7 @@ export default function Profile() {
           </div>
 
           <button 
+            ref={resetButtonRef} // Attach ref here
             onClick={handleResetTrigger}
             className="w-full text-xs text-red-500 font-bold hover:underline flex items-center justify-center gap-1 py-2"
           >
@@ -167,16 +239,6 @@ export default function Profile() {
           
         </div>
       </div>
-
-      <Dialog 
-        isOpen={isResetOpen}
-        onClose={() => setIsResetOpen(false)}
-        onConfirm={handleConfirmReset}
-        title="Reset Profile?"
-        message="Are you sure you want to reset your local profile? This will clear your checklist progress, points, and persona selection."
-        confirmLabel="Reset Everything"
-        cancelLabel="Keep Profile"
-      />
     </div>
   );
 }
