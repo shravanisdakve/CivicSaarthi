@@ -9,40 +9,36 @@ import AchievementBadges from '../components/AchievementBadges.jsx';
 import ShareReadiness from '../components/ShareReadiness.jsx';
 import DemoMode from '../components/DemoMode.jsx';
 import ErrorBoundary from '../components/ErrorBoundary.jsx';
+import heroIllustration from '../assets/hero_civic_edu.png';
 
-const QUICK_ACTIONS = [
-  {
-    icon: 'chat_bubble',
-    titleKey: 'qa.ask',
-    descKey: 'qa.ask.desc',
-    to: '/assistant',
-  },
-  { icon: 'explore', titleKey: 'qa.journey', descKey: 'qa.journey.desc', to: '/choose-path' },
-  {
-    icon: 'calendar_month',
-    titleKey: 'qa.timeline',
-    descKey: 'qa.timeline.desc',
-    to: '/timeline',
-  },
-  {
-    icon: 'checklist',
-    titleKey: 'qa.checklist',
-    descKey: 'qa.checklist.desc',
-    to: '/checklist',
-  },
-  { icon: 'where_to_vote', titleKey: 'qa.booth', descKey: 'qa.booth.desc', to: '/map' },
-  { icon: 'policy', titleKey: 'qa.sources', descKey: 'qa.sources.desc', to: '/sources' },
-];
-
-/**
- * Home Page Component
- * Serves as the primary landing page and user dashboard.
- * Implements Google Service visibility grid and civic progress tracking.
- */
 export default function Home() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isDemoOpen, setIsDemoOpen] = useState(false);
+
+  const QUICK_ACTIONS = [
+    {
+      icon: 'chat_bubble',
+      titleKey: 'qa.ask',
+      descKey: 'qa.ask.desc',
+      to: '/assistant',
+    },
+    { icon: 'explore', titleKey: 'qa.journey', descKey: 'qa.journey.desc', to: '/choose-path' },
+    {
+      icon: 'calendar_month',
+      titleKey: 'qa.timeline',
+      descKey: 'qa.timeline.desc',
+      to: '/timeline',
+    },
+    {
+      icon: 'checklist',
+      titleKey: 'qa.checklist',
+      descKey: 'qa.checklist.desc',
+      to: '/checklist',
+    },
+    { icon: 'where_to_vote', titleKey: 'qa.booth', descKey: 'qa.booth.desc', to: '/map' },
+    { icon: 'policy', titleKey: 'qa.sources', descKey: 'qa.sources.desc', to: '/sources' },
+  ];
 
   const profile = getProfile() || {};
   const checklist = getChecklistProgress() || {};
@@ -67,48 +63,56 @@ export default function Home() {
     <div className="w-full bg-surface">
       {/* 1. Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-surface-container-lowest to-surface-container-low border-b border-slate-200">
-        <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-20 lg:py-28 text-center max-w-4xl">
-          <h1 className="font-['Public_Sans'] text-4xl md:text-5xl lg:text-6xl font-extrabold text-on-surface leading-tight mb-6 tracking-tight">
-            {hasName ? `${t('profile.hi')} ${firstName}` : t('hero.title')}
-          </h1>
+        <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-16 lg:py-24 flex flex-col md:flex-row items-center gap-12">
+          {/* Text Content */}
+          <div className="flex-1 text-center md:text-left max-w-2xl">
+            <h1 className="font-['Public_Sans'] text-4xl md:text-5xl lg:text-6xl font-extrabold text-on-surface leading-tight mb-6 tracking-tight">
+              {hasName ? `${t('profile.hi')} ${firstName}` : t('hero.title')}
+            </h1>
 
-          <p className="text-xl text-on-surface-variant mb-4 font-medium">{t('hero.subtitle')}</p>
-          <p className="text-body-lg text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-            {t('hero.description')}
-          </p>
+            <p className="text-xl text-on-surface-variant mb-4 font-medium">{t('hero.subtitle')}</p>
+            <p className="text-body-lg text-slate-500 mb-10 max-w-2xl mx-auto md:mx-0 leading-relaxed">
+              {t('hero.description')}
+            </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-            <Button
-              variant="primary"
-              onClick={handleStartGuide}
-              className="w-full sm:w-auto shadow-md py-4 px-8 text-lg"
-            >
-              {t('cta.startGuide')}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => window.dispatchEvent(new CustomEvent('civicOpenChat'))}
-              className="w-full sm:w-auto py-4 px-8 text-lg bg-white"
-            >
-              {t('cta.askAI')}
-            </Button>
-            <button
-              id="demo-mode-btn"
-              onClick={() => setIsDemoOpen(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 font-bold px-6 py-4 rounded-xl text-sm uppercase tracking-widest hover:bg-amber-100 transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">play_circle</span>
-              {t('cta.tryDemo')}
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 mb-8">
+              <Button
+                variant="primary"
+                onClick={handleStartGuide}
+                className="w-full sm:w-auto shadow-md py-4 px-8 text-lg"
+              >
+                {t('cta.startGuide')}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => window.dispatchEvent(new CustomEvent('civicOpenChat'))}
+                className="w-full sm:w-auto py-4 px-8 text-lg bg-white"
+              >
+                {t('cta.askAI')}
+              </Button>
+              <button
+                id="demo-mode-btn"
+                onClick={() => setIsDemoOpen(true)}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 font-bold px-6 py-4 rounded-xl text-sm uppercase tracking-widest hover:bg-amber-100 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">play_circle</span>
+                {t('cta.tryDemo')}
+              </button>
+            </div>
+
+            <div className="flex items-center justify-center md:justify-start gap-6 text-sm font-bold uppercase tracking-widest text-primary">
+              <button onClick={() => navigate('/timeline')} className="hover:underline">
+                {t('nav.timeline')}
+              </button>
+              <button onClick={() => navigate('/sources')} className="hover:underline">
+                {t('nav.sources')}
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center justify-center gap-6 text-sm font-bold uppercase tracking-widest text-primary">
-            <button onClick={() => navigate('/timeline')} className="hover:underline">
-              {t('nav.timeline')}
-            </button>
-            <button onClick={() => navigate('/sources')} className="hover:underline">
-              {t('nav.sources')}
-            </button>
+          {/* Hero Illustration */}
+          <div className="flex-1 w-full max-w-md lg:max-w-lg mx-auto">
+            <img src={heroIllustration} alt="Civic education showing diverse Indian citizens learning about voting and rights" className="w-full h-auto drop-shadow-xl" />
           </div>
         </div>
       </section>
@@ -244,41 +248,69 @@ export default function Home() {
             <h2 className="text-3xl font-bold font-['Public_Sans']">Quick Actions</h2>
           </div>
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {QUICK_ACTIONS.map((action) => (
-              <li key={action.titleKey} className="h-full">
-                <a
-                  href={action.to === '/assistant' ? '#' : action.to} // Use # for assistant to handle custom event
-                  onClick={(e) => {
-                    if (action.to === '/assistant') {
-                      e.preventDefault(); // Prevent default link behavior
-                      window.dispatchEvent(new CustomEvent('civicOpenChat'));
-                    } else {
+            {QUICK_ACTIONS.map((action) => {
+              // Assistant opens the floating chat — use a button to avoid href="#" scroll-to-top
+              if (action.to === '/assistant') {
+                return (
+                  <li key={action.titleKey} className="h-full">
+                    <button
+                      onClick={() => window.dispatchEvent(new CustomEvent('civicOpenChat'))}
+                      className="group h-full block w-full text-left"
+                    >
+                      <Card className="p-6 h-full bg-white shadow-sm hover:shadow-md hover:-translate-y-1 transition-all border border-slate-100 flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors shrink-0">
+                          <span
+                            className="material-symbols-outlined text-primary group-hover:text-white transition-colors text-2xl"
+                            aria-hidden="true"
+                          >
+                            {action.icon}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="font-['Public_Sans'] font-bold text-on-surface mb-1 text-base group-hover:text-primary transition-colors">
+                            {t(action.titleKey)}
+                          </h3>
+                          <p className="text-xs text-on-surface-variant leading-relaxed">
+                            {t(action.descKey)}
+                          </p>
+                        </div>
+                      </Card>
+                    </button>
+                  </li>
+                );
+              }
+              return (
+                <li key={action.titleKey} className="h-full">
+                  <a
+                    href={action.to}
+                    onClick={(e) => {
+                      e.preventDefault();
                       navigate(action.to);
-                    }
-                  }}
-                  className="group h-full block" // Ensure link is a block-level element
-                >
-                  <Card className="p-6 h-full bg-white shadow-sm hover:shadow-md hover:-translate-y-1 transition-all border border-slate-100 flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors shrink-0">
-                      <span
-                        className="material-symbols-outlined text-primary group-hover:text-white transition-colors text-2xl"
-                        aria-hidden="true"
-                      >
-                        {action.icon}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="font-['Public_Sans'] font-bold text-on-surface mb-1 text-base group-hover:text-primary transition-colors">
-                        {t(action.titleKey)}
-                      </h3>
-                      <p className="text-xs text-on-surface-variant leading-relaxed">
-                        {t(action.descKey)}
-                      </p>
-                    </div>
-                  </Card>
-                </a>
-              </li>
-            ))}
+                    }}
+                    className="group h-full block"
+                  >
+                    <Card className="p-6 h-full bg-white shadow-sm hover:shadow-md hover:-translate-y-1 transition-all border border-slate-100 flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors shrink-0">
+                        <span
+                          className="material-symbols-outlined text-primary group-hover:text-white transition-colors text-2xl"
+                          aria-hidden="true"
+                        >
+                          {action.icon}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="font-['Public_Sans'] font-bold text-on-surface mb-1 text-base group-hover:text-primary transition-colors">
+                          {t(action.titleKey)}
+                        </h3>
+                        <p className="text-xs text-on-surface-variant leading-relaxed">
+                          {t(action.descKey)}
+                        </p>
+                      </div>
+                    </Card>
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </section>
 
