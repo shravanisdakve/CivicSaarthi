@@ -216,7 +216,7 @@ const shareExists = fs.existsSync(path.join(ROOT_DIR, 'src/components/ShareReadi
 assert(shareExists, 'ShareReadiness.jsx exists');
 const shareTextExists = fs.existsSync(path.join(ROOT_DIR, 'src/utils/shareText.js'));
 assert(shareTextExists, 'shareText.js exists');
-const transContent = fs.readFileSync(path.join(ROOT_DIR, 'src/data/translations.js'), 'utf8');
+const transContent = fs.readFileSync(path.join(ROOT_DIR, 'src/data/locales/en.js'), 'utf8');
 assert(transContent.includes('Understand. Prepare. Verify. Vote.'), 'Share tagline exists');
 
 // MAPS UPGRADE
