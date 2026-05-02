@@ -21,25 +21,32 @@ const __dirname = path.dirname(__filename);
 const distPath = path.resolve(process.cwd(), 'dist');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(helmet({
+  // Allow Firebase popup auth: default 'same-origin' blocks window.closed polling
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://maps.googleapis.com", "https://apis.google.com", "https://www.gstatic.com", "https://*.firebaseapp.com", "https://*.firebase.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      imgSrc: ["'self'", "data:", "blob:", "https://maps.gstatic.com", "https://*.googleapis.com", "https://www.gstatic.com", "https://*.googleusercontent.com", "https://*.firebaseapp.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://r2cdn.perplexity.ai", "https://frontend-cdn.perplexity.ai"],
-      connectSrc: ["'self'", "https://*.googleapis.com", "https://*.firebaseapp.com", "https://*.firebase.com", "https://civicsaarthi-6388d.firebaseapp.com", "https://oauth2.googleapis.com", "https://www.googleapis.com", "https://*.perplexity.ai"],
-      frameSrc: ["'self'", "https://*.firebaseapp.com", "https://*.firebase.com", "https://accounts.google.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https://maps.gstatic.com", "https://*.googleapis.com", "https://www.gstatic.com", "https://*.googleusercontent.com", "https://*.firebaseapp.com", "https://*.gstatic.com"],
+      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com", "https://r2cdn.perplexity.ai", "https://frontend-cdn.perplexity.ai"],
+      connectSrc: ["'self'", "https://*.googleapis.com", "https://*.firebaseapp.com", "https://*.firebase.com", "https://civicsaarthi-6388d.firebaseapp.com", "https://oauth2.googleapis.com", "https://www.googleapis.com", "https://*.perplexity.ai", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "wss://*.firebaseio.com"],
+      frameSrc: ["'self'", "https://*.firebaseapp.com", "https://*.google.com", "https://apis.google.com", "https://accounts.google.com"],
     }
   }
 }));
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  next();
+});
 app.use(express.json());
 
-// Cloud Logging
+// Cloud Logging — uses ADC automatically (gcloud auth application-default login)
 let logger;
 let isCloudLoggingConfigured = false;
 try {
@@ -47,21 +54,20 @@ try {
   logger = logging.log('civicsaarthi-events');
   isCloudLoggingConfigured = true;
 } catch (e) {
-  console.warn('Cloud Logging not configured. Ensure GOOGLE_APPLICATION_CREDENTIALS is set for logging, or it is running in a GCP environment.');
+  console.warn('Cloud Logging not configured. Run `gcloud auth application-default login` or deploy to a GCP environment.');
 }
 
-// Google Cloud Natural Language API client
+// Google Cloud Natural Language API client — uses ADC automatically
 let languageServiceClient;
 let isNaturalLanguageConfigured = false;
 try {
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-    languageServiceClient = new LanguageServiceClient();
-    isNaturalLanguageConfigured = true;
-  } else {
-    console.warn('GOOGLE_APPLICATION_CREDENTIALS not set. Natural Language API will not be used.');
-  }
+  // ADC is picked up automatically via gcloud auth application-default login
+  // No need to check GOOGLE_APPLICATION_CREDENTIALS explicitly
+  languageServiceClient = new LanguageServiceClient();
+  isNaturalLanguageConfigured = true;
+  console.log('Natural Language API client initialized (ADC).');
 } catch (e) {
-  console.error('Failed to initialize LanguageServiceClient:', e.message);
+  console.error('Failed to initialize LanguageServiceClient (is ADC configured?):', e.message);
 }
 
 // Google Calendar API OAuth2Client
@@ -96,18 +102,17 @@ try {
   console.error('Failed to initialize Google Custom Search API:', e.message);
 }
 
-// Google Cloud Text-to-Speech API client
+// Google Cloud Text-to-Speech API client — uses ADC automatically
 let textToSpeechClient;
 let isTextToSpeechConfigured = false;
 try {
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-    textToSpeechClient = new TextToSpeechClient();
-    isTextToSpeechConfigured = true;
-  } else {
-    console.warn('GOOGLE_APPLICATION_CREDENTIALS not set. Text-to-Speech API will not be used.');
-  }
+  // ADC is picked up automatically via gcloud auth application-default login
+  // No need to check GOOGLE_APPLICATION_CREDENTIALS explicitly
+  textToSpeechClient = new TextToSpeechClient();
+  isTextToSpeechConfigured = true;
+  console.log('Text-to-Speech API client initialized (ADC).');
 } catch (e) {
-  console.error('Failed to initialize TextToSpeechClient:', e.message);
+  console.error('Failed to initialize TextToSpeechClient (is ADC configured?):', e.message);
 }
 
 // Static files
@@ -290,10 +295,12 @@ const apiLimiter = rateLimit({
   max: 15, // Limit each IP to 15 requests per windowMs
   message:
     "Too many requests from this IP, please try again after 15 minutes",
+  validate: { xForwardedForHeader: false }, // Avoid validation errors behind Cloud Run proxy
 });
 app.post('/api/chat', apiLimiter, async (req, res) => {
   const { message, persona, history, image, language: lang = 'en-IN' } = req.body; // Expect persona, history, image, and language from frontend
   if (!process.env.GEMINI_API_KEY) {
+    console.error('CRITICAL: GEMINI_API_KEY is not defined in environment variables.');
     return res.json({ response: "AI is in local mode. Please configure GEMINI_API_KEY." });
   }
 
@@ -315,7 +322,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
   try {
     const selectedPersona = persona || 'general'; // Use persona from request body
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", tools: tools }); // Initialize model with tools
+    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-1.5-flash', tools: tools });
     const knowledge = getKnowledgeContext(message);
     const systemInstruction = getSystemInstruction(selectedPersona, lang) + knowledge;
 
@@ -397,20 +404,37 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       }
     }
 
+    let geminiText = '';
+    try {
+      geminiText = geminiResponse.response.text();
+    } catch (textErr) {
+      console.warn('Could not extract text from Gemini response (possibly blocked or empty):', textErr.message);
+      geminiText = "I'm sorry, I couldn't generate a response for that query. It might be due to safety filters or an internal issue.";
+    }
+
     res.json({
-      response: geminiResponse.response.text(),
+      response: geminiText,
       references: getSourceBadges(message),
       sentimentScore,
       ttsAudio, // Include base64 encoded audio
     });
   } catch (e) {
-    console.error('Error generating content with Gemini:', e); // Log the full error
-    res.status(500).json({ error: e.message });
+    console.error('Error generating content with Gemini:', e); // Log the full error object
+    if (e.stack) {
+      console.error('Error stack:', e.stack);
+    }
+    res.status(500).json({ error: e.message, details: e });
   }
 });
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
+});
+
+// Generic Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled server error:', err.stack);
+  res.status(500).send('Something broke on the server!');
 });
 
 app.listen(PORT, '0.0.0.0', () => {
