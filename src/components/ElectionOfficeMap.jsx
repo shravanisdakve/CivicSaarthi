@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import Button from './Button.jsx';
 import LoadingOverlay from './LoadingOverlay.jsx';
+import { useGoogleMapsLoader } from '../hooks/useGoogleMapsLoader.js'; // Import the new hook
 
 export default function ElectionOfficeMap() {
+  const { isLoaded, loadError } = useGoogleMapsLoader(); // Use the new hook
   const [query, setQuery] = useState('');
   const [showDirectionsMap, setShowDirectionsMap] = useState(false);
   const [loadingDirections, setLoadingDirections] = useState(false);
@@ -11,17 +13,18 @@ export default function ElectionOfficeMap() {
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
   const [loadingPlaces, setLoadingPlaces] = useState(false);
   const [placesError, setPlacesError] = useState(null);
-  const [mapsKeyError, setMapsKeyError] = useState(null); // New state for API key error
+  // mapsKeyError is now handled by useGoogleMapsLoader, but we keep it for conditional rendering
+  const [mapsKeyError, setMapsKeyError] = useState(loadError); 
 
   const embedKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
+  // The useEffect for embedKey check is now redundant and can be removed, 
+  // as useGoogleMapsLoader handles the API key presence check and provides loadError.
+
   useEffect(() => {
-    if (!embedKey) {
-      setMapsKeyError('Google Maps API Key is missing. Please set VITE_GOOGLE_MAPS_API_KEY in your .env file.');
-    } else {
-      setMapsKeyError(null);
-    }
-  }, [embedKey]);
+    // Update mapsKeyError if loadError from hook changes
+    setMapsKeyError(loadError);
+  }, [loadError]);
 
   const getSearchQuery = () => {
     return query.trim() ? `${query} election office` : 'election office near me';
@@ -29,8 +32,7 @@ export default function ElectionOfficeMap() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!embedKey) {
-      setMapsKeyError('Google Maps API Key is missing. Cannot open external map.');
+    if (mapsKeyError) { // Use the state derived from loadError
       return;
     }
     const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(getSearchQuery())}`;
@@ -38,8 +40,11 @@ export default function ElectionOfficeMap() {
   };
 
   const handleGetDirections = () => {
-    if (!embedKey) {
-      setMapsKeyError('Google Maps API Key is missing. Cannot fetch directions.');
+    if (mapsKeyError) { // Use the state derived from loadError
+      return;
+    }
+    if (!isLoaded) {
+      setDirectionsError('Google Maps API is still loading. Please wait.');
       return;
     }
     setDirectionsError(null);
@@ -47,9 +52,9 @@ export default function ElectionOfficeMap() {
     setShowDirectionsMap(true); // Show the map container
 
     if (!window.google || !window.google.maps) {
-      setDirectionsError('Google Maps API not loaded. Please try again after refreshing.');
+      // This check might still be useful as a fallback if isLoaded is true but window.google isn't ready for some reason
+      setDirectionsError('Google Maps API not fully initialized. Please try again after refreshing.');
       setLoadingDirections(false);
-      // Fallback to opening in new tab if API not loaded
       const destinationQuery = getSearchQuery();
       const directionsUrl = `https://www.google.com/maps/dir/current+location/${encodeURIComponent(destinationQuery)}`;
       window.open(directionsUrl, '_blank');
