@@ -382,7 +382,7 @@ export default function Quiz() {
               <span className="material-symbols-outlined text-sm group-hover:rotate-180 transition-transform duration-500">
                 restart_alt
               </span>
-              Reset My Progress
+              Reset Quiz Progress
             </button>
           </div>
         </div>
