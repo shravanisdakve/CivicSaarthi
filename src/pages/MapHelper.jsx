@@ -4,6 +4,7 @@ import PollingGuidancePreview from '../components/PollingGuidancePreview.jsx';
 import VoterMap from '../components/VoterMap.jsx';
 import Button from '../components/Button.jsx';
 import { trackVisit } from '../utils/badgeEngine.js';
+import mapIllustration from '../assets/map_helper.png';
 
 export default function MapHelper() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function MapHelper() {
   return (
     <div className="max-w-screen-xl mx-auto px-6 md:px-8 py-12">
       <div className="text-center mb-10">
+        <img src={mapIllustration} alt="Map Pin and Polling Booth Helper" className="w-32 h-32 mx-auto mb-4 drop-shadow-md rounded-2xl" />
         <h1 className="font-['Public_Sans'] text-3xl md:text-5xl font-extrabold text-primary mb-4 tracking-tight">
           Polling Station Verification Helper
         </h1>
