@@ -1,4 +1,4 @@
-const CACHE_NAME = 'civicsaarthi-v1';
+const CACHE_NAME = 'civicsaarthi-v2';
 const OFFLINE_URLS = ['/', '/index.html', '/manifest.webmanifest', '/logo.svg', '/avatar.png'];
 
 self.addEventListener('install', (event) => {
@@ -37,13 +37,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip cross-origin requests (fonts, CDN assets) — let browser handle them directly
+  // so CSP/CORS issues don't surface as SW errors
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) {
+    event.respondWith(
+      fetch(event.request).catch(() => new Response('', { status: 408 }))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       // Return cached response if found (good for static assets like logo, icons)
       if (response) {
         return response;
       }
-      return fetch(event.request);
+      return fetch(event.request).catch(() => new Response('', { status: 408 }));
     })
   );
 });
