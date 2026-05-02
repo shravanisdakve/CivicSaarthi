@@ -1,6 +1,7 @@
 import { translations } from '../data/translations.js';
 
-const LANG_KEY = 'civicLanguage';
+// Must match the key used in LanguageContext.jsx
+const LANG_KEY = 'civicsaarthi_language';
 
 /**
  * Gets the currently selected language from localStorage.
