@@ -4,6 +4,7 @@ import { glossaryTerms } from '../data/glossary.js';
 import Badge from '../components/Badge.jsx';
 import Card from '../components/Card.jsx';
 import Button from '../components/Button.jsx';
+import GlossaryModal from '../components/GlossaryModal.jsx';
 
 const CATEGORIES = ['All', 'Voting', 'Process', 'Security', 'Legal'];
 
@@ -11,6 +12,11 @@ export default function Glossary() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [selectedTermId, setSelectedTermId] = useState(null);
+
+  const selectedTerm = useMemo(() => 
+    glossaryTerms.find(t => t.id === selectedTermId), 
+  [selectedTermId]);
 
   const filtered = useMemo(() => {
     return glossaryTerms.filter((t) => {
@@ -68,6 +74,8 @@ export default function Glossary() {
             search
           </span>
           <input
+            id="glossary-search"
+            name="glossary-search"
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -132,7 +140,7 @@ export default function Glossary() {
                 <div className="flex items-start justify-between mb-3">
                   <h3
                     className="font-['Public_Sans'] text-xl font-bold text-on-surface cursor-pointer group-hover:text-primary transition-colors"
-                    onClick={() => navigate(`/glossary/${term.id}`)}
+                    onClick={() => setSelectedTermId(term.id)}
                   >
                     {term.term}
                   </h3>
@@ -147,7 +155,7 @@ export default function Glossary() {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => navigate(`/glossary/${term.id}`)}
+                  onClick={() => setSelectedTermId(term.id)}
                   className="flex-1 py-2 rounded-full border border-slate-300 text-xs font-bold uppercase tracking-wider text-on-surface hover:bg-slate-50 transition-colors"
                 >
                   Details
@@ -176,6 +184,14 @@ export default function Glossary() {
           ))}
         </div>
       )}
+
+      {/* Modal */}
+      <GlossaryModal
+        isOpen={!!selectedTermId}
+        term={selectedTerm}
+        onClose={() => setSelectedTermId(null)}
+        onRelatedClick={(id) => setSelectedTermId(id)}
+      />
     </div>
   );
 }
