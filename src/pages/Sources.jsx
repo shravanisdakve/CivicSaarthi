@@ -7,11 +7,13 @@ import Button from '../components/Button.jsx';
 
 export default function Sources() {
   const navigate = useNavigate();
+  const [toast, setToast] = useState(null);
 
   const handleCopyLink = useCallback((url) => {
     navigator.clipboard.writeText(url);
-    alert('Link copied to clipboard!');
-  }, []); // Empty dependency array as it only uses browser APIs
+    setToast(url);
+    setTimeout(() => setToast(null), 2500);
+  }, []);
 
   const handleReportMisinfo = useCallback(() => {
     navigate('/assistant', {
@@ -162,6 +164,22 @@ export default function Sources() {
             Source: ECI Communication Guidelines
           </p>
         </div>
+      </div>
+      {/* Toast notification */}
+      <div
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-5 py-3 rounded-2xl bg-slate-900 text-white shadow-2xl text-sm font-medium transition-all duration-300 ${
+          toast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+        role="status"
+        aria-live="polite"
+      >
+        <span className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+          <span className="material-symbols-outlined text-white text-[14px]">check</span>
+        </span>
+        <span>
+          <span className="font-bold">Link copied!</span>
+          <span className="ml-2 text-slate-400 text-xs truncate max-w-[200px] inline-block align-middle">{toast}</span>
+        </span>
       </div>
     </div>
   );
