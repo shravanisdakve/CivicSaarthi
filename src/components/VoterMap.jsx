@@ -58,6 +58,8 @@ export default function VoterMap() {
               search
             </span>
             <input
+              id="voter-map-search"
+              name="voter-map-search"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
