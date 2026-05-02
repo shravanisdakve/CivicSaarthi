@@ -44,11 +44,14 @@ export default function FloatingAssistant() {
   const { t, language: lang } = useTranslation();
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const isInitialMount = useRef(true); // Flag to track initial mount
 
   const scrollToBottom = () => {
     requestAnimationFrame(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      }
     });
   };
 
@@ -120,43 +123,7 @@ export default function FloatingAssistant() {
     }
     };
 
-    const handleOpenChat = useCallback((e) => {
-    setIsOpen(true);
-    if (e.detail?.mode === 'guide') {
-      startJourney();
-    } else if (e.detail?.question) {
-      sendMessage(e.detail.question);
-    }
-  }, [setIsOpen, startJourney, sendMessage]); // Dependencies for useCallback
-
-  useEffect(() => {
-    if (isInitialMount.current && messages.length === 0) {
-      setMessages([WELCOME]);
-    }
-    isInitialMount.current = false;
-
-    window.addEventListener('civicOpenChat', handleOpenChat);
-    return () => window.removeEventListener('civicOpenChat', handleOpenChat);
-  }, [lang, messages.length, WELCOME, handleOpenChat]); // Add handleOpenChat to dependencies
-
-  useEffect(() => {
-    // Persist messages (limit to 20)
-    const historyToSave = messages.slice(-20);
-    sessionStorage.setItem('civicChatHistory', JSON.stringify(historyToSave));
-  }, [messages]);
-
-  useEffect(() => {
-    localStorage.setItem('civicJourneyStep', journeyStep.toString());
-    localStorage.setItem('civicJourneyActive', isJourneyActive.toString());
-  }, [journeyStep, isJourneyActive]);
-
-  useEffect(() => {
-    if (isOpen) {
-      scrollToBottom();
-    }
-  }, [messages, loading, isOpen, scrollToBottom]);
-
-  const sendMessage = async (text) => {
+    const sendMessage = useCallback(async (text) => {
     const rawText = text || input;
     const userText = normalizeUserMessage(rawText);
 
@@ -230,11 +197,43 @@ export default function FloatingAssistant() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [input, setInput, setMessages, setLoading, setPrivacyWarning, setValidationError, startJourney, lang]);
 
+  const handleOpenChat = useCallback((e) => {
+    setIsOpen(true);
+    if (e.detail?.mode === 'guide') {
+      startJourney();
+    } else if (e.detail?.question) {
+      sendMessage(e.detail.question);
+    }
+  }, [setIsOpen, startJourney, sendMessage]); // Dependencies for useCallback
 
+  useEffect(() => {
+    if (isInitialMount.current && messages.length === 0) {
+      setMessages([WELCOME]);
+    }
+    isInitialMount.current = false;
 
+    window.addEventListener('civicOpenChat', handleOpenChat);
+    return () => window.removeEventListener('civicOpenChat', handleOpenChat);
+  }, [lang, messages.length, WELCOME, handleOpenChat]); // Add handleOpenChat to dependencies
 
+  useEffect(() => {
+    // Persist messages (limit to 20)
+    const historyToSave = messages.slice(-20);
+    sessionStorage.setItem('civicChatHistory', JSON.stringify(historyToSave));
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('civicJourneyStep', journeyStep.toString());
+    localStorage.setItem('civicJourneyActive', isJourneyActive.toString());
+  }, [journeyStep, isJourneyActive]);
+
+  useEffect(() => {
+    if (isOpen) {
+      scrollToBottom();
+    }
+  }, [messages, loading, isOpen, scrollToBottom]);
 
   const handleClearChat = () => {
     setMessages([WELCOME]);
@@ -304,6 +303,7 @@ export default function FloatingAssistant() {
 
           {/* Messages Area */}
           <div
+            ref={messagesContainerRef}
             className="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-50/50"
             aria-live="polite"
           >
@@ -459,6 +459,8 @@ export default function FloatingAssistant() {
 
             <form onSubmit={handleSubmit} className="flex gap-2">
               <input
+                id="floating-chat-input"
+                name="floating-chat-message"
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
