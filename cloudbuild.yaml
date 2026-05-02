@@ -20,14 +20,14 @@ steps:
     args:
       - '-c'
       - |
-        export VITE_GOOGLE_MAPS_API_KEY=$$VITE_GOOGLE_MAPS_API_KEY && \
-        export VITE_FIREBASE_API_KEY=$$VITE_FIREBASE_API_KEY && \
-        export VITE_FIREBASE_AUTH_DOMAIN=$$VITE_FIREBASE_AUTH_DOMAIN && \
-        export VITE_FIREBASE_PROJECT_ID=$$VITE_FIREBASE_PROJECT_ID && \
-        export VITE_FIREBASE_STORAGE_BUCKET=$$VITE_FIREBASE_STORAGE_BUCKET && \
-        export VITE_FIREBASE_MESSAGING_SENDER_ID=$$VITE_FIREBASE_MESSAGING_SENDER_ID && \
-        export VITE_FIREBASE_APP_ID=$$VITE_FIREBASE_APP_ID && \
-        export VITE_GEMINI_API_KEY=$$VITE_GEMINI_API_KEY && \
+        export VITE_GOOGLE_MAPS_API_KEY=$(echo $$VITE_GOOGLE_MAPS_API_KEY | tr -d '\r\n') && \
+        export VITE_FIREBASE_API_KEY=$(echo $$VITE_FIREBASE_API_KEY | tr -d '\r\n') && \
+        export VITE_FIREBASE_AUTH_DOMAIN=$(echo $$VITE_FIREBASE_AUTH_DOMAIN | tr -d '\r\n') && \
+        export VITE_FIREBASE_PROJECT_ID=$(echo $$VITE_FIREBASE_PROJECT_ID | tr -d '\r\n') && \
+        export VITE_FIREBASE_STORAGE_BUCKET=$(echo $$VITE_FIREBASE_STORAGE_BUCKET | tr -d '\r\n') && \
+        export VITE_FIREBASE_MESSAGING_SENDER_ID=$(echo $$VITE_FIREBASE_MESSAGING_SENDER_ID | tr -d '\r\n') && \
+        export VITE_FIREBASE_APP_ID=$(echo $$VITE_FIREBASE_APP_ID | tr -d '\r\n') && \
+        export VITE_GEMINI_API_KEY=$(echo $$VITE_GEMINI_API_KEY | tr -d '\r\n') && \
         docker build \
           -t asia-south1-docker.pkg.dev/$PROJECT_ID/civicsaarthi/civicsaarthi:latest \
           --build-arg VITE_GOOGLE_MAPS_API_KEY=$$VITE_GOOGLE_MAPS_API_KEY \
@@ -49,19 +49,15 @@ steps:
     args:
       [
         "run", "deploy", "civicsaarthi",
-        "--image", "asia-south1-docker.pkg.dev/$PROJECT_ID/civicsaarthi/civicsaarthi:latest", # Use the built image
+        "--image", "asia-south1-docker.pkg.dev/$PROJECT_ID/civicsaarthi/civicsaarthi:latest",
         "--region", "asia-south1",
         "--allow-unauthenticated",
-        # Sensitive variables should be managed as secrets in Google Secret Manager.
-        # Format: --set-secrets=ENV_VAR_NAME=SECRET_NAME:VERSION
-        "--set-secrets", "GEMINI_API_KEY=gemini-api-key:latest", # Backend GEMINI_API_KEY
-        
-        # Non-sensitive variables or those managed differently.
-        # For GOOGLE_APPLICATION_CREDENTIALS in Cloud Run, it's often best to grant the
-        # Cloud Run service account the necessary IAM roles (e.g., roles/cloudnatuarallanguage.viewer)
-        # instead of passing a service account key file.
-        "--set-env-vars", "GEMINI_MODEL=gemini-1.5-flash", # Example: Can be a secret if dynamic
-        "--set-env-vars", "CALENDAR_REDIRECT_URI=http://localhost:8080/api/calendar/oauth2callback"
+        # Backend secrets from Secret Manager
+        "--set-secrets", "GEMINI_API_KEY=gemini-api-key:latest",
+        # Non-sensitive runtime env vars
+        "--set-env-vars", "GEMINI_MODEL=gemini-2.5-flash",
+        "--set-env-vars", "CALENDAR_REDIRECT_URI=https://civicsaarthi-civicsaarthi.asia-south1.run.app/api/calendar/oauth2callback",
+        "--set-env-vars", "NODE_ENV=production"
       ]
 
 timeout: "1200s"
