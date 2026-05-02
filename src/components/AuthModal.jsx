@@ -168,7 +168,10 @@ export default function AuthModal({ isOpen, onClose }) {
                   mail
                 </span>
                 <input
+                  id="signin-email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -183,7 +186,10 @@ export default function AuthModal({ isOpen, onClose }) {
                   lock
                 </span>
                 <input
+                  id="signin-password"
+                  name="password"
                   type="password"
+                  autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -256,7 +262,10 @@ export default function AuthModal({ isOpen, onClose }) {
                   mail
                 </span>
                 <input
+                  id="register-email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -271,7 +280,10 @@ export default function AuthModal({ isOpen, onClose }) {
                   lock
                 </span>
                 <input
+                  id="register-password"
+                  name="new-password"
                   type="password"
+                  autoComplete="new-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
