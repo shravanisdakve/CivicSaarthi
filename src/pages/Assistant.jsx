@@ -12,6 +12,7 @@ import { getProfile } from '../utils/profileStorage.js';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
 import { getSpeechRecognition, speakText, stopSpeech, isSpeechSupported } from '../utils/speech.js';
+import aiIllustration from '../assets/assistant_ai.png';
 
 // Suggested questions moved to assistantConfig.js
 
@@ -197,6 +198,7 @@ export default function Assistant() {
   const [imageFile, setImageFile] = useState(null); // New state for image file
   const [locationData, setLocationData] = useState(null); // New state for location data
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
 
   const profile = getProfile();
   const hasName = profile.name && profile.name !== 'Guest Citizen';
@@ -204,7 +206,8 @@ export default function Assistant() {
 
   const WELCOME = {
     role: 'ai',
-    text: WELCOME_MESSAGES[lang] ? WELCOME_MESSAGES[lang](hasName ? profile.name : null) : WELCOME_MESSAGES.en(hasName ? profile.name : null)
+    text: WELCOME_MESSAGES[lang] ? WELCOME_MESSAGES[lang](hasName ? profile.name : null) : WELCOME_MESSAGES.en(hasName ? profile.name : null),
+    isWelcomeIllustration: true
   };
 
   useEffect(() => {
@@ -239,7 +242,11 @@ export default function Assistant() {
   }, [messages, loading]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    requestAnimationFrame(() => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      }
+    });
   };
 
   const sendMessage = async (text, image = null, location = null) => { // Added image and location parameter
@@ -348,33 +355,33 @@ export default function Assistant() {
 
   return (
     <div className="max-w-screen-md mx-auto px-4 sm:px-6 py-6 lg:py-8 flex flex-col h-[calc(100dvh-100px)] lg:h-[calc(100vh-120px)]">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-lg overflow-hidden">
+      {/* Compact header — single slim row */}
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white shadow overflow-hidden shrink-0">
             <img src="/assistant-icon.jpg" alt="AI Icon" className="w-full h-full object-cover" />
           </div>
-          <div>
-            <h1 className="font-['Public_Sans'] text-2xl font-bold text-on-surface">
-              {ASSISTANT_CONFIG.name}
-            </h1>
-            <div className="flex flex-wrap gap-2 mt-1">
-              <span
-                className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1 ${geminiActive ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}
-              >
-                <span className="material-symbols-outlined text-[12px]">
-                  {geminiActive ? 'psychology' : 'cloud_off'}
-                </span>
-                {geminiActive ? 'Gemini API Active' : 'Local Fallback'}
+          <h1 className="font-['Public_Sans'] text-base font-bold text-on-surface truncate">
+            {ASSISTANT_CONFIG.name}
+          </h1>
+          {/* Status badges — hidden on small screens to save space */}
+          <div className="hidden sm:flex items-center gap-1.5 ml-1">
+            <span
+              className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1 ${geminiActive ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}
+            >
+              <span className="material-symbols-outlined text-[11px]">
+                {geminiActive ? 'psychology' : 'cloud_off'}
               </span>
-              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 uppercase tracking-widest flex items-center gap-1">
-                <span className="material-symbols-outlined text-[12px]">verified</span>
-                Official-Source Guided
-              </span>
-              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border border-slate-100 uppercase tracking-widest flex items-center gap-1">
-                <span className="material-symbols-outlined text-[12px]">cloud</span>
-                Powered by Google Cloud
-              </span>
-            </div>
+              {geminiActive ? 'Gemini API Active' : 'Local Fallback'}
+            </span>
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 uppercase tracking-widest hidden md:flex items-center gap-1">
+              <span className="material-symbols-outlined text-[11px]">verified</span>
+              Official-Source Guided
+            </span>
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border border-slate-100 uppercase tracking-widest hidden lg:flex items-center gap-1">
+              <span className="material-symbols-outlined text-[11px]">cloud</span>
+              Powered by Google Cloud
+            </span>
           </div>
         </div>
         <Button
@@ -383,14 +390,16 @@ export default function Assistant() {
             setMessages([WELCOME]);
             sessionStorage.removeItem('civicChatHistory');
           }}
-          className="text-xs py-1 px-3 h-auto"
+          className="text-xs py-1 px-3 h-auto shrink-0"
         >
           Clear Chat
         </Button>
       </div>
 
+
       <Card className="flex-grow flex flex-col overflow-hidden bg-white/50 backdrop-blur-sm border-slate-200">
         <div
+          ref={messagesContainerRef}
           className="flex-grow overflow-y-auto p-6 space-y-6"
           aria-live="polite"
           aria-atomic="false"
@@ -408,6 +417,9 @@ export default function Assistant() {
                 }`}
               >
                 <FormattedMessage text={msg.text} />
+                {msg.isWelcomeIllustration && (
+                  <img src={aiIllustration} alt="Friendly AI Civic Guide" className="mt-4 w-48 h-auto drop-shadow-md rounded-lg" />
+                )}
                 {msg.image && (
                   <img
                     src={`data:image/jpeg;base64,${msg.image}`}
@@ -488,7 +500,7 @@ export default function Assistant() {
 
         <div className="p-4 bg-white border-t border-slate-100">
           <div className="flex gap-2 overflow-x-auto pb-3 mb-2 no-scrollbar">
-            {suggested.map((q) => (
+            {SUGGESTED_QUESTIONS[lang].map((q) => (
               <button
                 key={q.text}
                 onClick={() => sendMessage(q.text)}
@@ -536,6 +548,7 @@ export default function Assistant() {
                 loading={loading}
               />
               <input
+                id="chat-input"
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -546,7 +559,7 @@ export default function Assistant() {
                       ? 'तुमचा प्रश्न लिहा...'
                       : 'Type your question or upload an image...'
                 }
-                className="flex-grow px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                className="flex-grow px-4 py-3 bg-slate-100 border-none rounded-full text-xs outline-none focus:ring-1 focus:ring-primary transition-all"
                 disabled={loading}
               />
               {/* Image Upload button */}
