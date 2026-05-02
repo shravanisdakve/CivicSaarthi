@@ -163,6 +163,8 @@ export default function GlossaryDetail() {
             <form onSubmit={handleAsk} className="mb-4">
               <div className="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
                 <input
+                  id="glossary-ask-input"
+                  name="glossary-ask"
                   type="text"
                   placeholder="e.g., What if the slip is wrong?"
                   className="w-full px-3 py-2 text-sm outline-none bg-transparent"
