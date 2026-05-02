@@ -35,18 +35,24 @@ export default function Navbar() {
 
   const menuRef = useRef(null); // Explicitly declare menuRef
 
+  const timeoutRef = useRef(null);
+
   const handleOutsideClick = useCallback((e) => {
     if (menuRef.current && !menuRef.current.contains(e.target)) {
       setMenuOpen(false);
     }
-  }, [menuRef, setMenuOpen]); // Add menuRef to dependencies
+    // Also close 'More' dropdown if clicking outside
+    if (moreOpen && !e.target.closest('.more-dropdown-wrapper')) {
+      setMoreOpen(false);
+    }
+  }, [menuRef, setMenuOpen, moreOpen, setMoreOpen]);
 
   const handleEscape = useCallback((e) => {
     if (e.key === 'Escape') {
       setMenuOpen(false);
       setMoreOpen(false);
     }
-  }, [setMenuOpen, setMoreOpen]); // Correct dependencies
+  }, [setMenuOpen, setMoreOpen]);
 
   useEffect(() => {
     const handleProfileUpdate = () => setProfile(getProfile());
@@ -137,11 +143,19 @@ export default function Navbar() {
 
             {/* More Dropdown */}
             <div
-              className="relative group"
-              onMouseEnter={() => setMoreOpen(true)}
-              onMouseLeave={() => setMoreOpen(false)}
+              className="relative more-dropdown-wrapper"
+              onMouseEnter={() => {
+                if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                setMoreOpen(true);
+              }}
+              onMouseLeave={() => {
+                timeoutRef.current = setTimeout(() => {
+                  setMoreOpen(false);
+                }, 200);
+              }}
             >
               <button
+                onClick={() => setMoreOpen(!moreOpen)}
                 className={`font-['Public_Sans'] text-xs font-medium tracking-tight transition-colors pb-1 flex items-center gap-1 ${moreOpen ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}
                 aria-haspopup="true"
                 aria-expanded={moreOpen}
@@ -149,19 +163,21 @@ export default function Navbar() {
                 More <span className="material-symbols-outlined text-[14px]">expand_more</span>
               </button>
               {moreOpen && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-slate-100 shadow-xl rounded-xl py-2 flex flex-col z-50">
-                  {MORE_LINKS.map((link) => (
-                    <NavLink
-                      key={link.to}
-                      to={link.to}
-                      className={({ isActive }) =>
-                        `px-4 py-2 text-sm transition-colors ${isActive ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-primary'}`
-                      }
-                      onClick={() => setMoreOpen(false)}
-                    >
-                      {t(link.label)}
-                    </NavLink>
-                  ))}
+                <div className="absolute top-full right-0 pt-2 w-48 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <div className="bg-white border border-slate-100 shadow-xl rounded-xl py-2 flex flex-col">
+                    {MORE_LINKS.map((link) => (
+                      <NavLink
+                        key={link.to}
+                        to={link.to}
+                        className={({ isActive }) =>
+                          `px-4 py-2 text-sm transition-colors ${isActive ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-primary'}`
+                        }
+                        onClick={() => setMoreOpen(false)}
+                      >
+                        {t(link.label)}
+                      </NavLink>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
