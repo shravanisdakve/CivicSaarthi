@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { getLocalResponse } from '../utils/localAssistant.js';
 import { useTranslation } from '../hooks/useTranslation.js';
@@ -75,7 +75,7 @@ function ReadAloudButton({ lastResponse, language, ttsAudio }) {
         if (!audioRef.current) {
           audioRef.current = new Audio(`data:audio/mp3;base64,${ttsAudio}`);
         }
-        audioRef.current.play().catch(e => console.error("Error playing TTS audio:", e));
+        audioRef.current.play().catch(() => {});
       } else {
         speakText(lastResponse, language);
         // Reset state when speech ends (approximate) - for browser TTS
@@ -184,7 +184,7 @@ function FormattedMessage({ text }) {
 export default function Assistant() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const { t, language: lang } = useTranslation();
+  const { language: lang } = useTranslation();
 
   const [messages, setMessages] = useState(() => {
     const saved = sessionStorage.getItem('civicChatHistory');
@@ -202,17 +202,19 @@ export default function Assistant() {
 
   const profile = getProfile();
   const hasName = profile.name && profile.name !== 'Guest Citizen';
-  const firstName = hasName ? profile.name.split(' ')[0] : '';
 
-  const WELCOME = {
+  const WELCOME = useMemo(() => ({
     role: 'ai',
     text: WELCOME_MESSAGES[lang] ? WELCOME_MESSAGES[lang](hasName ? profile.name : null) : WELCOME_MESSAGES.en(hasName ? profile.name : null),
     isWelcomeIllustration: true
-  };
+  }), [lang, profile.name, hasName]);
 
   useEffect(() => {
     // Only reset if we only have the welcome message or no messages
-    if (messages.length === 0 || (messages.length === 1 && messages[0].role === 'ai')) {
+    if (messages.length === 0) {
+      setMessages([WELCOME]);
+    } else if (messages.length === 1 && messages[0].isWelcomeIllustration && messages[0].text !== WELCOME.text) {
+      // Language changed, update the welcome message text
       setMessages([WELCOME]);
     }
 
@@ -221,19 +223,9 @@ export default function Assistant() {
       .then((res) => res.json())
       .then((data) => setGeminiActive(data.geminiConfigured))
       .catch(() => setGeminiActive(false));
-  }, [lang, profile.name]);
+  }, [lang, profile.name, WELCOME, messages]);
 
-  // Handle query param or state prompt
-  useEffect(() => {
-    const prompt = searchParams.get('prompt') || location.state?.question;
-    if (prompt) {
-      // Check if this was already handled to avoid double sending
-      const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user');
-      if (lastUserMsg?.text !== prompt) {
-        sendMessage(prompt);
-      }
-    }
-  }, [searchParams, location.state]);
+
 
   useEffect(() => {
     const historyToSave = messages.slice(-20);
@@ -249,7 +241,7 @@ export default function Assistant() {
     });
   };
 
-  const sendMessage = async (text, image = null, location = null) => { // Added image and location parameter
+  const sendMessage = useCallback(async (text, image = null, location = null) => { // Added image and location parameter
     const rawText = text || input;
     const userText = normalizeUserMessage(rawText);
 
@@ -320,7 +312,7 @@ export default function Assistant() {
           locationContext: data.locationContext, // Store location context if returned
         },
       ]);
-    } catch (err) {
+    } catch {
       const fallback = getLocalResponse(userText);
       setMessages((prev) => [
         ...prev,
@@ -334,7 +326,19 @@ export default function Assistant() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [input, lang, messages]);
+
+  // Handle query param or state prompt
+  useEffect(() => {
+    const prompt = searchParams.get('prompt') || location.state?.question;
+    if (prompt) {
+      // Check if this was already handled to avoid double sending
+      const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user');
+      if (lastUserMsg?.text !== prompt) {
+        sendMessage(prompt);
+      }
+    }
+  }, [searchParams, location.state, messages, sendMessage]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -376,7 +380,15 @@ export default function Assistant() {
             </span>
             <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 uppercase tracking-widest hidden md:flex items-center gap-1">
               <span className="material-symbols-outlined text-[11px]">verified</span>
-              Official-Source Guided
+              Official-Source Grounded
+            </span>
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 uppercase tracking-widest flex items-center gap-1">
+              <span className="material-symbols-outlined text-[11px]">balance</span>
+              Non-Partisan AI
+            </span>
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border border-slate-100 uppercase tracking-widest hidden lg:flex items-center gap-1" title="AI parity verified across all languages">
+              <span className="material-symbols-outlined text-[11px]">language_praise</span>
+              Multilingual Parity
             </span>
             <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border border-slate-100 uppercase tracking-widest hidden lg:flex items-center gap-1">
               <span className="material-symbols-outlined text-[11px]">cloud</span>
@@ -433,7 +445,7 @@ export default function Assistant() {
                     <button
                       onClick={() => {
                         if (msg.ttsAudio) {
-                          new Audio(`data:audio/mp3;base64,${msg.ttsAudio}`).play().catch(e => console.error("Error playing inline TTS audio:", e));
+                          new Audio(`data:audio/mp3;base64,${msg.ttsAudio}`).play().catch(() => {});
                         } else {
                           speakText(msg.text, lang);
                         }
@@ -447,27 +459,54 @@ export default function Assistant() {
                   </div>
                 )}
 
-                {msg.grounded && (
-                  <div className="mt-3 pt-2 border-t border-slate-100">
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-green-700 uppercase mb-2">
-                      <span className="material-symbols-outlined text-[14px]">verified</span>
-                      Official Source Grounded
+                {msg.grounded && msg.references && msg.references[0] ? (
+                  <div className="mt-3 pt-3 border-t border-slate-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-green-700 uppercase">
+                        <span className="material-symbols-outlined text-[14px]">verified</span>
+                        Verified Source: {msg.references[0].sourceName.includes('ECI') ? 'ECI' : msg.references[0].sourceName} – {msg.references[0].sourceLanguage || 'language not specified'}
+                      </div>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                        UI: {lang === 'hi' ? 'Hindi' : lang === 'mr' ? 'Marathi' : 'English'}
+                      </span>
                     </div>
+                    
+                    {msg.references[0].sourceLanguageCode && !msg.references[0].sourceLanguageCode.includes(lang) && (
+                      <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-between">
+                        <p className="text-[10px] text-blue-700 font-medium">
+                          {msg.references[0].sourceLanguage === 'Unknown' 
+                            ? 'Source language is not specified. Ask AI to summarize it in your language?'
+                            : `This source is in ${msg.references[0].sourceLanguage}. Summarize it in ${lang === 'hi' ? 'Hindi' : lang === 'mr' ? 'Marathi' : 'English'}?`}
+                        </p>
+                        <button
+                          onClick={() => sendMessage(`Summarize the official source for me in ${lang === 'hi' ? 'Hindi' : lang === 'mr' ? 'Marathi' : 'English'}`)}
+                          className="text-[9px] font-bold uppercase text-primary hover:underline shrink-0"
+                        >
+                          Summarize
+                        </button>
+                      </div>
+                    )}
                     {msg.references && (
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
                         {msg.references.slice(0, 2).map((ref, idx) => (
                           <a
                             key={idx}
                             href={ref.sourceUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block text-[10px] text-primary hover:underline truncate"
+                            className="flex items-center gap-2 text-[10px] text-primary hover:underline group"
                           >
-                            • {ref.title}
+                            <span className="material-symbols-outlined text-[12px] opacity-60">link</span>
+                            <span className="truncate">{ref.title || 'View Official Document'}</span>
                           </a>
                         ))}
                       </div>
                     )}
+                  </div>
+                ) : msg.role === 'ai' && !msg.isWelcomeIllustration && (
+                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-tighter italic">
+                    <span className="material-symbols-outlined text-[12px]">info</span>
+                    General civic guidance — no official source attached
                   </div>
                 )}
 
