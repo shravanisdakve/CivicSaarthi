@@ -115,4 +115,40 @@ export const glossaryTerms = [
       'The process of tabulating the votes recorded in EVMs at designated counting centers on counting day, under strict supervision with party agents present.',
     relatedTerms: ['evm', 'returning-officer', 'vvpat'],
   },
+  {
+    id: 'affidavit',
+    term: 'Affidavit',
+    fullForm: 'Form 26',
+    category: 'Legal',
+    definition:
+      'A formal sworn statement (Form 26) filed by candidates during nomination, disclosing assets, liabilities, educational qualifications, and criminal antecedents.',
+    relatedTerms: ['returning-officer'],
+  },
+  {
+    id: 'form-26',
+    term: 'Form 26',
+    fullForm: 'Candidate Affidavit',
+    category: 'Legal',
+    definition:
+      'The mandatory affidavit filed by every candidate which serves as a critical document for voter scrutiny, ensuring transparency in the electoral process.',
+    relatedTerms: ['affidavit'],
+  },
+  {
+    id: 'cvigil',
+    term: 'cVIGIL',
+    fullForm: 'ECI Citizen Vigilance',
+    category: 'Legal',
+    definition:
+      'An innovative mobile application for citizens to report Model Code of Conduct and Expenditure violations in real-time during elections.',
+    relatedTerms: ['mcc', 'eci'],
+  },
+  {
+    id: 'voter-id',
+    term: 'Voter ID',
+    fullForm: 'EPIC',
+    category: 'Voting',
+    definition:
+      'Common term for the Electoral Photo Identity Card (EPIC), used to identify and verify the credentials of a voter at the polling booth.',
+    relatedTerms: ['epic'],
+  },
 ];
