@@ -7,12 +7,11 @@ export default class ErrorBoundary extends React.Component {
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
-    console.error('CivicSaarthi Error:', error, errorInfo);
+  componentDidCatch(error) {
     // Handle Vite dynamic import failure on new deployments
     if (error.message && error.message.includes('Failed to fetch dynamically imported module')) {
       if (!sessionStorage.getItem('civic_chunk_reloaded')) {
