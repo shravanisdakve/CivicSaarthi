@@ -37,7 +37,7 @@ export async function shareNative(text, url) {
         url: url,
       });
       return true;
-    } catch (err) {
+    } catch {
       return false;
     }
   }
