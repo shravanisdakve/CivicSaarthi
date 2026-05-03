@@ -47,11 +47,32 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/privacy" className="hover:text-primary">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
                 <Link to="/safety" className="hover:text-primary">
-                  Privacy Notes
+                  Neutrality Commitment
                 </Link>
               </li>
             </ul>
+          </div>
+        </div>
+
+        {/* Trust Badges Bar */}
+        <div className="flex flex-wrap items-center gap-4 py-6 border-y border-slate-100 mb-8">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full border border-blue-100">
+            <span className="material-symbols-outlined text-sm" aria-hidden="true">shield_lock</span>
+            <span className="text-[10px] font-black uppercase tracking-wider">Privacy First</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-full border border-amber-100">
+            <span className="material-symbols-outlined text-sm" aria-hidden="true">balance</span>
+            <span className="text-[10px] font-black uppercase tracking-wider">Non-Partisan AI</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-100">
+            <span className="material-symbols-outlined text-sm" aria-hidden="true">verified</span>
+            <span className="text-[10px] font-black uppercase tracking-wider">Official Sources (ECI)</span>
           </div>
         </div>
 
