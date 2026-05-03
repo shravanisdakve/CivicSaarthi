@@ -16,8 +16,15 @@ export default function UserMenu({ profile }) {
         setIsOpen(false);
       }
     };
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const persona = PERSONAS.find((p) => p.id === profile.selectedPersona) || PERSONAS[0];
@@ -50,7 +57,7 @@ export default function UserMenu({ profile }) {
       nextAction: 'Review your checklist to complete pending steps.',
     });
     setIsOpen(false);
-  }, [profile, checklistItems, downloadReadinessSummary, setIsOpen]); // Dependencies
+  }, [profile, setIsOpen]); // Dependencies
 
   return (
     <div className="relative" ref={menuRef}>
@@ -58,7 +65,8 @@ export default function UserMenu({ profile }) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 bg-surface-container-low hover:bg-slate-200 py-1.5 px-3 rounded-full border border-slate-200 transition-colors"
         aria-expanded={isOpen}
-        aria-haspopup="true"
+        aria-haspopup="menu"
+        aria-label="User profile and settings menu"
       >
         <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold overflow-hidden">
           {profile.avatar ? <img src={profile.avatar} alt="Avatar" /> : initials}
