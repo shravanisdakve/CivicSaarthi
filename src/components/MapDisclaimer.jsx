@@ -1,7 +1,7 @@
 import { useTranslation } from '../hooks/useTranslation.js';
 
 export default function MapDisclaimer() {
-  const { t } = useTranslation();
+  useTranslation();
 
   return (
     <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 shadow-sm">
