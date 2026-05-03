@@ -28,13 +28,8 @@ export async function loginWithGoogle() {
     );
   }
 
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    return { success: true, user: result.user };
-  } catch (error) {
-    console.error('Firebase Auth Error:', error.message);
-    throw error;
-  }
+  const result = await signInWithPopup(auth, googleProvider);
+  return { success: true, user: result.user };
 }
 
 /**
@@ -42,13 +37,8 @@ export async function loginWithGoogle() {
  */
 export async function loginWithEmail(email, password) {
   if (!isFirebaseConfigured) throw new Error('Authentication not configured.');
-  try {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    return { success: true, user: result.user };
-  } catch (error) {
-    console.error('Email Login Error:', error.message);
-    throw error;
-  }
+  const result = await signInWithEmailAndPassword(auth, email, password);
+  return { success: true, user: result.user };
 }
 
 /**
@@ -56,21 +46,15 @@ export async function loginWithEmail(email, password) {
  */
 export async function registerWithEmail(email, password) {
   if (!isFirebaseConfigured) throw new Error('Authentication not configured.');
-  try {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
-    return { success: true, user: result.user };
-  } catch (error) {
-    console.error('Registration Error:', error.message);
-    throw error;
-  }
+  const result = await createUserWithEmailAndPassword(auth, email, password);
+  return { success: true, user: result.user };
 }
 
 export async function signOut() {
   try {
     await auth.signOut();
     clearProfile();
-  } catch (error) {
-    console.error('Sign Out Error:', error.message);
+  } catch {
     clearProfile();
   }
 }
