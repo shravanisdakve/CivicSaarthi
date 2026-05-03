@@ -5,7 +5,6 @@ import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
 import { saveQuizProgress, getProfile } from '../utils/profileStorage.js';
 import ShareReadiness from '../components/ShareReadiness.jsx';
-import { trackVisit } from '../utils/badgeEngine.js';
 import quizIllustration from '../assets/quiz_ballot.png';
 
 export default function Quiz() {
@@ -18,7 +17,7 @@ export default function Quiz() {
     if (saved) {
       try {
         return JSON.parse(saved).idx || 0;
-      } catch (e) {
+      } catch {
         return 0;
       }
     }
@@ -29,7 +28,7 @@ export default function Quiz() {
     if (saved) {
       try {
         return JSON.parse(saved).selected ?? null;
-      } catch (e) {
+      } catch {
         return null;
       }
     }
@@ -40,7 +39,7 @@ export default function Quiz() {
     if (saved) {
       try {
         return JSON.parse(saved).show || false;
-      } catch (e) {
+      } catch {
         return false;
       }
     }
@@ -51,7 +50,7 @@ export default function Quiz() {
     if (saved) {
       try {
         return JSON.parse(saved).correct || 0;
-      } catch (e) {
+      } catch {
         return 0;
       }
     }
@@ -62,7 +61,7 @@ export default function Quiz() {
     if (saved) {
       try {
         return JSON.parse(saved).done || false;
-      } catch (e) {
+      } catch {
         return false;
       }
     }
@@ -72,6 +71,7 @@ export default function Quiz() {
   const [countdown, setCountdown] = useState(null);
   const timerRef = useRef(null);
   const countdownIntervalRef = useRef(null);
+  const questionHeadingRef = useRef(null);
 
   const cleanupTimers = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -110,6 +110,8 @@ export default function Quiz() {
       setCurrentIdx((c) => c + 1);
       setSelected(null);
       setShowExplanation(false);
+      // Focus the new question heading
+      setTimeout(() => questionHeadingRef.current?.focus(), 100);
     } else {
       setCompleted(true);
     }
@@ -234,7 +236,14 @@ export default function Quiz() {
             </div>
           </div>
 
-          <div className="w-full h-2 bg-slate-100 rounded-full mb-10 overflow-hidden">
+          <div 
+            className="w-full h-2 bg-slate-100 rounded-full mb-10 overflow-hidden"
+            role="progressbar"
+            aria-valuenow={((currentIdx + 1) / quizQuestions.length) * 100}
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label="Quiz progress"
+          >
             <div
               className="h-full bg-primary transition-all duration-700 ease-out shadow-[0_0_10px_rgba(26,35,126,0.3)]"
               style={{ width: `${((currentIdx + 1) / quizQuestions.length) * 100}%` }}
@@ -244,7 +253,11 @@ export default function Quiz() {
           {/* Question Card */}
           <Card className="p-6 md:p-10 border-0 shadow-xl bg-white relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-primary/20"></div>
-            <h2 className="text-xl md:text-2xl font-bold text-on-surface mb-8 font-['Public_Sans']">
+            <h2 
+              ref={questionHeadingRef}
+              tabIndex="-1"
+              className="text-xl md:text-2xl font-bold text-on-surface mb-8 font-['Public_Sans'] outline-none"
+            >
               {question.question}
             </h2>
 
@@ -279,6 +292,8 @@ export default function Quiz() {
                     onClick={() => handleSelect(idx)}
                     disabled={showExplanation}
                     className={btnClass}
+                    aria-pressed={isSelected}
+                    aria-label={`Option ${idx + 1}: ${opt}`}
                   >
                     <div
                       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
@@ -314,6 +329,7 @@ export default function Quiz() {
             {/* Explanation & Countdown */}
             {showExplanation && (
               <div
+                role="alert"
                 className={`animate-in fade-in slide-in-from-top-4 duration-500 p-6 rounded-[24px] flex flex-col md:flex-row gap-4 ${
                   isCorrect
                     ? 'bg-green-50 border border-green-100'
