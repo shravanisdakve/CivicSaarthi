@@ -1,11 +1,9 @@
 import Badge from './Badge.jsx';
 import { getChecklistProgress } from '../utils/profileStorage.js';
-import { checklistItems } from '../data/checklist.js'; // Import checklist items
 
 export default function ProductPreview() {
   const checklist = getChecklistProgress();
   const completedCount = Object.values(checklist).filter(Boolean).length;
-  const totalSteps = checklistItems.length; // Dynamically get total steps
 
   return (
     <div className="z-10 relative hidden md:block" aria-hidden="true">
