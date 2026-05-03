@@ -1,11 +1,10 @@
-import { useNavigate, useCallback } from 'react-router-dom';
+import { useCallback } from 'react';
 import Card from './Card.jsx';
 import Button from './Button.jsx';
 import Badge from './Badge.jsx';
 import { useTranslation } from '../hooks/useTranslation.js';
 
 export default function PollingStationHelper() {
-  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const handleAskAI = useCallback(() => {
