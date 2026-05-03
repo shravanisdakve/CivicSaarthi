@@ -44,7 +44,7 @@ export default function LanguageToggle() {
   const activeLang = LANGUAGES.find((l) => l.code === currentLang) || LANGUAGES[0];
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Select language"
@@ -63,7 +63,6 @@ export default function LanguageToggle() {
 
       {isOpen && (
         <div
-          ref={menuRef}
           className="absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-card border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-200"
           role="listbox"
         >
