@@ -1,12 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useTranslation } from '../hooks/useTranslation.js';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Button from './Button.jsx';
 import Badge from './Badge.jsx';
-import Card from './Card.jsx';
 
 export default function WelcomeIntro({ isOpen, onClose }) {
   const [step, setStep] = useState(1);
-  const { t } = useTranslation();
+  const modalRef = useRef(null);
+  const previouslyFocusedElement = useRef(null);
 
   const handleClose = useCallback(() => {
     localStorage.setItem('civicIntroSeen', 'true');
@@ -23,18 +22,47 @@ export default function WelcomeIntro({ isOpen, onClose }) {
   }, [handleClose]); // handleClose is a dependency
 
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleKeyDown = (e) => {
       if (e.key === 'Escape') handleClose();
+      if (e.key === 'Tab') {
+        const focusableElements = modalRef.current?.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusableElements || focusableElements.length === 0) return;
+        
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) { // Shift + Tab
+          if (document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+          }
+        } else { // Tab
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      }
     };
     if (isOpen) {
-      window.addEventListener('keydown', handleEscape);
+      // Store currently focused element to restore on close
+      previouslyFocusedElement.current = document.activeElement;
+      window.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
+      // Focus the modal on open
+      setTimeout(() => modalRef.current?.focus(), 50);
     }
     return () => {
-      window.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'auto';
+      // Restore focus on close
+      if (!isOpen && previouslyFocusedElement.current) {
+        previouslyFocusedElement.current.focus();
+      }
     };
-  }, [isOpen, onClose, handleClose]); // Added handleClose to dependencies
+  }, [isOpen, onClose, handleClose]);
 
   if (!isOpen) return null;
 
@@ -43,8 +71,13 @@ export default function WelcomeIntro({ isOpen, onClose }) {
       className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="welcome-intro-title"
     >
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+      <div
+        ref={modalRef}
+        tabIndex="-1"
+        className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300 outline-none"
+      >
         {/* Progress bar */}
         <div className="h-1.5 bg-slate-100 flex">
           {[1, 2, 3, 4].map((s) => (
@@ -61,7 +94,7 @@ export default function WelcomeIntro({ isOpen, onClose }) {
               <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
                 <span className="material-symbols-outlined text-4xl">handshake</span>
               </div>
-              <h2 className="text-3xl font-extrabold font-['Public_Sans'] text-slate-900 leading-tight">
+              <h2 id="welcome-intro-title" className="text-3xl font-extrabold font-['Public_Sans'] text-slate-900 leading-tight">
                 Welcome to CivicSaarthi
               </h2>
               <p className="text-sm font-bold text-primary tracking-wide uppercase">
