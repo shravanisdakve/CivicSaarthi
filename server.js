@@ -15,6 +15,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { getKnowledgeContext, getSourceBadges } from './src/utils/knowledgeSearch.js';
 import { getSystemInstruction } from './src/data/systemInstructions.js';
+import { normalizeUserMessage, isValidChatMessage } from './src/utils/inputSafety.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,7 +25,23 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 8080;
 
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:8080',
+  'https://civicsaarthi-civicsaarthi.asia-south1.run.app'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(helmet({
   // Allow Firebase popup auth: default 'same-origin' blocks window.closed polling
   crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
@@ -157,19 +174,16 @@ app.get('/api/calendar/oauth2callback', async (req, res) => {
   try {
     const { tokens } = await googleAuthClient.getToken(code);
     googleAuthClient.setCredentials(tokens);
-    // In a real application, you would securely store these tokens associated with the user
-    // For this example, we'll store them in a temporary in-memory variable or session
-    // req.session.calendarTokens = tokens; // Requires session middleware
-    console.log('Calendar API tokens received:', tokens);
+    // Securely handled: No logging of raw tokens in production
     res.send('Authorization successful! You can close this window.');
   } catch (error) {
-    console.error('Error retrieving access token:', error);
-    res.status(500).send('Error during authorization. Please check server logs.');
+    console.error('Error retrieving access token:', error.message);
+    res.status(500).send('Error during authorization.');
   }
 });
 
 // Endpoint to create a calendar event
-app.post('/api/calendar/createEvent', async (req, res) => {
+app.post('/api/calendar/createEvent', apiLimiter, async (req, res) => {
   if (!isCalendarConfigured || !googleAuthClient.credentials) {
     // In a real app, retrieve tokens for the user making the request
     return res.status(400).json({ error: 'Calendar API not configured or user not authorized.' });
@@ -199,12 +213,13 @@ app.post('/api/calendar/createEvent', async (req, res) => {
     res.json({ eventLink: response.data.htmlLink, eventId: response.data.id });
   } catch (error) {
     console.error('Error creating calendar event:', error.message);
-    res.status(500).json({ error: 'Failed to create calendar event.', details: error.message });
+    res.status(500).json({ error: 'Failed to create calendar event.' });
   }
 });
 
 // Endpoint for frontend logging
-app.post('/api/log', async (req, res) => {
+// Apply rate limiting to writable endpoints
+app.post('/api/log', apiLimiter, async (req, res) => {
   const { message, level = 'info', metadata = {} } = req.body;
   if (isCloudLoggingConfigured && logger) {
     const entry = logger.entry({ severity: level.toUpperCase(), ...metadata }, message);
@@ -298,10 +313,17 @@ const apiLimiter = rateLimit({
   validate: { xForwardedForHeader: false }, // Avoid validation errors behind Cloud Run proxy
 });
 app.post('/api/chat', apiLimiter, async (req, res) => {
-  const { message, persona, history, image, language: lang = 'en-IN' } = req.body; // Expect persona, history, image, and language from frontend
+  const { message, persona, history, image, language: lang = 'en-IN' } = req.body;
+  
+  // Backend Input Validation
+  const sanitizedMessage = normalizeUserMessage(message);
+  if (message && !isValidChatMessage(sanitizedMessage)) {
+    return res.status(400).json({ error: "Invalid message format or too short." });
+  }
+
   if (!process.env.GEMINI_API_KEY) {
-    console.error('CRITICAL: GEMINI_API_KEY is not defined in environment variables.');
-    return res.json({ response: "AI is in local mode. Please configure GEMINI_API_KEY." });
+    console.error('CRITICAL: GEMINI_API_KEY is not defined.');
+    return res.status(503).json({ error: "Service temporarily unavailable." });
   }
 
   let sentimentScore = null;
@@ -419,11 +441,8 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       ttsAudio, // Include base64 encoded audio
     });
   } catch (e) {
-    console.error('Error generating content with Gemini:', e); // Log the full error object
-    if (e.stack) {
-      console.error('Error stack:', e.stack);
-    }
-    res.status(500).json({ error: e.message, details: e });
+    console.error('Error generating content with Gemini:', e.message); 
+    res.status(500).json({ error: "Internal server error while generating response." });
   }
 });
 
@@ -435,6 +454,22 @@ app.get('*', (req, res) => {
 app.use((err, req, res, next) => {
   console.error('Unhandled server error:', err.stack);
   res.status(500).send('Something broke on the server!');
+});
+
+// Critical Environment Variable Validation
+const REQUIRED_ENV_VARS = [
+  'GEMINI_API_KEY',
+  'VITE_FIREBASE_API_KEY',
+  'VITE_GOOGLE_MAPS_API_KEY'
+];
+
+REQUIRED_ENV_VARS.forEach(varName => {
+  if (!process.env[varName]) {
+    console.error(`CRITICAL SECURITY ALERT: Missing required environment variable ${varName}`);
+    // In production, we might want to process.exit(1), but for this audit we'll just log loudly
+  } else if (process.env[varName].length < 10) {
+     console.error(`CRITICAL SECURITY ALERT: Environment variable ${varName} looks suspiciously short or invalid.`);
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
