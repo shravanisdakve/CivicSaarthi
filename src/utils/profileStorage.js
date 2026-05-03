@@ -36,8 +36,7 @@ export function saveProfile(updates) {
     // Dispatch event to sync UI across tabs/components
     window.dispatchEvent(new Event('civicProfileUpdated'));
     return newProfile;
-  } catch (e) {
-    console.error('Failed to save profile', e);
+  } catch {
     return getProfile();
   }
 }
@@ -51,8 +50,8 @@ export function clearProfile() {
     localStorage.removeItem('civicIntroSeen'); // Add this for cleanup
     localStorage.removeItem('civicChatHistory'); // Add this for cleanup
     window.dispatchEvent(new Event('civicProfileUpdated'));
-  } catch (e) { // Add error logging
-    console.error('Failed to clear profile', e);
+  } catch {
+    // Fail silently if localStorage is not available
   }
 }
 
