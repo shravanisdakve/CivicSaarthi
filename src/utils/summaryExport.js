@@ -1,5 +1,4 @@
 import { translations } from '../data/translations.js';
-import { getLanguage } from './language.js';
 
 export function downloadReadinessSummary({
   persona,
