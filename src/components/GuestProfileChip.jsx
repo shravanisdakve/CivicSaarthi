@@ -18,8 +18,15 @@ export default function GuestProfileChip({ profile, onOpenNamePrompt }) {
         setIsOpen(false);
       }
     };
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const hasName = profile.name && profile.name !== 'Guest Citizen';
@@ -66,7 +73,8 @@ export default function GuestProfileChip({ profile, onOpenNamePrompt }) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2.5 bg-white hover:bg-slate-50 py-2 px-4 rounded-xl border border-slate-200 transition-all shadow-sm group"
         aria-expanded={isOpen}
-        aria-haspopup="true"
+        aria-haspopup="menu"
+        aria-label={`${hasName ? profile.name : t('profile.guest')} profile menu`}
       >
         <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-black overflow-hidden border border-primary/20 group-hover:bg-primary group-hover:text-white transition-colors">
           {profile.avatar ? (
@@ -110,6 +118,7 @@ export default function GuestProfileChip({ profile, onOpenNamePrompt }) {
                 onOpenNamePrompt();
                 setIsOpen(false);
               }}
+              aria-label={user ? 'Already signed in with Google' : 'Sign in with Google'}
               className="w-full text-left px-5 py-3 text-sm text-primary hover:bg-primary/5 flex items-center gap-3 transition-colors font-bold border-b border-slate-50"
             >
               <span className="material-symbols-outlined text-[20px] text-primary icon-fill">
