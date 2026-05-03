@@ -21,8 +21,8 @@ export function setLanguage(lang) {
   try {
     localStorage.setItem(LANG_KEY, lang);
     window.dispatchEvent(new CustomEvent('civicLanguageChanged', { detail: lang }));
-  } catch (err) {
-    console.error('Failed to save language:', err);
+  } catch {
+    // Fail silently if localStorage is not available
   }
 }
 
