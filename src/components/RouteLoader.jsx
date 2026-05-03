@@ -1,4 +1,3 @@
-import LoadingOverlay from './LoadingOverlay.jsx';
 
 export default function RouteLoader() {
   return (
