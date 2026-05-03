@@ -25,23 +25,6 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 8080;
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'http://localhost:8080',
-  'https://civicsaarthi-civicsaarthi.asia-south1.run.app'
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
 app.use(helmet({
   // Allow Firebase popup auth: default 'same-origin' blocks window.closed polling
   crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
@@ -50,13 +33,37 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://maps.googleapis.com", "https://apis.google.com", "https://www.gstatic.com", "https://*.firebaseapp.com", "https://*.firebase.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      imgSrc: ["'self'", "data:", "blob:", "https://maps.gstatic.com", "https://*.googleapis.com", "https://www.gstatic.com", "https://*.googleusercontent.com", "https://*.firebaseapp.com", "https://*.gstatic.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https://maps.gstatic.com", "https://*.googleapis.com", "https://www.gstatic.com", "https://*.googleusercontent.com", "https://lh3.googleusercontent.com", "https://*.firebaseapp.com", "https://*.gstatic.com"],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com", "https://r2cdn.perplexity.ai", "https://frontend-cdn.perplexity.ai"],
-      connectSrc: ["'self'", "https://*.googleapis.com", "https://*.firebaseapp.com", "https://*.firebase.com", "https://civicsaarthi-6388d.firebaseapp.com", "https://oauth2.googleapis.com", "https://www.googleapis.com", "https://*.perplexity.ai", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "wss://*.firebaseio.com"],
+      connectSrc: ["'self'", "https://*.googleapis.com", "https://*.firebaseapp.com", "https://*.firebase.com", "https://civicsaarthi-6388d.firebaseapp.com", "https://oauth2.googleapis.com", "https://www.googleapis.com", "https://*.perplexity.ai", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "wss://*.firebaseio.com", "https://lh3.googleusercontent.com"],
       frameSrc: ["'self'", "https://*.firebaseapp.com", "https://*.google.com", "https://apis.google.com", "https://accounts.google.com"],
     }
   }
 }));
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:8080',
+  'https://civicsaarthi-civicsaarthi.asia-south1.run.app',
+  'https://civicsaarthi-622394341721.asia-south1.run.app'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow if no origin (local/curl), if in allowed list, or if it's a civicsaarthi cloud run URL
+    if (!origin || allowedOrigins.indexOf(origin) !== -1 || (origin.includes('civicsaarthi') && origin.includes('.run.app'))) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
+// Static files - served after security middleware
+app.use(express.static(distPath));
+
 app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   next();
@@ -132,8 +139,8 @@ try {
   console.error('Failed to initialize TextToSpeechClient (is ADC configured?):', e.message);
 }
 
-// Static files
-app.use(express.static(distPath));
+// Static files (already handled above, but kept here for logical grouping)
+// app.use(express.static(distPath));
 
 // API
 app.get('/api/status', (req, res) => {
@@ -344,8 +351,11 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
 
   try {
     const selectedPersona = persona || 'general'; // Use persona from request body
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-1.5-flash', tools: tools });
+    const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+    const modelName = (process.env.GEMINI_MODEL || 'gemini-flash-latest').trim();
+    
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelName, tools: tools });
     const knowledge = getKnowledgeContext(message);
     const systemInstruction = getSystemInstruction(selectedPersona, lang) + knowledge;
 

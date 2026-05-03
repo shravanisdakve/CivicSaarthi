@@ -37,12 +37,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip cross-origin requests (fonts, CDN assets) — let browser handle them directly
-  // so CSP/CORS issues don't surface as SW errors
+  // Skip cross-origin requests (fonts, CDN assets, avatars) — let browser handle them directly
+  // so CSP/CORS issues don't surface as unhandled SW errors
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) {
     event.respondWith(
-      fetch(event.request).catch(() => new Response('', { status: 408 }))
+      fetch(event.request).catch(() => {
+        // Quietly fail for external assets to avoid console clutter
+        return new Response('', { status: 408, statusText: 'Request Timeout' });
+      })
     );
     return;
   }

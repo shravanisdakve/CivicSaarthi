@@ -53,7 +53,7 @@ steps:
         # Backend secrets from Secret Manager
         "--set-secrets", "GEMINI_API_KEY=gemini-api-key:latest",
         # Non-sensitive runtime env vars
-        "--set-env-vars", "GEMINI_MODEL=gemini-2.5-flash",
+        "--set-env-vars", "GEMINI_MODEL=gemini-flash-latest",
         "--set-env-vars", "CALENDAR_REDIRECT_URI=https://civicsaarthi-civicsaarthi.asia-south1.run.app/api/calendar/oauth2callback",
         "--set-env-vars", "NODE_ENV=production"
       ]
