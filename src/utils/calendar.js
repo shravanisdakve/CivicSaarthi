@@ -9,7 +9,6 @@ export async function addEventToGoogleCalendar(eventDetails) {
     const statusData = await statusRes.json();
     
     if (!statusData.calendarConfigured) {
-      console.warn('Calendar API not configured on server.');
       alert('Google Calendar integration is currently not configured on the server.');
       return;
     }
@@ -33,8 +32,7 @@ export async function addEventToGoogleCalendar(eventDetails) {
         }
       }, 1000);
     }
-  } catch (error) {
-    console.error('Error in Calendar integration:', error);
+  } catch {
     // Fallback to a simple Google Calendar link if API fails
     openGoogleCalendarLink(eventDetails);
   }
@@ -54,7 +52,7 @@ async function performCreateEvent(details) {
       // Fallback
       openGoogleCalendarLink(details);
     }
-  } catch (e) {
+  } catch {
     openGoogleCalendarLink(details);
   }
 }
