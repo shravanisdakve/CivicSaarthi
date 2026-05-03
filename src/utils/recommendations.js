@@ -1,10 +1,9 @@
 import { checklistItems } from '../data/checklist.js';
-import { getProfile, getChecklistProgress } from './profileStorage.js';
+import { getChecklistProgress } from './profileStorage.js';
 import { translations } from '../data/translations.js';
 import { getLanguage } from './language.js';
 
 export function getSmartRecommendation(personaId) {
-  const profile = getProfile();
   const completedChecklist = getChecklistProgress();
   const lang = getLanguage();
 
