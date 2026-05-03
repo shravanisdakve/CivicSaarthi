@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { loginWithGoogle, loginWithEmail, registerWithEmail } from '../utils/auth.js';
-import Button from './Button.jsx';
 
 export default function AuthModal({ isOpen, onClose }) {
   const modalRef = useRef(null);
@@ -107,7 +106,8 @@ export default function AuthModal({ isOpen, onClose }) {
             {' '}
             {/* Added role="tablist" */}
             <button
-              id="signin-tab" // Added id
+              id="signin-tab"
+              ref={signinTabRef}
               onClick={() => setMode('signin')}
               role="tab" // Added role="tab"
               aria-selected={mode === 'signin'} // Added aria-selected
@@ -199,6 +199,7 @@ export default function AuthModal({ isOpen, onClose }) {
                 />
                 <button
                   type="button"
+                  aria-label="Toggle password visibility"
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   <span className="material-symbols-outlined">visibility</span>
@@ -293,6 +294,7 @@ export default function AuthModal({ isOpen, onClose }) {
                 />
                 <button
                   type="button"
+                  aria-label="Toggle password visibility"
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   <span className="material-symbols-outlined">visibility</span>
@@ -320,6 +322,7 @@ export default function AuthModal({ isOpen, onClose }) {
             {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
             <button
               onClick={() => setMode(mode === 'signin' ? 'register' : 'signin')}
+              aria-label={mode === 'signin' ? 'Switch to register form' : 'Switch to sign in form'}
               className="text-slate-900 font-black hover:underline"
             >
               {mode === 'signin' ? 'Register free' : 'Sign in here'}
