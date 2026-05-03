@@ -182,6 +182,15 @@ app.get('/api/calendar/oauth2callback', async (req, res) => {
   }
 });
 
+// Apply rate limiting to all requests
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15, // Limit each IP to 15 requests per windowMs
+  message:
+    "Too many requests from this IP, please try again after 15 minutes",
+  validate: { xForwardedForHeader: false }, // Avoid validation errors behind Cloud Run proxy
+});
+
 // Endpoint to create a calendar event
 app.post('/api/calendar/createEvent', apiLimiter, async (req, res) => {
   if (!isCalendarConfigured || !googleAuthClient.credentials) {
@@ -304,14 +313,6 @@ const tool_function_map = {
   },
 };
 
-// Apply rate limiting to all requests
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 15, // Limit each IP to 15 requests per windowMs
-  message:
-    "Too many requests from this IP, please try again after 15 minutes",
-  validate: { xForwardedForHeader: false }, // Avoid validation errors behind Cloud Run proxy
-});
 app.post('/api/chat', apiLimiter, async (req, res) => {
   const { message, persona, history, image, language: lang = 'en-IN' } = req.body;
   
