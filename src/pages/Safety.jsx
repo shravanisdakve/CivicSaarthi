@@ -15,6 +15,16 @@ export default function Safety() {
           CivicSaarthi is built on a foundation of strict non-partisanship and user privacy. We do
           not endorse candidates, parties, or specific legislative outcomes.
         </p>
+        <div className="mt-8 flex justify-center gap-4">
+          <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 rounded-full border border-amber-100 text-xs font-bold uppercase tracking-widest">
+            <span className="material-symbols-outlined text-sm">balance</span>
+            Non-Partisan Verified
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full border border-blue-100 text-xs font-bold uppercase tracking-widest">
+            <span className="material-symbols-outlined text-sm">shield_lock</span>
+            Privacy Hardened
+          </div>
+        </div>
       </div>
 
       {/* Principles Grid */}
