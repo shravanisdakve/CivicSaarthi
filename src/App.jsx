@@ -19,6 +19,7 @@ const About = lazy(() => import('./pages/About.jsx'));
 const Profile = lazy(() => import('./pages/Profile.jsx'));
 const Assistant = lazy(() => import('./pages/Assistant.jsx'));
 const MapHelper = lazy(() => import('./pages/MapHelper.jsx'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy.jsx'));
 
 /**
  * Main Application Component
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/sources" element={<Sources />} />
             <Route path="/safety" element={<Safety />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/architecture" element={<Architecture />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<Home />} />
