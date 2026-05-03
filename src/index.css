@@ -113,6 +113,28 @@ h6 {
   }
 }
 
+/* Smooth Transitions Utility */
+.transition-smooth {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Card Hover Elevation */
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(26, 35, 126, 0.15);
+}
+
+/* Skeletons */
+@keyframes skeleton-pulse {
+  0% { background-color: #f1f5f9; }
+  50% { background-color: #e2e8f0; }
+  100% { background-color: #f1f5f9; }
+}
+.skeleton {
+  animation: skeleton-pulse 1.5s infinite ease-in-out;
+  border-radius: 4px;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
@@ -123,4 +145,7 @@ h6 {
 ::-webkit-scrollbar-thumb {
   background: #c6c5d4;
   border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1a237e;
 }
