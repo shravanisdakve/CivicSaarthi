@@ -15,6 +15,8 @@ export const officialKnowledge = [
     officialReminder: 'Verification of your name in the electoral roll is mandatory to vote.',
     sourceName: 'Voter Service Portal (ECI)',
     sourceUrl: 'https://voters.eci.gov.in/',
+    sourceLanguage: 'Multilingual (English, Hindi, Marathi)',
+    sourceLanguageCode: 'en,hi,mr',
   },
   {
     id: 'vvpat',
@@ -32,6 +34,8 @@ export const officialKnowledge = [
     officialReminder: 'VVPAT ensures transparency and accountability in the voting process.',
     sourceName: 'Election Commission of India',
     sourceUrl: 'https://www.eci.gov.in/',
+    sourceLanguage: 'English / Hindi',
+    sourceLanguageCode: 'en,hi',
   },
   {
     id: 'epic',
@@ -50,6 +54,8 @@ export const officialKnowledge = [
       'Possession of EPIC does not guarantee the right to vote; your name must be in the electoral roll.',
     sourceName: 'ECI / SVEEP',
     sourceUrl: 'https://ecisveep.nic.in/',
+    sourceLanguage: 'English',
+    sourceLanguageCode: 'en',
   },
   {
     id: 'mcc',
@@ -63,10 +69,13 @@ export const officialKnowledge = [
       'Prevents misuse of official machinery by the ruling party.',
       'Regulates campaign speeches, processions, and polling day conduct.',
       'Violations can be reported via cVIGIL app.',
+      'Violations can be reported via cVIGIL app.',
     ],
     officialReminder: 'MCC helps maintain a level playing field for all candidates.',
     sourceName: 'ECI Guidelines',
     sourceUrl: 'https://www.eci.gov.in/',
+    sourceLanguage: 'English / Hindi',
+    sourceLanguageCode: 'en,hi',
   },
   {
     id: 'cvigil',
@@ -84,6 +93,8 @@ export const officialKnowledge = [
     officialReminder: 'Always report election violations through official ECI channels.',
     sourceName: 'cVIGIL Portal',
     sourceUrl: 'https://cvigil.eci.gov.in/',
+    sourceLanguage: 'Multilingual',
+    sourceLanguageCode: 'en,hi,mr',
   },
   {
     id: 'polling-station',
@@ -101,6 +112,8 @@ export const officialKnowledge = [
     officialReminder: 'Check your assigned polling station well before the polling day.',
     sourceName: 'ECI Voter Search',
     sourceUrl: 'https://voters.eci.gov.in/',
+    sourceLanguage: 'Multilingual (English, Hindi, Marathi)',
+    sourceLanguageCode: 'en,hi,mr',
   },
   {
     id: 'nota',
@@ -118,6 +131,8 @@ export const officialKnowledge = [
     officialReminder: 'NOTA is a tool for expressing democratic dissent.',
     sourceName: 'Election Commission of India',
     sourceUrl: 'https://www.eci.gov.in/',
+    sourceLanguage: 'English / Hindi',
+    sourceLanguageCode: 'en,hi',
   },
   {
     id: 'kyc',
@@ -135,6 +150,8 @@ export const officialKnowledge = [
     officialReminder: 'Voters have a right to know the background of candidates.',
     sourceName: 'ECI Affidavit Portal',
     sourceUrl: 'https://affidavit.eci.gov.in/',
+    sourceLanguage: 'English (Form 26)',
+    sourceLanguageCode: 'en',
   },
   {
     id: 'misinformation',
@@ -153,6 +170,8 @@ export const officialKnowledge = [
       'Critical details should only be trusted if verified by the Election Commission.',
     sourceName: 'ECI Myth vs Reality',
     sourceUrl: 'https://www.eci.gov.in/',
+    sourceLanguage: 'English / Hindi',
+    sourceLanguageCode: 'en,hi',
   },
   {
     id: 'evm-detail',
@@ -171,6 +190,8 @@ export const officialKnowledge = [
       'EVMs are secure and subjected to multi-level mock polls before actual voting.',
     sourceName: 'Election Commission of India',
     sourceUrl: 'https://www.eci.gov.in/',
+    sourceLanguage: 'English / Hindi',
+    sourceLanguageCode: 'en,hi',
   },
   {
     id: 'nomination',
@@ -188,6 +209,8 @@ export const officialKnowledge = [
     officialReminder: 'Nomination deadlines are strictly enforced by the ECI.',
     sourceName: 'Election Commission of India',
     sourceUrl: 'https://www.eci.gov.in/',
+    sourceLanguage: 'English / Hindi',
+    sourceLanguageCode: 'en,hi',
   },
   {
     id: 'counting',
@@ -205,5 +228,7 @@ export const officialKnowledge = [
     officialReminder: 'Counting processes are transparent and monitored by ECI observers.',
     sourceName: 'Election Commission of India',
     sourceUrl: 'https://www.eci.gov.in/',
+    sourceLanguage: 'English / Hindi',
+    sourceLanguageCode: 'en,hi',
   },
 ];
