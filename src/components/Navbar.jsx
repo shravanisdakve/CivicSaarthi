@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getProfile } from '../utils/profileStorage.js';
 import { useTranslation } from '../hooks/useTranslation.js';
@@ -28,10 +28,9 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [namePromptOpen, setNamePromptOpen] = useState(false);
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [profile, setProfile] = useState(getProfile());
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const menuRef = useRef(null); // Explicitly declare menuRef
 
