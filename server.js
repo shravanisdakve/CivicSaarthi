@@ -64,10 +64,6 @@ app.use(cors({
 // Static files - served after security middleware
 app.use(express.static(distPath));
 
-app.use((req, res, next) => {
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  next();
-});
 app.use(express.json());
 
 // Cloud Logging — uses ADC automatically (gcloud auth application-default login)

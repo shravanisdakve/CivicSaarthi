@@ -5,6 +5,8 @@ import RouteLoader from './components/RouteLoader.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import OfflineStatus from './components/OfflineStatus.jsx';
 
+import ScrollToTop from './components/ScrollToTop.jsx';
+
 const Home = lazy(() => import('./pages/Home.jsx'));
 const ChoosePath = lazy(() => import('./pages/ChoosePath.jsx'));
 const Timeline = lazy(() => import('./pages/Timeline.jsx'));
@@ -29,6 +31,7 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy.jsx'));
 export default function App() {
   return (
     <ErrorBoundary>
+      <ScrollToTop />
       <Suspense fallback={<RouteLoader />}>
         <Routes>
           <Route element={<Layout />}>
