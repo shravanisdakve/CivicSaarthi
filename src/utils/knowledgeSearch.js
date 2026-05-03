@@ -64,5 +64,7 @@ export function getSourceBadges(message) {
     title: m.title,
     sourceName: m.sourceName,
     sourceUrl: m.sourceUrl,
+    sourceLanguage: m.sourceLanguage || 'Unknown',
+    sourceLanguageCode: m.sourceLanguageCode || 'unknown',
   }));
 }
