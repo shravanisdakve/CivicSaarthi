@@ -10,9 +10,9 @@ export default function ElectionOfficeMap() {
   const [loadingDirections, setLoadingDirections] = useState(false);
   const [directionsError, setDirectionsError] = useState(null);
   const mapContainerRef = useRef(null);
-  const [nearbyPlaces, setNearbyPlaces] = useState([]);
   const [loadingPlaces, setLoadingPlaces] = useState(false);
   const [placesError, setPlacesError] = useState(null);
+  const [, setNearbyPlaces] = useState([]);
   // mapsKeyError is now handled by useGoogleMapsLoader, but we keep it for conditional rendering
   const [mapsKeyError, setMapsKeyError] = useState(loadError); 
 
@@ -130,7 +130,6 @@ export default function ElectionOfficeMap() {
           performPlacesSearch(map, destinationLocation); // Pass map instance and destination
         } else {
           setDirectionsError('Directions request failed due to ' + status);
-          console.error('Directions request failed:', status);
         }
       }
     );
@@ -190,7 +189,6 @@ export default function ElectionOfficeMap() {
         });
       } else {
         setPlacesError('Could not find nearby places or Places API request failed: ' + status);
-        console.error('Places search failed:', status);
       }
     });
   };
