@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import Button from './Button.jsx';
 
 export default function Dialog({
   isOpen,
