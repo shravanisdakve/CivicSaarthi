@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { timelineStages } from '../data/timeline.js';
 import { phaseExplainers } from '../data/phaseExplainers.js';
@@ -6,7 +6,7 @@ import PhaseExplainer from '../components/PhaseExplainer.jsx';
 import Button from '../components/Button.jsx';
 import { getProfile, saveProfile } from '../utils/profileStorage.js';
 import { openGoogleCalendarLink } from '../utils/calendar.js';
-
+import FormattedText from '../components/FormattedText.jsx';
 const INITIAL_VISIBLE = 5;
 
 export default function Timeline() {
@@ -21,7 +21,7 @@ export default function Timeline() {
   const detailRef = useRef(null);
 
   const profile = getProfile();
-  const understoodExplainers = profile.understoodExplainers || [];
+  const understoodExplainers = useMemo(() => profile.understoodExplainers || [], [profile.understoodExplainers]);
 
   const handleUnderstood = useCallback((phaseId) => {
     if (!understoodExplainers.includes(phaseId)) {
@@ -31,7 +31,7 @@ export default function Timeline() {
         readinessPoints: (profile.readinessPoints || 0) + 5,
       });
     }
-  }, [understoodExplainers, profile.readinessPoints, saveProfile]); // Dependencies
+  }, [understoodExplainers, profile.readinessPoints]); // Dependencies (saveProfile is stable top-level import)
 
   useEffect(() => {
     // Simulate loading for detail panel on stage change
@@ -66,7 +66,7 @@ export default function Timeline() {
       }
       localStorage.removeItem('selectedTimelineStage');
     }
-  }, [setActiveId, setShowAll, detailRef]); // Dependencies
+  }, [setActiveId, setShowAll]); // detailRef is a stable ref
 
   const activeStage = timelineStages.find((s) => s.id === activeId);
   const activeIndex = timelineStages.findIndex((s) => s.id === activeId);
@@ -78,7 +78,7 @@ export default function Timeline() {
     if (window.innerWidth < 768) {
       detailRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [setActiveId, detailRef]); // Dependencies
+  }, [setActiveId]); // detailRef is a stable ref
 
   const handleNext = useCallback(() => {
     if (activeIndex < timelineStages.length - 1) {
@@ -320,7 +320,7 @@ export default function Timeline() {
                     Process Summary
                   </p>
                   <p className="text-sm text-on-surface-variant mb-6 leading-relaxed">
-                    {activeStage.detail}
+                    <FormattedText text={activeStage.detail} />
                   </p>
 
                   <p className="text-xs font-bold text-on-surface uppercase tracking-wider mb-3">
@@ -335,7 +335,7 @@ export default function Timeline() {
                         <span className="material-symbols-outlined text-primary shrink-0 text-base mt-0.5">
                           check_circle
                         </span>
-                        {kp}
+                        <FormattedText text={kp} />
                       </li>
                     ))}
                   </ul>
