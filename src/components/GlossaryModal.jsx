@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from '../hooks/useTranslation.js';
 import Card from './Card.jsx';
 import Button from './Button.jsx';
