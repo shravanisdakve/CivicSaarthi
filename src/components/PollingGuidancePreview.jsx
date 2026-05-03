@@ -1,5 +1,4 @@
 import Card from './Card.jsx';
-import Button from './Button.jsx';
 import ElectionOfficeMap from './ElectionOfficeMap.jsx';
 
 const EXAMPLE_CARDS = [
