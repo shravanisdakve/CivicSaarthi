@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
     });
 
     return () => unsubscribe();
-  }, [saveProfile]); // Add saveProfile to dependencies
+  }, []); // Top-level imports like saveProfile don't need to be in dependencies
 
   return (
     <AuthContext.Provider value={{ user, loading, isFirebaseConfigured, db }}>
