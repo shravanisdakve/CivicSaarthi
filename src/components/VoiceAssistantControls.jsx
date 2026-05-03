@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { getSpeechRecognition, speakText, stopSpeech, isSpeechSupported } from '../utils/speech.js';
 
 export default function VoiceAssistantControls({ onTranscript, lastResponse, language }) {
