@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from '../hooks/useTranslation.js';
 import Card from './Card.jsx';
 import Button from './Button.jsx';
+import FormattedMessage from './FormattedMessage.jsx';
 
 export default function GlossaryModal({ isOpen, term, onClose, onRelatedClick }) {
   const modalRef = useRef(null);
@@ -202,7 +203,7 @@ export default function GlossaryModal({ isOpen, term, onClose, onRelatedClick })
                         : 'bg-primary/5 text-on-surface border border-primary/10'
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">{aiResponse}</p>
+                    <FormattedMessage text={aiResponse} />
                   </div>
                 )}
               </div>

@@ -79,7 +79,7 @@ describe('Assistant Page', () => {
       </MemoryRouter>
     );
 
-    const input = screen.getByPlaceholderText(/Type your question/i);
+    const input = screen.getByPlaceholderText(/Ask a question/i);
     fireEvent.change(input, { target: { value: 'test question' } });
     fireEvent.submit(input.closest('form'));
 
@@ -115,7 +115,7 @@ describe('Assistant Page', () => {
       </MemoryRouter>
     );
 
-    const input = screen.getByPlaceholderText(/Type your question/i);
+    const input = screen.getByPlaceholderText(/Ask a question/i);
     fireEvent.change(input, { target: { value: 'tell me about source' } });
     fireEvent.submit(input.closest('form'));
 

@@ -9,6 +9,7 @@ import {
 } from '../utils/inputSafety.js';
 import { getProfile } from '../utils/profileStorage.js';
 import { guidedSteps } from '../data/guidedSteps.js';
+import FormattedMessage from './FormattedMessage.jsx';
 
 const SUGGESTED = [
   'Walk me through the election process step by step.',
@@ -343,7 +344,9 @@ export default function FloatingAssistant() {
                       : 'bg-white text-on-surface border-slate-100 rounded-tl-none'
                   }`}
                 >
-                  <div className="whitespace-pre-wrap">{msg.text}</div>
+                  <div className="text-on-surface">
+                    <FormattedMessage text={msg.text} />
+                  </div>
 
                   {/* Guided Journey Actions */}
                   {msg.isJourney && msg.step === journeyStep && (

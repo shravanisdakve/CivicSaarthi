@@ -13,6 +13,7 @@ import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
 import { getSpeechRecognition, speakText, stopSpeech, isSpeechSupported } from '../utils/speech.js';
 import aiIllustration from '../assets/assistant_ai.png';
+import FormattedMessage from '../components/FormattedMessage.jsx';
 
 // Suggested questions moved to assistantConfig.js
 
@@ -38,10 +39,10 @@ function MicButton({ language, onTranscript, loading }) {
       onClick={handleMic}
       disabled={listening || loading}
       title={listening ? 'Listening...' : 'Speak your question'}
-      className={`w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center shadow transition-all ${
+      className={`w-11 h-11 shrink-0 rounded-full flex items-center justify-center shadow-sm transition-all ${
         listening
           ? 'bg-red-500 text-white animate-pulse'
-          : 'bg-slate-100 border border-slate-200 text-slate-600 hover:border-primary hover:text-primary'
+          : 'bg-slate-100 border border-slate-200 text-slate-600 hover:border-primary hover:bg-blue-50 hover:text-primary'
       }`}
     >
       <span className="material-symbols-outlined text-[20px]">
@@ -90,10 +91,10 @@ function ReadAloudButton({ lastResponse, language, ttsAudio }) {
       type="button"
       onClick={handleToggle}
       title={speaking ? 'Stop reading' : 'Read last response aloud'}
-      className={`w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center shadow transition-all ${
+      className={`w-11 h-11 shrink-0 rounded-full flex items-center justify-center shadow-sm transition-all ${
         speaking
           ? 'bg-primary text-white animate-pulse'
-          : 'bg-slate-100 border border-slate-200 text-slate-600 hover:border-primary hover:text-primary'
+          : 'bg-slate-100 border border-slate-200 text-slate-600 hover:border-primary hover:bg-blue-50 hover:text-primary'
       }`}
     >
       <span className="material-symbols-outlined text-[20px]">
@@ -103,83 +104,7 @@ function ReadAloudButton({ lastResponse, language, ttsAudio }) {
   );
 }
 
-// --- Formatted Message (Step-by-Step UI) ---
-function FormattedMessage({ text }) {
-  if (!text) return null;
-  const lines = text.split('\n');
-  const elements = [];
-  let currentList = [];
 
-  lines.forEach((line, i) => {
-    const trimmed = line.trim();
-    const stepMatch = trimmed.match(/^(\d+)[.)]\s+(.*)/);
-    
-    if (stepMatch) {
-      currentList.push({ num: stepMatch[1], content: stepMatch[2] });
-    } else {
-      if (currentList.length > 0) {
-        elements.push(
-          <div key={`list-${i}`} className="space-y-3 my-4">
-            {currentList.map((item, idx) => (
-              <div key={idx} className="flex gap-4 p-4 bg-blue-50/30 rounded-2xl border border-blue-100/50 shadow-sm">
-                <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shrink-0 font-bold text-xs">
-                  {item.num}
-                </div>
-                <div className="text-sm text-slate-800 leading-relaxed pt-1 font-medium">
-                  {item.content}
-                </div>
-              </div>
-            ))}
-          </div>
-        );
-        currentList = [];
-      }
-      
-      const isTip = trimmed.toUpperCase().includes('IMPORTANT TIPS') || 
-                   trimmed.toUpperCase().includes('महत्वपूर्ण टिपा') ||
-                   trimmed.toUpperCase().includes('महत्वपूर्ण टिप्स');
-
-      if (isTip) {
-         elements.push(
-           <div key={`tip-${i}`} className="my-4 p-5 bg-amber-50/80 rounded-3xl border border-amber-200/50 shadow-sm">
-             <div className="flex items-center gap-2 mb-3 text-amber-900 font-extrabold text-[10px] uppercase tracking-[0.2em]">
-               <span className="material-symbols-outlined text-lg">tips_and_updates</span>
-               {trimmed}
-             </div>
-           </div>
-         );
-      } else if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
-        elements.push(
-          <div key={i} className="flex gap-3 mb-2 px-2 items-start">
-            <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-2 shrink-0"></div>
-            <p className="text-sm text-slate-700 leading-relaxed font-medium">{trimmed.substring(2)}</p>
-          </div>
-        );
-      } else if (trimmed) {
-        elements.push(<p key={i} className="mb-3 last:mb-0 leading-relaxed text-slate-700 font-medium">{trimmed}</p>);
-      }
-    }
-  });
-
-  if (currentList.length > 0) {
-    elements.push(
-      <div key="list-final" className="space-y-3 my-4">
-        {currentList.map((item, idx) => (
-          <div key={idx} className="flex gap-4 p-4 bg-blue-50/30 rounded-2xl border border-blue-100/50 shadow-sm">
-            <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shrink-0 font-bold text-xs">
-              {item.num}
-            </div>
-            <div className="text-sm text-slate-800 leading-relaxed pt-1 font-medium">
-              {item.content}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  return <div className="w-full">{elements}</div>;
-}
 
 export default function Assistant() {
   const [searchParams] = useSearchParams();
@@ -358,76 +283,85 @@ export default function Assistant() {
   };
 
   return (
-    <div className="max-w-screen-md mx-auto px-4 sm:px-6 py-6 lg:py-8 flex flex-col h-[calc(100dvh-100px)] lg:h-[calc(100vh-120px)]">
-      {/* Compact header — single slim row */}
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white shadow overflow-hidden shrink-0">
-            <img src="/assistant-icon.jpg" alt="AI Icon" className="w-full h-full object-cover" />
+    <div className="max-w-screen-md mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8 flex flex-col h-[calc(100dvh-100px)] lg:h-[calc(100vh-120px)]">
+      {/* Header */}
+      <div className="mb-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-sm overflow-hidden shrink-0">
+              <img src="/assistant-icon.jpg" alt="AI Icon" className="w-full h-full object-cover" />
+            </div>
+            <h1 className="font-['Public_Sans'] text-lg sm:text-xl font-bold text-slate-800 truncate">
+              {ASSISTANT_CONFIG.name}
+            </h1>
           </div>
-          <h1 className="font-['Public_Sans'] text-base font-bold text-on-surface truncate">
-            {ASSISTANT_CONFIG.name}
-          </h1>
-          {/* Status badges — hidden on small screens to save space */}
-          <div className="hidden sm:flex items-center gap-1.5 ml-1">
-            <span
-              className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1 ${geminiActive ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}
-            >
-              <span className="material-symbols-outlined text-[11px]">
-                {geminiActive ? 'psychology' : 'cloud_off'}
-              </span>
-              {geminiActive ? 'Gemini API Active' : 'Local Fallback'}
-            </span>
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 uppercase tracking-widest hidden md:flex items-center gap-1">
-              <span className="material-symbols-outlined text-[11px]">verified</span>
-              Official-Source Grounded
-            </span>
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 uppercase tracking-widest flex items-center gap-1">
-              <span className="material-symbols-outlined text-[11px]">balance</span>
-              Non-Partisan AI
-            </span>
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border border-slate-100 uppercase tracking-widest hidden lg:flex items-center gap-1" title="AI parity verified across all languages">
-              <span className="material-symbols-outlined text-[11px]">language_praise</span>
-              Multilingual Parity
-            </span>
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border border-slate-100 uppercase tracking-widest hidden lg:flex items-center gap-1">
-              <span className="material-symbols-outlined text-[11px]">cloud</span>
-              Powered by Google Cloud
-            </span>
-          </div>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setMessages([WELCOME]);
+              sessionStorage.removeItem('civicChatHistory');
+            }}
+            className="text-xs py-1.5 px-4 h-auto shrink-0 rounded-full"
+          >
+            Clear Chat
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setMessages([WELCOME]);
-            sessionStorage.removeItem('civicChatHistory');
-          }}
-          className="text-xs py-1 px-3 h-auto shrink-0"
-        >
-          Clear Chat
-        </Button>
+
+        {/* Status badges — horizontally scrollable */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap flex items-center gap-1.5 shrink-0 ${geminiActive ? 'bg-blue-50 text-blue-700 border border-blue-100/50' : 'bg-slate-50 text-slate-600 border border-slate-200'}`}>
+            <span className="material-symbols-outlined text-[14px]">{geminiActive ? 'psychology' : 'cloud_off'}</span>
+            {geminiActive ? 'Gemini API Active' : 'Local Fallback'}
+          </span>
+          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100/50 uppercase tracking-wider whitespace-nowrap flex items-center gap-1.5 shrink-0">
+            <span className="material-symbols-outlined text-[14px]">verified</span>
+            Official-Source Grounded
+          </span>
+          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100/50 uppercase tracking-wider whitespace-nowrap flex items-center gap-1.5 shrink-0">
+            <span className="material-symbols-outlined text-[14px]">balance</span>
+            Non-Partisan AI
+          </span>
+          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100/50 uppercase tracking-wider whitespace-nowrap flex items-center gap-1.5 shrink-0">
+            <span className="material-symbols-outlined text-[14px]">language</span>
+            Multilingual Parity
+          </span>
+          <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-slate-50 text-slate-600 border border-slate-200 uppercase tracking-wider whitespace-nowrap flex items-center gap-1.5 shrink-0">
+            <span className="material-symbols-outlined text-[14px]">cloud</span>
+            Powered by Google Cloud
+          </span>
+        </div>
       </div>
 
 
       <Card className="flex-grow flex flex-col overflow-hidden bg-white/50 backdrop-blur-sm border-slate-200">
         <div
           ref={messagesContainerRef}
-          className="flex-grow overflow-y-auto p-6 space-y-6"
+          className="flex-grow overflow-y-auto p-4 sm:p-6 space-y-5 scroll-smooth"
           aria-live="polite"
           aria-atomic="false"
         >
-          {messages.map((msg, i) => (
+          {messages.map((msg, i) => {
+            const isErrorMsg = msg.error || msg.isFallback || (msg.role === 'ai' && msg.text && msg.text.toLowerCase().includes('error generating response'));
+            return (
             <div
               key={i}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-[24px] p-5 text-sm leading-relaxed shadow-sm transition-all ${
+                className={`max-w-[92%] sm:max-w-[85%] rounded-[24px] p-4 sm:p-5 text-sm leading-relaxed shadow-sm transition-all ${
                   msg.role === 'user'
                     ? 'bg-primary text-white rounded-tr-none'
-                    : 'bg-white border border-slate-100 rounded-tl-none text-on-surface'
+                    : isErrorMsg
+                    ? 'bg-red-50 border border-red-100 rounded-tl-none text-red-800'
+                    : 'bg-white border border-slate-100 rounded-tl-none text-slate-800'
                 }`}
               >
+                {msg.role === 'ai' && isErrorMsg && (
+                  <div className="flex items-center gap-2 mb-2 font-bold text-red-700">
+                     <span className="material-symbols-outlined text-[18px]">warning</span>
+                     System Notification
+                  </div>
+                )}
                 <FormattedMessage text={msg.text} />
                 {msg.isWelcomeIllustration && (
                   <img src={aiIllustration} alt="Friendly AI Civic Guide" className="mt-4 w-48 h-auto drop-shadow-md rounded-lg" />
@@ -518,16 +452,17 @@ export default function Assistant() {
                 )}
 
                 {msg.role === 'ai' && !msg.isFallback && (
-                  <p className="mt-3 pt-2 border-t border-slate-50 text-[9px] text-slate-400 italic">
+                  <p className="mt-3 pt-2 border-t border-slate-100/50 text-[10px] text-slate-400 italic">
                     Answer generated with Gemini + CivicSaarthi official knowledge base.
                   </p>
                 )}
               </div>
             </div>
-          ))}
+          );
+          })}
           {loading && (
             <div className="flex justify-start">
-              <div className="bg-white px-4 py-2 rounded-full border border-slate-100 flex gap-1 shadow-sm">
+              <div className="bg-white px-5 py-3 rounded-full border border-slate-100 flex gap-1.5 shadow-sm">
                 <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce"></span>
                 <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:0.2s]"></span>
                 <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:0.4s]"></span>
@@ -537,16 +472,16 @@ export default function Assistant() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 bg-white border-t border-slate-100">
-          <div className="flex gap-2 overflow-x-auto pb-3 mb-2 no-scrollbar">
+        <div className="p-4 sm:p-5 bg-white border-t border-slate-100">
+          <div className="flex gap-2.5 overflow-x-auto pb-2 mb-3 no-scrollbar snap-x">
             {SUGGESTED_QUESTIONS[lang].map((q) => (
               <button
                 key={q.text}
                 onClick={() => sendMessage(q.text)}
                 disabled={loading}
-                className="whitespace-nowrap flex items-center gap-1.5 text-[11px] font-bold px-4 py-2 rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-all bg-slate-50 shadow-sm"
+                className="whitespace-nowrap snap-start flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-full border border-slate-200 hover:border-primary hover:text-primary hover:bg-blue-50 transition-all bg-white shadow-sm shrink-0"
               >
-                <span className="material-symbols-outlined text-[14px] text-primary/60">{q.icon}</span>
+                <span className="material-symbols-outlined text-[16px] text-primary/70">{q.icon}</span>
                 {q.text}
               </button>
             ))}
@@ -596,16 +531,16 @@ export default function Assistant() {
                     ? 'अपना प्रश्न लिखें...'
                     : lang === 'mr'
                       ? 'तुमचा प्रश्न लिहा...'
-                      : 'Type your question or upload an image...'
+                      : 'Ask a question or share an image...'
                 }
-                className="flex-grow px-4 py-3 bg-slate-100 border-none rounded-full text-xs outline-none focus:ring-1 focus:ring-primary transition-all"
+                className="flex-grow px-4 py-2.5 bg-slate-100 border-none rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/50 transition-all min-w-0 placeholder-slate-400"
                 disabled={loading}
               />
               {/* Image Upload button */}
               <label
                 htmlFor="image-upload"
-                className={`w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center shadow transition-all cursor-pointer ${
-                  loading ? 'bg-slate-300 text-slate-500' : 'bg-slate-100 border border-slate-200 text-slate-600 hover:border-primary hover:text-primary'
+                className={`w-11 h-11 shrink-0 rounded-full flex items-center justify-center shadow-sm transition-all cursor-pointer ${
+                  loading ? 'bg-slate-300 text-slate-500' : 'bg-slate-100 border border-slate-200 text-slate-600 hover:border-primary hover:bg-blue-50 hover:text-primary'
                 }`}
                 title="Upload an image"
               >
@@ -629,10 +564,10 @@ export default function Assistant() {
               <button
                 type="submit"
                 disabled={loading || (!input.trim() && !imageFile)} // Disable if no text and no image
-                className="w-12 h-12 shrink-0 rounded-2xl bg-primary text-white flex items-center justify-center shadow hover:brightness-110 disabled:opacity-40 transition-all"
+                className="w-11 h-11 shrink-0 rounded-full bg-primary text-white flex items-center justify-center shadow-md hover:brightness-110 disabled:opacity-50 transition-all"
                 title="Send"
               >
-                <span className="material-symbols-outlined">send</span>
+                <span className="material-symbols-outlined text-[20px]">send</span>
               </button>
             </div>
           </form>

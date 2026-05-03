@@ -18,7 +18,15 @@ const TERMS_TO_WRAP = [
 export default function FormattedText({ text }) {
   if (!text) return null;
 
-  let parts = [text];
+  const BOLD_REGEX = /(\*\*.*?\*\*)/g;
+  let parts = [];
+  text.split(BOLD_REGEX).forEach((piece, i) => {
+    if (piece.startsWith('**') && piece.endsWith('**')) {
+      parts.push(<strong key={`bold-${i}`} className="font-bold">{piece.slice(2, -2)}</strong>);
+    } else if (piece) {
+      parts.push(piece);
+    }
+  });
 
   TERMS_TO_WRAP.forEach(term => {
     let newParts = [];
