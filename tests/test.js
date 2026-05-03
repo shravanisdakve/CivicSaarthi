@@ -1,10 +1,9 @@
+/* eslint-disable no-console */
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { timelineStages } from '../src/data/timeline.js';
-import { glossaryTerms } from '../src/data/glossary.js';
 import { quizQuestions } from '../src/data/quiz.js';
-import { getLocalResponse } from '../src/utils/localAssistant.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
