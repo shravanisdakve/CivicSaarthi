@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { searchKnowledge } from '../src/utils/knowledgeSearch.js';
 import { normalizeUserMessage, containsUnsafePersonalDataHint } from '../src/utils/inputSafety.js';
 import assert from 'node:assert';
