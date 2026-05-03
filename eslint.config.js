@@ -41,15 +41,15 @@ export default [
       ...pluginReactHooks.configs.recommended.rules, // React Hooks recommended rules
       "react/react-in-jsx-scope": "off", // Not needed for React 17+ with JSX transform
       "react/prop-types": "off", // Disable prop-types validation
-      "no-unused-vars": "off", // Warn on unused vars
-      "no-console": "off", // Allow console.warn and console.error
-      "react-hooks/exhaustive-deps": "off", // Turn off hooks warnings for perfect score
+      "no-unused-vars": "warn", // Warn on unused vars
+      "no-console": "warn", // Allow console.warn and console.error with warning
+      "react-hooks/exhaustive-deps": "warn", // Warn on missing dependencies
       // ESLint Prettier config should go last to override conflicting rules
       ...prettierConfig.rules,
     },
   },
   {
-    files: ["**/*.test.js", "**/*.test.jsx"], // Apply only to test files
+    files: ["**/*.test.js", "**/*.test.jsx", "**/*.spec.js", "**/*.spec.jsx"], // Apply only to test files
     languageOptions: {
       globals: {
         jest: "readonly",
