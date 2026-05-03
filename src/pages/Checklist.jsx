@@ -7,7 +7,8 @@ import ShareReadiness from '../components/ShareReadiness.jsx';
 import { useTranslation } from '../hooks/useTranslation.js';
 import Dialog from '../components/Dialog.jsx';
 import { useAuth } from '../context/AuthContext.jsx'; // Import useAuth
-import { doc, getDoc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore'; // Import Firestore functions
+import { doc, updateDoc, onSnapshot } from 'firebase/firestore'; // Import Firestore functions
+import FormattedText from '../components/FormattedText.jsx';
 import { openGoogleCalendarLink } from '../utils/calendar.js';
 
 export default function Checklist() {
@@ -64,8 +65,7 @@ export default function Checklist() {
         }
         setLoadingChecklist(false);
       },
-      (error) => {
-        console.error('Error fetching checklist:', error);
+      () => {
         setChecklistError('Failed to load checklist. Please try again.');
         setLoadingChecklist(false);
       }
@@ -95,8 +95,7 @@ export default function Checklist() {
       };
       await updateDoc(userDocRef, { checklist: newChecklistState });
       setUserChecklist(newChecklistState); // Optimistic update or wait for onSnapshot
-    } catch (error) {
-      console.error('Error updating checklist in Firestore:', error);
+    } catch {
       setChecklistError('Failed to update checklist. Please try again.');
     } finally {
       setLoadingChecklist(false);
@@ -107,9 +106,7 @@ export default function Checklist() {
     if (isFirebaseConfigured && user && db) {
       try {
         await updateDoc(doc(db, 'users', user.email), { checklist: {} });
-        console.log('Firestore checklist cleared.');
-      } catch (error) {
-        console.error('Error clearing Firestore checklist:', error);
+      } catch {
         setChecklistError('Failed to clear online checklist.');
       }
     }
@@ -418,8 +415,8 @@ export default function Checklist() {
                 >
                   {item.label}
                 </p>
-                <p className="text-xs text-on-surface-variant line-clamp-1 leading-relaxed">
-                  {item.detail}
+                <p className="text-on-surface-variant text-xs mb-3 leading-relaxed">
+                  <FormattedText text={item.detail} />
                 </p>
               </div>
 
