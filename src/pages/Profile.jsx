@@ -8,19 +8,15 @@ import Card from '../components/Card.jsx';
 import Button from '../components/Button.jsx';
 import PointsBadge from '../components/PointsBadge.jsx';
 import NotificationPanel from '../components/NotificationPanel.jsx';
-import Dialog from '../components/Dialog.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 export default function Profile() {
   const navigate = useNavigate();
   const { user, db } = useAuth();
 
   const [profile, setProfile] = useState(getProfile());
-  const [isResetOpen, setIsResetOpen] = useState(false);
   const [userChecklist, setUserChecklist] = useState({});
-  const [loadingChecklist, setLoadingChecklist] = useState(true);
-  const [checklistError, setChecklistError] = useState(null);
 
   const resetButtonRef = useRef(null);
 
@@ -29,9 +25,6 @@ export default function Profile() {
     window.addEventListener('civicProfileUpdated', handleUpdate);
 
     if (user && db) {
-      setLoadingChecklist(true);
-      setChecklistError(null);
-
       const userDocRef = doc(db, 'users', user.email);
 
       const unsubscribe = onSnapshot(
@@ -44,12 +37,9 @@ export default function Profile() {
             setUserChecklist({});
           }
 
-          setLoadingChecklist(false);
         },
-        (error) => {
-          console.error('Error fetching checklist:', error);
-          setChecklistError('Failed to load checklist. Please try again.');
-          setLoadingChecklist(false);
+        () => {
+          // Error handling for onSnapshot
         }
       );
 
@@ -60,7 +50,6 @@ export default function Profile() {
     }
 
     setUserChecklist({});
-    setLoadingChecklist(false);
 
     return () => {
       window.removeEventListener('civicProfileUpdated', handleUpdate);
@@ -79,21 +68,11 @@ export default function Profile() {
   const recommendation =
     getSmartRecommendation(profile.selectedPersona, completedCount)[0];
 
-  const handleResetTrigger = () => setIsResetOpen(true);
-
-  const handleConfirmReset = async () => {
-    if (user && db) {
-      try {
-        await updateDoc(doc(db, 'users', user.email), { checklist: {} });
-        console.log('Firestore checklist cleared.');
-      } catch (error) {
-        console.error('Error clearing Firestore checklist:', error);
-        setChecklistError('Failed to clear online checklist.');
-      }
+  const handleResetAction = () => {
+    if (window.confirm('Are you sure you want to reset your local profile and checklist?')) {
+      clearProfile();
+      navigate('/');
     }
-
-    clearProfile();
-    navigate('/');
   };
 
   const handleDownload = async () => {
@@ -164,7 +143,7 @@ export default function Profile() {
 
           <button 
             ref={resetButtonRef} // Attach ref here
-            onClick={handleResetTrigger}
+            onClick={handleResetAction}
             className="w-full text-xs text-red-500 font-bold hover:underline flex items-center justify-center gap-1 py-2"
           >
             <span className="material-symbols-outlined text-[14px]">delete_forever</span>
