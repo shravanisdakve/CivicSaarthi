@@ -9,8 +9,7 @@ const renderInlineMarkdown = (text) => {
   const boldParts = text.split(/(\*\*.*?\*\*)/g);
   return boldParts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      const innerText = part.slice(2, -2);
-      return <strong key={i} className="font-bold text-inherit"><FormattedText text={innerText} /></strong>;
+      return <strong key={i} className="font-bold"><FormattedText text={innerText} /></strong>;
     }
     // Then handle *italic* (optional, but good for completeness)
     const italicParts = part.split(/(\*.*?\*)/g);
@@ -36,7 +35,7 @@ export default function FormattedMessage({ text }) {
         elements.push(
           <ul key={`list-${elements.length}`} className="mb-4 pl-5 space-y-2 list-disc list-outside marker:text-primary">
             {currentList.items.map((item, idx) => (
-              <li key={idx} className="pl-1 leading-relaxed text-inherit">
+              <li key={idx} className="pl-1 leading-relaxed">
                 {renderInlineMarkdown(item)}
               </li>
             ))}
@@ -46,7 +45,7 @@ export default function FormattedMessage({ text }) {
         elements.push(
           <ol key={`list-${elements.length}`} className="mb-4 pl-5 space-y-3 list-decimal list-outside marker:font-bold marker:text-primary">
             {currentList.items.map((item, idx) => (
-              <li key={idx} className="pl-1 leading-relaxed text-inherit">
+              <li key={idx} className="pl-1 leading-relaxed">
                 {renderInlineMarkdown(item)}
               </li>
             ))}
@@ -74,12 +73,12 @@ export default function FormattedMessage({ text }) {
       const content = headingMatch[2];
       const Tag = `h${level}`;
       const classes = {
-        h1: "text-xl font-bold mt-6 mb-3 text-inherit",
-        h2: "text-lg font-bold mt-5 mb-3 text-inherit",
-        h3: "text-base font-bold mt-4 mb-2 text-inherit",
-        h4: "text-sm font-bold mt-3 mb-2 text-inherit",
-        h5: "text-sm font-bold mt-3 mb-2 text-inherit",
-        h6: "text-xs font-bold mt-3 mb-2 text-inherit uppercase tracking-wide",
+        h1: "text-xl font-bold mt-6 mb-3",
+        h2: "text-lg font-bold mt-5 mb-3",
+        h3: "text-base font-bold mt-4 mb-2",
+        h4: "text-sm font-bold mt-3 mb-2",
+        h5: "text-sm font-bold mt-3 mb-2",
+        h6: "text-xs font-bold mt-3 mb-2 uppercase tracking-wide",
       };
       elements.push(<Tag key={index} className={classes[Tag]}>{renderInlineMarkdown(content)}</Tag>);
       return;
@@ -90,7 +89,7 @@ export default function FormattedMessage({ text }) {
     if (quoteMatch) {
       pushList();
       elements.push(
-        <blockquote key={index} className="border-l-4 border-primary/30 pl-4 italic bg-slate-50 py-3 px-4 rounded-r-lg my-4 text-inherit">
+        <blockquote key={index} className="border-l-4 border-primary/30 pl-4 italic bg-slate-50 py-3 px-4 rounded-r-lg my-4 text-slate-800">
           {renderInlineMarkdown(quoteMatch[1])}
         </blockquote>
       );
@@ -138,7 +137,7 @@ export default function FormattedMessage({ text }) {
     // Standard Paragraph
     pushList();
     elements.push(
-      <p key={index} className="mb-4 last:mb-0 text-inherit leading-relaxed">
+      <p key={index} className="mb-4 last:mb-0 leading-relaxed">
         {renderInlineMarkdown(trimmed)}
       </p>
     );
