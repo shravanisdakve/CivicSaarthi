@@ -41,19 +41,19 @@ export default function FloatingAssistant() {
     return localStorage.getItem('civicJourneyActive') === 'true';
   });
 
-  const { t, language: lang } = useTranslation();
+  const { language: lang } = useTranslation();
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const isInitialMount = useRef(true); // Flag to track initial mount
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
       if (messagesContainerRef.current) {
         messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
       }
     });
-  };
+  }, []);
 
   const WELCOME = React.useMemo(() => ({
     role: 'ai',
@@ -65,7 +65,7 @@ export default function FloatingAssistant() {
           : "Hello! I'm CivicSaarthi. I'm your neutral election-readiness companion. How can I assist you today?",
   }), [lang]);
 
-  const startJourney = () => {
+  const startJourney = useCallback(() => {
     setIsJourneyActive(true);
     setIsOpen(true);
 
@@ -95,7 +95,7 @@ export default function FloatingAssistant() {
         },
       ]);
     }
-    };
+  }, [journeyStep, setIsJourneyActive, setIsOpen, setJourneyStep, setMessages]);
 
     const nextJourneyStep = () => {
     const next = journeyStep + 1;
@@ -183,7 +183,7 @@ export default function FloatingAssistant() {
           timelineStage,
         },
       ]);
-    } catch (err) {
+    } catch {
       const fallback = getLocalResponse(userText);
       setMessages((prev) => [
         ...prev,
@@ -197,7 +197,7 @@ export default function FloatingAssistant() {
     } finally {
       setLoading(false);
     }
-  }, [input, setInput, setMessages, setLoading, setPrivacyWarning, setValidationError, startJourney, lang]);
+  }, [input, startJourney, lang]); // Minimized dependencies for sendMessage
 
   const handleOpenChat = useCallback((e) => {
     setIsOpen(true);
@@ -259,7 +259,12 @@ export default function FloatingAssistant() {
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
       {/* Chat Window */}
       {isOpen && (
-        <div className="mb-4 w-[350px] sm:w-[400px] h-[550px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="floating-assistant-title"
+          className="mb-4 w-[350px] sm:w-[400px] h-[550px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300"
+        >
           {/* Header */}
           <div className="bg-gradient-to-r from-primary to-indigo-700 p-4 text-white flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-3">
@@ -271,7 +276,7 @@ export default function FloatingAssistant() {
                 />
               </div>
               <div>
-                <h3 className="text-sm font-bold tracking-tight">CivicSaarthi AI</h3>
+                <h3 id="floating-assistant-title" className="text-sm font-bold tracking-tight">CivicSaarthi AI</h3>
                 <div className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
                   <p className="text-[9px] opacity-90 font-bold uppercase tracking-wider">
@@ -305,7 +310,10 @@ export default function FloatingAssistant() {
           <div
             ref={messagesContainerRef}
             className="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-50/50"
+            role="log"
+            aria-label="Chat messages"
             aria-live="polite"
+            aria-atomic="false"
           >
             {/* Journey Entry Card */}
             {!isJourneyActive && (
@@ -471,6 +479,7 @@ export default function FloatingAssistant() {
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
+                aria-label="Send message"
                 className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center disabled:opacity-50 transition-all shadow-md hover:scale-105 active:scale-95"
               >
                 <span className="material-symbols-outlined text-base">send</span>
@@ -508,8 +517,8 @@ export default function FloatingAssistant() {
           ) : (
             <img
               src="/assistant-icon.jpg"
+              alt="CivicSaarthi AI assistant"
               className="w-full h-full object-cover"
-              aria-hidden="true"
             />
           )}
         </button>
