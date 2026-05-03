@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
 import Card from './Card.jsx';
 import Button from './Button.jsx';
@@ -6,7 +5,6 @@ import { getSmartRecommendation } from '../utils/recommendations.js';
 import Badge from './Badge.jsx';
 
 export default function SmartNextStep() {
-  const navigate = useNavigate();
   const personaId = localStorage.getItem('civicPersona') || 'first-time';
 
   const completedCount = useMemo(() => {
@@ -16,8 +14,8 @@ export default function SmartNextStep() {
         const parsed = JSON.parse(saved);
         return Object.values(parsed).filter(Boolean).length;
       }
-    } catch (e) {
-      console.error("Error parsing civicChecklist from localStorage", e);
+    } catch {
+      // Silently fail if localStorage is corrupted
     }
     return 0;
   }, []); // Empty dependency array as localStorage is stable
